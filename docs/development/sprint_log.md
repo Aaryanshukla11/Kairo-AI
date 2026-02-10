@@ -1,7 +1,7 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 1: Foundation & Core Architecture
-Last Updated: 2026-02-10 17:36:27 IST
+Last Updated: 2026-02-10 22:06:52 IST
 
 ## Recent Engineering Milestones
 - [2026-02-03 09:45:45] fix(workspace): implement lazy service provider registration (dependencyResolver)
@@ -22,3 +22,4 @@ Last Updated: 2026-02-10 17:36:27 IST
 - [2026-02-10 15:45:09] feat(config): define VS Code extension contribution points in package manifest (package.json)
 - [2026-02-10 17:15:34] fix(eventBus): implement pub-sub typed event bus (eventDispatcher)
 - [2026-02-10 17:36:27] fix(filesystem): normalize OS-specific path separators (safeEdit)
+- [2026-02-10 22:06:52] perf(eventBus): add event listener unsubscribe cleanup (eventBus)

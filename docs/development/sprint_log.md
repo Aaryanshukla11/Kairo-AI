@@ -1,7 +1,7 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 1: Foundation & Core Architecture
-Last Updated: 2026-02-11 01:59:02 IST
+Last Updated: 2026-02-11 03:14:53 IST
 
 ## Recent Engineering Milestones
 - [2026-02-03 09:45:45] fix(workspace): implement lazy service provider registration (dependencyResolver)
@@ -25,3 +25,4 @@ Last Updated: 2026-02-11 01:59:02 IST
 - [2026-02-10 22:06:52] perf(eventBus): add event listener unsubscribe cleanup (eventBus)
 - [2026-02-10 23:01:31] feat(filesystem): normalize OS-specific path separators (safeEdit)
 - [2026-02-11 01:59:02] feat(workspace): add workspace status enum and state transitions (workspaceLifecycleManager)
+- [2026-02-11 03:14:53] feat(eventBus): add asynchronous subscriber error boundary (eventDispatcher)

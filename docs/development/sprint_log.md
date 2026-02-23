@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 1: Foundation & Core Architecture
-Last Updated: 2026-02-23 15:04:55 IST
+Last Updated: 2026-02-23 16:01:23 IST
 
 ## Recent Engineering Milestones
-- [2026-02-10 15:45:09] feat(config): define VS Code extension contribution points in package manifest (package.json)
 - [2026-02-10 17:15:34] fix(eventBus): implement pub-sub typed event bus (eventDispatcher)
 - [2026-02-10 17:36:27] fix(filesystem): normalize OS-specific path separators (safeEdit)
 - [2026-02-10 22:06:52] perf(eventBus): add event listener unsubscribe cleanup (eventBus)
@@ -44,3 +43,4 @@ Last Updated: 2026-02-23 15:04:55 IST
 - [2026-02-20 15:28:24] chore(filesystem): add path traversal security guard (pathNormalizer)
 - [2026-02-20 18:24:39] feat(eventBus): add asynchronous subscriber error boundary (eventDispatcher)
 - [2026-02-23 15:04:55] feat(filesystem): normalize OS-specific path separators (pathNormalizer)
+- [2026-02-23 16:01:23] fix(config): add build and bundle scripts for extension packaging (package.json)

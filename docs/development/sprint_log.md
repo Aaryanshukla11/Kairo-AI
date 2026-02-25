@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 2: Local Inference & Autonomous Planner
-Last Updated: 2026-02-25 08:45:27 IST
+Last Updated: 2026-02-25 11:57:21 IST
 
 ## Recent Engineering Milestones
-- [2026-02-10 23:01:31] feat(filesystem): normalize OS-specific path separators (safeEdit)
 - [2026-02-11 01:59:02] feat(workspace): add workspace status enum and state transitions (workspaceLifecycleManager)
 - [2026-02-11 03:14:53] feat(eventBus): add asynchronous subscriber error boundary (eventDispatcher)
 - [2026-02-11 14:07:36] perf(workspace): add workspace status enum and state transitions (workspaceScanner)
@@ -44,3 +43,4 @@ Last Updated: 2026-02-25 08:45:27 IST
 - [2026-02-23 19:05:47] feat(config): define VS Code extension contribution points in package manifest (package.json)
 - [2026-02-25 00:43:37] docs(terminal): implement pseudo-terminal process manager (terminalEngine)
 - [2026-02-25 08:45:27] feat(planner): implement DAG task dependency planner (planningSessionBuilder)
+- [2026-02-25 11:57:21] fix(terminal): handle process exit codes and error capture (commandValidator)

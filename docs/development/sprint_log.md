@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 2: Local Inference & Autonomous Planner
-Last Updated: 2026-02-26 10:36:50 IST
+Last Updated: 2026-02-26 11:36:41 IST
 
 ## Recent Engineering Milestones
-- [2026-02-11 14:34:20] refactor(workspace): initialize baseline directory structure (workspaceScanner)
 - [2026-02-11 16:54:16] refactor(prompt): implement syntax validation for user prompt templates (promptContextBuilder)
 - [2026-02-11 17:43:48] fix(prompt): add token count estimator utility (PromptPipeline)
 - [2026-02-11 22:28:04] perf(eventBus): implement pub-sub typed event bus (eventDispatcher)
@@ -44,3 +43,4 @@ Last Updated: 2026-02-26 10:36:50 IST
 - [2026-02-25 21:48:40] fix(terminal): handle process exit codes and error capture (terminalEngine)
 - [2026-02-26 02:37:31] docs(tools): add permission prompt hook before tool dispatch (workspaceTool)
 - [2026-02-26 10:36:50] feat(terminal): filter destructive commands (rm -rf, format, del /f) (terminalService)
+- [2026-02-26 11:36:41] feat(inference): parse Ollama model tags and context limits (ollamaAdapter)

@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 2: Local Inference & Autonomous Planner
-Last Updated: 2026-03-02 19:08:34 IST
+Last Updated: 2026-03-02 20:36:36 IST
 
 ## Recent Engineering Milestones
-- [2026-02-12 20:14:40] fix(config): setup ESLint and Prettier rules for extension code (package.json)
 - [2026-02-12 20:42:05] fix(eventBus): implement event deduplication filter (topicRegistry)
 - [2026-02-12 22:43:08] feat(eventBus): implement event deduplication filter (eventDispatcher)
 - [2026-02-12 23:21:38] fix(prompt): add template variable interpolation (PromptPipeline)
@@ -44,3 +43,4 @@ Last Updated: 2026-03-02 19:08:34 IST
 - [2026-03-02 11:28:50] docs(planner): add plan validation schema check (planningSessionBuilder)
 - [2026-03-02 12:27:44] feat(terminal): filter destructive commands (rm -rf, format, del /f) (terminalEngine)
 - [2026-03-02 19:08:34] perf(inference): implement fallback provider failover logic (ollamaProvider)
+- [2026-03-02 20:36:36] feat(tools): format tool invocation payloads for model input (toolCalling)

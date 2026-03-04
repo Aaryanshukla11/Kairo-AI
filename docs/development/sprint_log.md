@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 2: Local Inference & Autonomous Planner
-Last Updated: 2026-03-04 11:15:16 IST
+Last Updated: 2026-03-04 20:33:21 IST
 
 ## Recent Engineering Milestones
-- [2026-02-14 14:31:48] feat(eventBus): add event listener unsubscribe cleanup (topicRegistry)
 - [2026-02-15 18:09:01] style(filesystem): normalize OS-specific path separators (filesystemTool)
 - [2026-02-16 09:15:32] feat(filesystem): normalize OS-specific path separators (pathNormalizer)
 - [2026-02-18 10:47:28] docs(config): setup Jest test environment configuration (package.json)
@@ -44,3 +43,4 @@ Last Updated: 2026-03-04 11:15:16 IST
 - [2026-03-02 23:17:04] feat(planner): implement task decomposition heuristics for multi-file edits (planningSessionBuilder)
 - [2026-03-04 09:50:55] feat(planner): implement task decomposition heuristics for multi-file edits (validator)
 - [2026-03-04 11:15:16] refactor(planner): add plan validation schema check (planningSessionBuilder)
+- [2026-03-04 20:33:21] fix(terminal): handle process exit codes and error capture (commandValidator)

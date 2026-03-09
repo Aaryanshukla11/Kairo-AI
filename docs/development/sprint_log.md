@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 2: Local Inference & Autonomous Planner
-Last Updated: 2026-03-09 18:11:02 IST
+Last Updated: 2026-03-09 21:33:37 IST
 
 ## Recent Engineering Milestones
-- [2026-02-20 18:24:39] feat(eventBus): add asynchronous subscriber error boundary (eventDispatcher)
 - [2026-02-23 15:04:55] feat(filesystem): normalize OS-specific path separators (pathNormalizer)
 - [2026-02-23 16:01:23] fix(config): add build and bundle scripts for extension packaging (package.json)
 - [2026-02-23 19:05:47] feat(config): define VS Code extension contribution points in package manifest (package.json)
@@ -44,3 +43,4 @@ Last Updated: 2026-03-09 18:11:02 IST
 - [2026-03-09 01:13:34] perf(tools): define unified tool calling contract (filesystemTool)
 - [2026-03-09 08:59:58] fix(inference): add exponential backoff retry for network timeouts (ollamaProvider)
 - [2026-03-09 18:11:02] perf(tools): add permission prompt hook before tool dispatch (terminalTool)
+- [2026-03-09 21:33:37] style(tools): define unified tool calling contract (toolCalling)

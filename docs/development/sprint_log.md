@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 2: Local Inference & Autonomous Planner
-Last Updated: 2026-03-13 22:21:23 IST
+Last Updated: 2026-03-14 17:51:31 IST
 
 ## Recent Engineering Milestones
-- [2026-02-26 17:53:19] feat(inference): parse Ollama model tags and context limits (registry)
 - [2026-02-26 19:29:17] refactor(planner): implement task decomposition heuristics for multi-file edits (plannerModel)
 - [2026-03-02 11:28:50] docs(planner): add plan validation schema check (planningSessionBuilder)
 - [2026-03-02 12:27:44] feat(terminal): filter destructive commands (rm -rf, format, del /f) (terminalEngine)
@@ -44,3 +43,4 @@ Last Updated: 2026-03-13 22:21:23 IST
 - [2026-03-13 20:04:38] fix(tools): format tool invocation payloads for model input (terminalTool)
 - [2026-03-13 20:17:43] feat(planner): support dynamic replanning when validation fails (planningSessionBuilder)
 - [2026-03-13 22:21:23] perf(inference): implement dynamic provider registry (registry)
+- [2026-03-14 17:51:31] style(terminal): stream terminal stdout and stderr via EventBus (commandValidator)

@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 2: Local Inference & Autonomous Planner
-Last Updated: 2026-03-16 11:09:32 IST
+Last Updated: 2026-03-16 12:29:53 IST
 
 ## Recent Engineering Milestones
-- [2026-03-02 20:36:36] feat(tools): format tool invocation payloads for model input (toolCalling)
 - [2026-03-02 23:17:04] feat(planner): implement task decomposition heuristics for multi-file edits (planningSessionBuilder)
 - [2026-03-04 09:50:55] feat(planner): implement task decomposition heuristics for multi-file edits (validator)
 - [2026-03-04 11:15:16] refactor(planner): add plan validation schema check (planningSessionBuilder)
@@ -44,3 +43,4 @@ Last Updated: 2026-03-16 11:09:32 IST
 - [2026-03-16 03:04:00] fix(inference): implement streaming response chunk decoder (registry)
 - [2026-03-16 08:44:26] docs(tools): support tool execution result rollback (workspaceTool)
 - [2026-03-16 11:09:32] test(terminal): implement terminal session timeout guard (commandValidator)
+- [2026-03-16 12:29:53] fix(terminal): implement pseudo-terminal process manager (commandValidator)

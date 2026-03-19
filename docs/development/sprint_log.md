@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 2: Local Inference & Autonomous Planner
-Last Updated: 2026-03-19 22:37:03 IST
+Last Updated: 2026-03-20 00:23:50 IST
 
 ## Recent Engineering Milestones
-- [2026-03-08 21:54:47] fix(planner): implement step estimate calculation based on target files (planningSessionBuilder)
 - [2026-03-08 21:56:31] feat(terminal): handle process exit codes and error capture (terminalService)
 - [2026-03-08 23:07:43] style(terminal): implement terminal session timeout guard (commandValidator)
 - [2026-03-08 23:46:41] test(terminal): add whitelist security validator for shell execution (commandValidator)
@@ -44,3 +43,4 @@ Last Updated: 2026-03-19 22:37:03 IST
 - [2026-03-19 21:48:34] fix(tools): support tool execution result rollback (workspaceTool)
 - [2026-03-19 22:04:00] perf(planner): implement step estimate calculation based on target files (planner)
 - [2026-03-19 22:37:03] fix(planner): add plan validation schema check (plannerModel)
+- [2026-03-20 00:23:50] feat(tools): format tool invocation payloads for model input (terminalTool)

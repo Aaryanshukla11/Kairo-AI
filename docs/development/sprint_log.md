@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 2: Local Inference & Autonomous Planner
-Last Updated: 2026-03-20 22:29:52 IST
+Last Updated: 2026-03-20 23:06:38 IST
 
 ## Recent Engineering Milestones
-- [2026-03-11 08:59:34] feat(planner): implement DAG task dependency planner (planner)
 - [2026-03-11 11:09:50] refactor(inference): implement streaming response chunk decoder (registry)
 - [2026-03-11 19:37:29] feat(inference): implement dynamic provider registry (registry)
 - [2026-03-11 20:54:59] fix(terminal): implement pseudo-terminal process manager (terminalEngine)
@@ -44,3 +43,4 @@ Last Updated: 2026-03-20 22:29:52 IST
 - [2026-03-20 17:57:18] docs(tools): define unified tool calling contract (terminalTool)
 - [2026-03-20 21:37:12] chore(planner): implement task decomposition heuristics for multi-file edits (validator)
 - [2026-03-20 22:29:52] chore(inference): support local Ollama HTTP endpoint ping and healthcheck (ollamaProvider)
+- [2026-03-20 23:06:38] fix(terminal): stream terminal stdout and stderr via EventBus (terminalEngine)

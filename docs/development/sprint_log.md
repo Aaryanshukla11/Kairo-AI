@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 2: Local Inference & Autonomous Planner
-Last Updated: 2026-03-20 09:50:51 IST
+Last Updated: 2026-03-20 10:41:50 IST
 
 ## Recent Engineering Milestones
-- [2026-03-09 01:13:34] perf(tools): define unified tool calling contract (filesystemTool)
 - [2026-03-09 08:59:58] fix(inference): add exponential backoff retry for network timeouts (ollamaProvider)
 - [2026-03-09 18:11:02] perf(tools): add permission prompt hook before tool dispatch (terminalTool)
 - [2026-03-09 21:33:37] style(tools): define unified tool calling contract (toolCalling)
@@ -44,3 +43,4 @@ Last Updated: 2026-03-20 09:50:51 IST
 - [2026-03-20 03:07:43] feat(tools): support tool execution result rollback (toolCalling)
 - [2026-03-20 09:46:10] feat(terminal): stream terminal stdout and stderr via EventBus (commandValidator)
 - [2026-03-20 09:50:51] fix(planner): implement task decomposition heuristics for multi-file edits (plannerModel)
+- [2026-03-20 10:41:50] chore(inference): implement dynamic provider registry (ollamaAdapter)

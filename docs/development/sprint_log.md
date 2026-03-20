@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 2: Local Inference & Autonomous Planner
-Last Updated: 2026-03-20 16:02:10 IST
+Last Updated: 2026-03-20 16:45:53 IST
 
 ## Recent Engineering Milestones
-- [2026-03-09 18:11:02] perf(tools): add permission prompt hook before tool dispatch (terminalTool)
 - [2026-03-09 21:33:37] style(tools): define unified tool calling contract (toolCalling)
 - [2026-03-10 15:48:31] test(inference): implement dynamic provider registry (ollamaProvider)
 - [2026-03-10 22:23:37] fix(terminal): implement terminal session timeout guard (terminalService)
@@ -44,3 +43,4 @@ Last Updated: 2026-03-20 16:02:10 IST
 - [2026-03-20 09:50:51] fix(planner): implement task decomposition heuristics for multi-file edits (plannerModel)
 - [2026-03-20 10:41:50] chore(inference): implement dynamic provider registry (ollamaAdapter)
 - [2026-03-20 16:02:10] fix(inference): support local Ollama HTTP endpoint ping and healthcheck (ollamaProvider)
+- [2026-03-20 16:45:53] refactor(planner): support dynamic replanning when validation fails (validator)

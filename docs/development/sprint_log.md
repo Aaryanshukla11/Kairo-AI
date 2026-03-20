@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 2: Local Inference & Autonomous Planner
-Last Updated: 2026-03-20 03:07:43 IST
+Last Updated: 2026-03-20 09:46:10 IST
 
 ## Recent Engineering Milestones
-- [2026-03-08 23:07:43] style(terminal): implement terminal session timeout guard (commandValidator)
 - [2026-03-08 23:46:41] test(terminal): add whitelist security validator for shell execution (commandValidator)
 - [2026-03-09 01:13:34] perf(tools): define unified tool calling contract (filesystemTool)
 - [2026-03-09 08:59:58] fix(inference): add exponential backoff retry for network timeouts (ollamaProvider)
@@ -44,3 +43,4 @@ Last Updated: 2026-03-20 03:07:43 IST
 - [2026-03-19 22:37:03] fix(planner): add plan validation schema check (plannerModel)
 - [2026-03-20 00:23:50] feat(tools): format tool invocation payloads for model input (terminalTool)
 - [2026-03-20 03:07:43] feat(tools): support tool execution result rollback (toolCalling)
+- [2026-03-20 09:46:10] feat(terminal): stream terminal stdout and stderr via EventBus (commandValidator)

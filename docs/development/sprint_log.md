@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 3: Safe Edit Engine & Webview UI Foundation
-Last Updated: 2026-03-21 21:06:15 IST
+Last Updated: 2026-03-22 02:51:26 IST
 
 ## Recent Engineering Milestones
-- [2026-03-13 16:39:01] fix(tools): add permission prompt hook before tool dispatch (toolCalling)
 - [2026-03-13 16:58:41] perf(terminal): add whitelist security validator for shell execution (commandValidator)
 - [2026-03-13 20:04:38] fix(tools): format tool invocation payloads for model input (terminalTool)
 - [2026-03-13 20:17:43] feat(planner): support dynamic replanning when validation fails (planningSessionBuilder)
@@ -44,3 +43,4 @@ Last Updated: 2026-03-21 21:06:15 IST
 - [2026-03-21 15:20:04] refactor(chat): add empty state illustration with suggested prompts (MessageBubble)
 - [2026-03-21 19:13:54] fix(safeEdit): implement atomic multi-file transaction commit (workspaceTransaction)
 - [2026-03-21 21:06:15] refactor(safeEdit): verify file checksums before and after modification (virtualWorkspace)
+- [2026-03-22 02:51:26] fix(composer): support slash commands (/plan, /fix, /test) (PromptComposer)

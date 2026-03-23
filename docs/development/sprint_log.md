@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 3: Safe Edit Engine & Webview UI Foundation
-Last Updated: 2026-03-23 09:15:31 IST
+Last Updated: 2026-03-23 10:35:50 IST
 
 ## Recent Engineering Milestones
-- [2026-03-13 22:21:23] perf(inference): implement dynamic provider registry (registry)
 - [2026-03-14 17:51:31] style(terminal): stream terminal stdout and stderr via EventBus (commandValidator)
 - [2026-03-15 19:25:24] feat(tools): add permission prompt hook before tool dispatch (filesystemTool)
 - [2026-03-16 03:04:00] fix(inference): implement streaming response chunk decoder (registry)
@@ -44,3 +43,4 @@ Last Updated: 2026-03-23 09:15:31 IST
 - [2026-03-22 03:11:32] feat(composer): build expandable prompt input box with keyboard shortcuts (PromptComposer)
 - [2026-03-23 02:42:43] feat(composer): add clear session and cancel generation buttons (chatState)
 - [2026-03-23 09:15:31] fix(composer): support slash commands (/plan, /fix, /test) (PromptComposer)
+- [2026-03-23 10:35:50] feat(chat): support code snippet copy and insert buttons (ChatTimeline)

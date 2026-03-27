@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 3: Safe Edit Engine & Webview UI Foundation
-Last Updated: 2026-03-27 11:03:01 IST
+Last Updated: 2026-03-27 13:31:45 IST
 
 ## Recent Engineering Milestones
-- [2026-03-20 10:41:50] chore(inference): implement dynamic provider registry (ollamaAdapter)
 - [2026-03-20 16:02:10] fix(inference): support local Ollama HTTP endpoint ping and healthcheck (ollamaProvider)
 - [2026-03-20 16:45:53] refactor(planner): support dynamic replanning when validation fails (validator)
 - [2026-03-20 17:57:18] docs(tools): define unified tool calling contract (terminalTool)
@@ -44,3 +43,4 @@ Last Updated: 2026-03-27 11:03:01 IST
 - [2026-03-26 14:44:01] refactor(composer): add clear session and cancel generation buttons (chatState)
 - [2026-03-26 17:23:29] fix(chat): add empty state illustration with suggested prompts (AssistantMessage)
 - [2026-03-27 11:03:01] docs(composer): add file mention autocompletion with @ symbol (PromptComposer)
+- [2026-03-27 13:31:45] feat(composer): support slash commands (/plan, /fix, /test) (promptService)

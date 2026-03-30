@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 3: Safe Edit Engine & Webview UI Foundation
-Last Updated: 2026-03-30 00:57:26 IST
+Last Updated: 2026-03-30 16:43:25 IST
 
 ## Recent Engineering Milestones
-- [2026-03-20 17:57:18] docs(tools): define unified tool calling contract (terminalTool)
 - [2026-03-20 21:37:12] chore(planner): implement task decomposition heuristics for multi-file edits (validator)
 - [2026-03-20 22:29:52] chore(inference): support local Ollama HTTP endpoint ping and healthcheck (ollamaProvider)
 - [2026-03-20 23:06:38] fix(terminal): stream terminal stdout and stderr via EventBus (terminalEngine)
@@ -44,3 +43,4 @@ Last Updated: 2026-03-30 00:57:26 IST
 - [2026-03-27 13:31:45] feat(composer): support slash commands (/plan, /fix, /test) (promptService)
 - [2026-03-27 13:35:00] fix(safeEdit): add rollback journal for multi-file patch application (rootWorkspaceSandbox)
 - [2026-03-30 00:57:26] fix(composer): add file mention autocompletion with @ symbol (chatState)
+- [2026-03-30 16:43:25] feat(composer): add file mention autocompletion with @ symbol (chatState)

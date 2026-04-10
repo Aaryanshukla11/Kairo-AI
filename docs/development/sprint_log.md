@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 3: Safe Edit Engine & Webview UI Foundation
-Last Updated: 2026-04-10 16:32:47 IST
+Last Updated: 2026-04-10 17:41:13 IST
 
 ## Recent Engineering Milestones
-- [2026-03-25 13:54:20] fix(webview): implement bi-directional postMessage router (messageRouter)
 - [2026-03-25 14:03:09] feat(webview): scaffold React webview shell inside VS Code sidebar (webviewProvider)
 - [2026-03-25 20:42:45] feat(safeEdit): add rollback journal for multi-file patch application (virtualWorkspace)
 - [2026-03-25 23:45:52] refactor(safeEdit): verify file checksums before and after modification (workspaceTransaction)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-10 16:32:47 IST
 - [2026-04-10 15:20:44] feat(webview): scaffold React webview shell inside VS Code sidebar (App)
 - [2026-04-10 15:37:59] test(safeEdit): implement root workspace security sandbox (rootWorkspaceSandbox)
 - [2026-04-10 16:32:47] feat(safeEdit): implement atomic multi-file transaction commit (virtualWorkspace)
+- [2026-04-10 17:41:13] test(chat): add markdown syntax highlighting in assistant responses (MessageBubble)

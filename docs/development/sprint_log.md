@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 3: Safe Edit Engine & Webview UI Foundation
-Last Updated: 2026-04-15 17:31:04 IST
+Last Updated: 2026-04-15 21:17:05 IST
 
 ## Recent Engineering Milestones
-- [2026-03-31 22:11:10] fix(safeEdit): isolate file modifications in virtual sandbox buffer (workspaceTransaction)
 - [2026-04-02 02:52:19] chore(webview): define CSS design system variables and color palette (webviewProvider)
 - [2026-04-02 15:55:08] style(webview): add glassmorphism backdrop filters and card styles (App)
 - [2026-04-02 18:13:16] fix(safeEdit): verify file checksums before and after modification (rootWorkspaceSandbox)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-15 17:31:04 IST
 - [2026-04-15 14:38:24] feat(composer): add file mention autocompletion with @ symbol (promptService)
 - [2026-04-15 16:39:39] fix(safeEdit): add rollback journal for multi-file patch application (rootWorkspaceSandbox)
 - [2026-04-15 17:31:04] feat(webview): add glassmorphism backdrop filters and card styles (webviewProvider)
+- [2026-04-15 21:17:05] refactor(webview): setup dark/light theme observer and token mapping (webviewProvider)

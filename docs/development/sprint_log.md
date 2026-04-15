@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 3: Safe Edit Engine & Webview UI Foundation
-Last Updated: 2026-04-15 21:17:05 IST
+Last Updated: 2026-04-16 03:01:20 IST
 
 ## Recent Engineering Milestones
-- [2026-04-02 02:52:19] chore(webview): define CSS design system variables and color palette (webviewProvider)
 - [2026-04-02 15:55:08] style(webview): add glassmorphism backdrop filters and card styles (App)
 - [2026-04-02 18:13:16] fix(safeEdit): verify file checksums before and after modification (rootWorkspaceSandbox)
 - [2026-04-03 10:00:55] docs(composer): add clear session and cancel generation buttons (chatState)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-15 21:17:05 IST
 - [2026-04-15 16:39:39] fix(safeEdit): add rollback journal for multi-file patch application (rootWorkspaceSandbox)
 - [2026-04-15 17:31:04] feat(webview): add glassmorphism backdrop filters and card styles (webviewProvider)
 - [2026-04-15 21:17:05] refactor(webview): setup dark/light theme observer and token mapping (webviewProvider)
+- [2026-04-16 03:01:20] fix(chat): preserve chat scroll position during streaming updates (MessageBubble)

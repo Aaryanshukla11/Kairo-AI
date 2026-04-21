@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-04-21 18:12:59 IST
+Last Updated: 2026-04-21 20:17:53 IST
 
 ## Recent Engineering Milestones
-- [2026-04-10 09:55:09] feat(composer): build expandable prompt input box with keyboard shortcuts (chatState)
 - [2026-04-10 10:41:32] perf(webview): setup dark/light theme observer and token mapping (variables.css)
 - [2026-04-10 14:24:00] feat(webview): handle webview state persistence across tab switches (App)
 - [2026-04-10 14:29:37] fix(safeEdit): add rollback journal for multi-file patch application (virtualWorkspace)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-21 18:12:59 IST
 - [2026-04-21 14:12:10] feat(datasetCollector): add automatic license detection (MIT, Apache, GPL, BSD) (licenseDetector)
 - [2026-04-21 17:35:11] perf(terminal-ui): add ANSI color code escape sequence renderer (TerminalConsole)
 - [2026-04-21 18:12:59] feat(tests): assert workspace lifecycle transitions and error states (workspaceLifecycle.test)
+- [2026-04-21 20:17:53] feat(terminal-ui): add terminal clear and restart controls (commandValidator)

@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-04-21 11:14:37 IST
+Last Updated: 2026-04-21 11:34:14 IST
 
 ## Recent Engineering Milestones
-- [2026-04-09 14:39:34] fix(safeEdit): verify file checksums before and after modification (rootWorkspaceSandbox)
 - [2026-04-09 15:09:46] feat(composer): add clear session and cancel generation buttons (PromptComposer)
 - [2026-04-09 19:58:56] fix(safeEdit): prevent accidental overwrites of untracked files (rootWorkspaceSandbox)
 - [2026-04-10 01:34:42] docs(webview): handle webview state persistence across tab switches (messageRouter)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-21 11:14:37 IST
 - [2026-04-21 09:45:52] perf(terminal-ui): add terminal clear and restart controls (commandValidator)
 - [2026-04-21 10:58:58] feat(activity): animate file write progress indicator (FileActivityRow)
 - [2026-04-21 11:14:37] refactor(terminal-ui): add ANSI color code escape sequence renderer (terminalEngine)
+- [2026-04-21 11:34:14] feat(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (provenanceTracker)

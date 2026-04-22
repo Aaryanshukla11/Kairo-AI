@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-04-22 21:24:30 IST
+Last Updated: 2026-04-23 01:47:21 IST
 
 ## Recent Engineering Milestones
-- [2026-04-10 16:32:47] feat(safeEdit): implement atomic multi-file transaction commit (virtualWorkspace)
 - [2026-04-10 17:41:13] test(chat): add markdown syntax highlighting in assistant responses (MessageBubble)
 - [2026-04-10 18:20:17] refactor(safeEdit): isolate file modifications in virtual sandbox buffer (workspaceTransaction)
 - [2026-04-10 18:27:12] refactor(webview): setup dark/light theme observer and token mapping (webviewProvider)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-22 21:24:30 IST
 - [2026-04-22 12:00:22] feat(datasetCollector): generate dataset provenance manifest JSON (collectorEngine)
 - [2026-04-22 19:07:51] fix(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (collectorEngine)
 - [2026-04-22 21:24:30] fix(terminal-ui): support auto-scrolling terminal output (TerminalConsole)
+- [2026-04-23 01:47:21] fix(datasetCollector): calculate SHA-256 cryptographic checksums for collected files (collectorEngine)

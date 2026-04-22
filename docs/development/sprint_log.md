@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-04-22 19:07:51 IST
+Last Updated: 2026-04-22 21:24:30 IST
 
 ## Recent Engineering Milestones
-- [2026-04-10 15:37:59] test(safeEdit): implement root workspace security sandbox (rootWorkspaceSandbox)
 - [2026-04-10 16:32:47] feat(safeEdit): implement atomic multi-file transaction commit (virtualWorkspace)
 - [2026-04-10 17:41:13] test(chat): add markdown syntax highlighting in assistant responses (MessageBubble)
 - [2026-04-10 18:20:17] refactor(safeEdit): isolate file modifications in virtual sandbox buffer (workspaceTransaction)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-22 19:07:51 IST
 - [2026-04-22 10:10:47] test(tests): assert workspace lifecycle transitions and error states (jest.config.js)
 - [2026-04-22 12:00:22] feat(datasetCollector): generate dataset provenance manifest JSON (collectorEngine)
 - [2026-04-22 19:07:51] fix(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (collectorEngine)
+- [2026-04-22 21:24:30] fix(terminal-ui): support auto-scrolling terminal output (TerminalConsole)

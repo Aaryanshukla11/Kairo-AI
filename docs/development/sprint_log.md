@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-04-21 22:59:39 IST
+Last Updated: 2026-04-22 10:10:47 IST
 
 ## Recent Engineering Milestones
-- [2026-04-10 14:29:37] fix(safeEdit): add rollback journal for multi-file patch application (virtualWorkspace)
 - [2026-04-10 14:59:22] fix(webview): handle webview state persistence across tab switches (App)
 - [2026-04-10 15:20:44] feat(webview): scaffold React webview shell inside VS Code sidebar (App)
 - [2026-04-10 15:37:59] test(safeEdit): implement root workspace security sandbox (rootWorkspaceSandbox)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-21 22:59:39 IST
 - [2026-04-21 20:17:53] feat(terminal-ui): add terminal clear and restart controls (commandValidator)
 - [2026-04-21 22:03:20] test(activity): implement live FileActivityRow with status pills and file paths (FileActivityRow)
 - [2026-04-21 22:59:39] fix(terminal-ui): add terminal clear and restart controls (terminalEngine)
+- [2026-04-22 10:10:47] test(tests): assert workspace lifecycle transitions and error states (jest.config.js)

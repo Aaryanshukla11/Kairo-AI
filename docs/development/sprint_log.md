@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-04-23 17:19:16 IST
+Last Updated: 2026-04-23 18:17:53 IST
 
 ## Recent Engineering Milestones
-- [2026-04-10 19:42:15] test(webview): implement bi-directional postMessage router (webviewProvider)
 - [2026-04-10 20:33:11] fix(composer): build expandable prompt input box with keyboard shortcuts (chatState)
 - [2026-04-13 11:55:03] test(safeEdit): verify file checksums before and after modification (virtualWorkspace)
 - [2026-04-13 14:58:36] feat(safeEdit): prevent accidental overwrites of untracked files (rootWorkspaceSandbox)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-23 17:19:16 IST
 - [2026-04-23 12:24:16] style(tests): verify prompt validator edge cases and empty inputs (workspaceLifecycle.test)
 - [2026-04-23 13:33:34] feat(datasetCollector): generate dataset provenance manifest JSON (collectorEngine)
 - [2026-04-23 17:19:16] perf(activity): support side-by-side diff review modal in editor (PlanProposalMessage)
+- [2026-04-23 18:17:53] docs(terminal-ui): embed real-time terminal console in webview panel (terminalEngine)

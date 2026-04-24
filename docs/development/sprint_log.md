@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-04-24 03:24:59 IST
+Last Updated: 2026-04-24 09:24:28 IST
 
 ## Recent Engineering Milestones
-- [2026-04-15 14:38:24] feat(composer): add file mention autocompletion with @ symbol (promptService)
 - [2026-04-15 16:39:39] fix(safeEdit): add rollback journal for multi-file patch application (rootWorkspaceSandbox)
 - [2026-04-15 17:31:04] feat(webview): add glassmorphism backdrop filters and card styles (webviewProvider)
 - [2026-04-15 21:17:05] refactor(webview): setup dark/light theme observer and token mapping (webviewProvider)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-24 03:24:59 IST
 - [2026-04-24 02:28:38] fix(tests): mock Ollama API stream for offline test runs (workspaceLifecycle.test)
 - [2026-04-24 03:14:27] refactor(tests): assert workspace lifecycle transitions and error states (workspaceLifecycle.test)
 - [2026-04-24 03:24:59] refactor(datasetCollector): add automatic license detection (MIT, Apache, GPL, BSD) (integrityValidator)
+- [2026-04-24 09:24:28] feat(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (integrityValidator)

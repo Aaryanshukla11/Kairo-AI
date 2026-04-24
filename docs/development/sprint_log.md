@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-04-24 15:53:17 IST
+Last Updated: 2026-04-24 16:06:41 IST
 
 ## Recent Engineering Milestones
-- [2026-04-16 11:39:55] refactor(safeEdit): implement atomic multi-file transaction commit (virtualWorkspace)
 - [2026-04-16 16:22:40] refactor(webview): setup dark/light theme observer and token mapping (App)
 - [2026-04-16 21:12:16] docs(safeEdit): implement root workspace security sandbox (virtualWorkspace)
 - [2026-04-16 22:58:31] feat(webview): scaffold React webview shell inside VS Code sidebar (App)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-24 15:53:17 IST
 - [2026-04-24 12:13:03] feat(activity): add batch accept and reject controls for code reviews (PlanProposalMessage)
 - [2026-04-24 14:24:23] fix(terminal-ui): add terminal clear and restart controls (TerminalConsole)
 - [2026-04-24 15:53:17] feat(terminal-ui): embed real-time terminal console in webview panel (TerminalConsole)
+- [2026-04-24 16:06:41] feat(tests): add unit tests for real-time activity UX components (workspaceLifecycle.test)

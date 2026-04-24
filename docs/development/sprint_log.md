@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-04-24 12:13:03 IST
+Last Updated: 2026-04-24 14:24:23 IST
 
 ## Recent Engineering Milestones
-- [2026-04-16 03:01:20] fix(chat): preserve chat scroll position during streaming updates (MessageBubble)
 - [2026-04-16 10:27:38] test(composer): support slash commands (/plan, /fix, /test) (PromptComposer)
 - [2026-04-16 11:39:55] refactor(safeEdit): implement atomic multi-file transaction commit (virtualWorkspace)
 - [2026-04-16 16:22:40] refactor(webview): setup dark/light theme observer and token mapping (App)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-24 12:13:03 IST
 - [2026-04-24 09:52:36] test(tests): add test fixtures for complex project file structures (workspaceLifecycle.test)
 - [2026-04-24 09:53:27] feat(tests): mock Ollama API stream for offline test runs (workspaceLifecycle.test)
 - [2026-04-24 12:13:03] feat(activity): add batch accept and reject controls for code reviews (PlanProposalMessage)
+- [2026-04-24 14:24:23] fix(terminal-ui): add terminal clear and restart controls (TerminalConsole)

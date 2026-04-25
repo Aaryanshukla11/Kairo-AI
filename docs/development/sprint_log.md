@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-04-24 21:17:18 IST
+Last Updated: 2026-04-25 08:56:56 IST
 
 ## Recent Engineering Milestones
-- [2026-04-20 10:19:20] fix(terminal-ui): implement command input bar with execution safeguards (commandValidator)
 - [2026-04-20 18:12:58] fix(datasetCollector): calculate SHA-256 cryptographic checksums for collected files (provenanceTracker)
 - [2026-04-20 22:01:17] feat(tests): add unit tests for real-time activity UX components (realTimeActivityUX.test)
 - [2026-04-21 09:41:47] perf(datasetCollector): calculate SHA-256 cryptographic checksums for collected files (licenseDetector)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-24 21:17:18 IST
 - [2026-04-24 18:08:45] fix(activity): support side-by-side diff review modal in editor (PlanProposalMessage)
 - [2026-04-24 20:42:26] fix(datasetCollector): generate dataset provenance manifest JSON (provenanceTracker)
 - [2026-04-24 21:17:18] fix(datasetCollector): generate dataset provenance manifest JSON (licenseDetector)
+- [2026-04-25 08:56:56] style(activity): add batch accept and reject controls for code reviews (FileActivityRow)

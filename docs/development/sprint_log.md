@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-04-27 18:19:17 IST
+Last Updated: 2026-04-27 21:14:11 IST
 
 ## Recent Engineering Milestones
-- [2026-04-21 20:17:53] feat(terminal-ui): add terminal clear and restart controls (commandValidator)
 - [2026-04-21 22:03:20] test(activity): implement live FileActivityRow with status pills and file paths (FileActivityRow)
 - [2026-04-21 22:59:39] fix(terminal-ui): add terminal clear and restart controls (terminalEngine)
 - [2026-04-22 10:10:47] test(tests): assert workspace lifecycle transitions and error states (jest.config.js)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-27 18:19:17 IST
 - [2026-04-27 17:27:03] fix(datasetCollector): generate dataset provenance manifest JSON (provenanceTracker)
 - [2026-04-27 17:45:56] feat(terminal-ui): support auto-scrolling terminal output (commandValidator)
 - [2026-04-27 18:19:17] feat(activity): add batch accept and reject controls for code reviews (ReviewChangesBar)
+- [2026-04-27 21:14:11] feat(datasetCollector): generate dataset provenance manifest JSON (licenseDetector)

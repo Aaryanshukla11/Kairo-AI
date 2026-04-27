@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-04-27 22:50:58 IST
+Last Updated: 2026-04-27 23:17:55 IST
 
 ## Recent Engineering Milestones
-- [2026-04-21 22:59:39] fix(terminal-ui): add terminal clear and restart controls (terminalEngine)
 - [2026-04-22 10:10:47] test(tests): assert workspace lifecycle transitions and error states (jest.config.js)
 - [2026-04-22 12:00:22] feat(datasetCollector): generate dataset provenance manifest JSON (collectorEngine)
 - [2026-04-22 19:07:51] fix(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (collectorEngine)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-27 22:50:58 IST
 - [2026-04-27 18:19:17] feat(activity): add batch accept and reject controls for code reviews (ReviewChangesBar)
 - [2026-04-27 21:14:11] feat(datasetCollector): generate dataset provenance manifest JSON (licenseDetector)
 - [2026-04-27 22:50:58] perf(activity): support plan proposal approval and rejection buttons (ReviewChangesBar)
+- [2026-04-27 23:17:55] fix(activity): support plan proposal approval and rejection buttons (FileActivityRow)

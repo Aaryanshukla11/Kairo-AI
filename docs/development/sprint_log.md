@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-04-29 20:42:41 IST
+Last Updated: 2026-04-29 23:20:59 IST
 
 ## Recent Engineering Milestones
-- [2026-04-24 09:24:28] feat(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (integrityValidator)
 - [2026-04-24 09:52:36] test(tests): add test fixtures for complex project file structures (workspaceLifecycle.test)
 - [2026-04-24 09:53:27] feat(tests): mock Ollama API stream for offline test runs (workspaceLifecycle.test)
 - [2026-04-24 12:13:03] feat(activity): add batch accept and reject controls for code reviews (PlanProposalMessage)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-29 20:42:41 IST
 - [2026-04-29 16:13:14] fix(tests): mock Ollama API stream for offline test runs (realTimeActivityUX.test)
 - [2026-04-29 19:23:42] fix(tests): verify prompt validator edge cases and empty inputs (workspaceLifecycle.test)
 - [2026-04-29 20:42:41] feat(terminal-ui): implement command input bar with execution safeguards (terminalEngine)
+- [2026-04-29 23:20:59] test(datasetCollector): generate dataset provenance manifest JSON (provenanceTracker)

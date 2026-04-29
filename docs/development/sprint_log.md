@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-04-29 08:47:48 IST
+Last Updated: 2026-04-29 09:09:07 IST
 
 ## Recent Engineering Milestones
-- [2026-04-22 21:24:30] fix(terminal-ui): support auto-scrolling terminal output (TerminalConsole)
 - [2026-04-23 01:47:21] fix(datasetCollector): calculate SHA-256 cryptographic checksums for collected files (collectorEngine)
 - [2026-04-23 12:24:16] style(tests): verify prompt validator edge cases and empty inputs (workspaceLifecycle.test)
 - [2026-04-23 13:33:34] feat(datasetCollector): generate dataset provenance manifest JSON (collectorEngine)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-29 08:47:48 IST
 - [2026-04-28 18:24:00] feat(activity): support side-by-side diff review modal in editor (PlanProposalMessage)
 - [2026-04-28 20:59:43] feat(tests): verify prompt validator edge cases and empty inputs (realTimeActivityUX.test)
 - [2026-04-29 08:47:48] test(tests): verify prompt validator edge cases and empty inputs (jest.config.js)
+- [2026-04-29 09:09:07] fix(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (provenanceTracker)

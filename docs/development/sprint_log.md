@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-04-30 23:42:38 IST
+Last Updated: 2026-05-01 01:36:29 IST
 
 ## Recent Engineering Milestones
-- [2026-04-27 12:19:43] feat(activity): support plan proposal approval and rejection buttons (PlanProposalMessage)
 - [2026-04-27 14:45:22] fix(datasetCollector): implement multi-source dataset collector engine (provenanceTracker)
 - [2026-04-27 15:17:35] feat(terminal-ui): support auto-scrolling terminal output (commandValidator)
 - [2026-04-27 16:41:07] fix(tests): verify prompt validator edge cases and empty inputs (realTimeActivityUX.test)
@@ -44,3 +43,4 @@ Last Updated: 2026-04-30 23:42:38 IST
 - [2026-04-30 23:12:10] chore(activity): support side-by-side diff review modal in editor (PlanProposalMessage)
 - [2026-04-30 23:29:48] feat(terminal-ui): add ANSI color code escape sequence renderer (TerminalConsole)
 - [2026-04-30 23:42:38] fix(datasetCollector): filter binary and minified files during collection (licenseDetector)
+- [2026-05-01 01:36:29] fix(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (collectorEngine)

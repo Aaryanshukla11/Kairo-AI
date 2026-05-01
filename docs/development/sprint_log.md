@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-05-01 17:42:02 IST
+Last Updated: 2026-05-01 20:29:19 IST
 
 ## Recent Engineering Milestones
-- [2026-04-27 16:44:10] refactor(activity): support side-by-side diff review modal in editor (ReviewChangesBar)
 - [2026-04-27 17:27:03] fix(datasetCollector): generate dataset provenance manifest JSON (provenanceTracker)
 - [2026-04-27 17:45:56] feat(terminal-ui): support auto-scrolling terminal output (commandValidator)
 - [2026-04-27 18:19:17] feat(activity): add batch accept and reject controls for code reviews (ReviewChangesBar)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-01 17:42:02 IST
 - [2026-05-01 16:02:46] feat(activity): add ReviewChangesBar showing modified file count and diff preview (ReviewChangesBar)
 - [2026-05-01 16:46:04] feat(tests): add unit tests for real-time activity UX components (jest.config.js)
 - [2026-05-01 17:42:02] refactor(datasetCollector): add automatic license detection (MIT, Apache, GPL, BSD) (integrityValidator)
+- [2026-05-01 20:29:19] fix(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (integrityValidator)

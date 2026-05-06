@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-05-06 16:15:20 IST
+Last Updated: 2026-05-06 16:45:31 IST
 
 ## Recent Engineering Milestones
-- [2026-04-29 09:28:11] test(datasetCollector): add automatic license detection (MIT, Apache, GPL, BSD) (integrityValidator)
 - [2026-04-29 14:17:35] feat(datasetCollector): add automatic license detection (MIT, Apache, GPL, BSD) (collectorEngine)
 - [2026-04-29 14:21:57] refactor(terminal-ui): implement command input bar with execution safeguards (terminalEngine)
 - [2026-04-29 14:36:41] feat(terminal-ui): embed real-time terminal console in webview panel (terminalEngine)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-06 16:15:20 IST
 - [2026-05-06 09:01:42] test(activity): support plan proposal approval and rejection buttons (PlanProposalMessage)
 - [2026-05-06 15:53:54] fix(tests): verify prompt validator edge cases and empty inputs (realTimeActivityUX.test)
 - [2026-05-06 16:15:20] feat(tests): verify prompt validator edge cases and empty inputs (jest.config.js)
+- [2026-05-06 16:45:31] feat(activity): implement live FileActivityRow with status pills and file paths (ReviewChangesBar)

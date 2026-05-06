@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-05-07 02:21:40 IST
+Last Updated: 2026-05-07 03:25:21 IST
 
 ## Recent Engineering Milestones
-- [2026-04-29 15:21:01] fix(activity): support plan proposal approval and rejection buttons (FileActivityRow)
 - [2026-04-29 16:12:25] docs(datasetCollector): calculate SHA-256 cryptographic checksums for collected files (licenseDetector)
 - [2026-04-29 16:13:14] fix(tests): mock Ollama API stream for offline test runs (realTimeActivityUX.test)
 - [2026-04-29 19:23:42] fix(tests): verify prompt validator edge cases and empty inputs (workspaceLifecycle.test)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-07 02:21:40 IST
 - [2026-05-06 20:17:26] feat(datasetCollector): generate dataset provenance manifest JSON (licenseDetector)
 - [2026-05-07 00:29:02] refactor(tests): mock Ollama API stream for offline test runs (realTimeActivityUX.test)
 - [2026-05-07 02:21:40] feat(terminal-ui): add terminal clear and restart controls (commandValidator)
+- [2026-05-07 03:25:21] feat(terminal-ui): embed real-time terminal console in webview panel (TerminalConsole)

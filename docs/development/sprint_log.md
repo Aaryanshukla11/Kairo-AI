@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-05-07 17:54:19 IST
+Last Updated: 2026-05-07 19:31:44 IST
 
 ## Recent Engineering Milestones
-- [2026-04-30 12:20:08] perf(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (licenseDetector)
 - [2026-04-30 13:37:47] feat(activity): animate file write progress indicator (ReviewChangesBar)
 - [2026-04-30 14:00:25] feat(activity): animate file write progress indicator (FileActivityRow)
 - [2026-04-30 16:10:33] fix(activity): support side-by-side diff review modal in editor (PlanProposalMessage)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-07 17:54:19 IST
 - [2026-05-07 15:51:28] fix(datasetCollector): generate dataset provenance manifest JSON (licenseDetector)
 - [2026-05-07 16:15:09] test(datasetCollector): calculate SHA-256 cryptographic checksums for collected files (collectorEngine)
 - [2026-05-07 17:54:19] feat(activity): add batch accept and reject controls for code reviews (FileActivityRow)
+- [2026-05-07 19:31:44] fix(datasetCollector): filter binary and minified files during collection (collectorEngine)

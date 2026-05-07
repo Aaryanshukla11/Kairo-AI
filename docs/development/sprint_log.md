@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-05-07 15:49:32 IST
+Last Updated: 2026-05-07 15:51:28 IST
 
 ## Recent Engineering Milestones
-- [2026-04-30 01:18:34] style(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (provenanceTracker)
 - [2026-04-30 09:45:29] feat(datasetCollector): generate dataset provenance manifest JSON (integrityValidator)
 - [2026-04-30 11:31:24] refactor(datasetCollector): add automatic license detection (MIT, Apache, GPL, BSD) (provenanceTracker)
 - [2026-04-30 12:20:08] perf(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (licenseDetector)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-07 15:49:32 IST
 - [2026-05-07 15:16:57] fix(tests): add unit tests for real-time activity UX components (realTimeActivityUX.test)
 - [2026-05-07 15:33:59] fix(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (provenanceTracker)
 - [2026-05-07 15:49:32] refactor(datasetCollector): generate dataset provenance manifest JSON (licenseDetector)
+- [2026-05-07 15:51:28] fix(datasetCollector): generate dataset provenance manifest JSON (licenseDetector)

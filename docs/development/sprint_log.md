@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-05-08 18:10:50 IST
+Last Updated: 2026-05-08 20:49:55 IST
 
 ## Recent Engineering Milestones
-- [2026-04-30 23:12:10] chore(activity): support side-by-side diff review modal in editor (PlanProposalMessage)
 - [2026-04-30 23:29:48] feat(terminal-ui): add ANSI color code escape sequence renderer (TerminalConsole)
 - [2026-04-30 23:42:38] fix(datasetCollector): filter binary and minified files during collection (licenseDetector)
 - [2026-05-01 01:36:29] fix(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (collectorEngine)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-08 18:10:50 IST
 - [2026-05-08 11:10:35] fix(tests): assert workspace lifecycle transitions and error states (realTimeActivityUX.test)
 - [2026-05-08 13:48:29] test(activity): support side-by-side diff review modal in editor (PlanProposalMessage)
 - [2026-05-08 18:10:50] refactor(activity): support side-by-side diff review modal in editor (PlanProposalMessage)
+- [2026-05-08 20:49:55] fix(terminal-ui): embed real-time terminal console in webview panel (terminalEngine)

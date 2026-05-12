@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
-Active Phase: Phase 4: Dataset Collection & Interactive UX
-Last Updated: 2026-05-12 19:37:08 IST
+Active Phase: Phase 5: Deduplication, Versioning & Model Management
+Last Updated: 2026-05-13 00:15:34 IST
 
 ## Recent Engineering Milestones
-- [2026-05-02 15:54:48] feat(datasetCollector): filter binary and minified files during collection (integrityValidator)
 - [2026-05-02 17:05:36] fix(activity): support side-by-side diff review modal in editor (ReviewChangesBar)
 - [2026-05-05 10:25:31] feat(activity): animate file write progress indicator (PlanProposalMessage)
 - [2026-05-05 17:14:39] feat(datasetCollector): calculate SHA-256 cryptographic checksums for collected files (provenanceTracker)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-12 19:37:08 IST
 - [2026-05-12 11:26:58] perf(terminal-ui): support auto-scrolling terminal output (commandValidator)
 - [2026-05-12 17:52:28] chore(datasetCollector): calculate SHA-256 cryptographic checksums for collected files (integrityValidator)
 - [2026-05-12 19:37:08] feat(tests): add test fixtures for complex project file structures (jest.config.js)
+- [2026-05-13 00:15:34] docs(datasetDeduplication): implement AST structural hash comparison (similarityEngine)

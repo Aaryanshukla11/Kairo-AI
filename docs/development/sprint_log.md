@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 5: Deduplication, Versioning & Model Management
-Last Updated: 2026-05-14 19:31:48 IST
+Last Updated: 2026-05-14 21:47:51 IST
 
 ## Recent Engineering Milestones
-- [2026-05-07 03:25:21] feat(terminal-ui): embed real-time terminal console in webview panel (TerminalConsole)
 - [2026-05-07 10:02:58] feat(tests): add test fixtures for complex project file structures (jest.config.js)
 - [2026-05-07 10:49:36] docs(activity): support side-by-side diff review modal in editor (ReviewChangesBar)
 - [2026-05-07 15:16:57] fix(tests): add unit tests for real-time activity UX components (realTimeActivityUX.test)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-14 19:31:48 IST
 - [2026-05-14 17:18:24] feat(datasetCleaning): standardize LF line endings and collapse excess blank lines (whitespaceNormalizer)
 - [2026-05-14 18:10:34] fix(modelManager): add model installer hooks for background download tracking (modelManager)
 - [2026-05-14 19:31:48] style(datasetCleaning): reject low-confidence and corrupted source files (qualityScorer)
+- [2026-05-14 21:47:51] refactor(datasetDeduplication): cluster duplicate candidates and choose best representative (similarityEngine)

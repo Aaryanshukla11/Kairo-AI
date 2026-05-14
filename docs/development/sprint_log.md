@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 5: Deduplication, Versioning & Model Management
-Last Updated: 2026-05-14 17:18:24 IST
+Last Updated: 2026-05-14 18:10:34 IST
 
 ## Recent Engineering Milestones
-- [2026-05-07 00:29:02] refactor(tests): mock Ollama API stream for offline test runs (realTimeActivityUX.test)
 - [2026-05-07 02:21:40] feat(terminal-ui): add terminal clear and restart controls (commandValidator)
 - [2026-05-07 03:25:21] feat(terminal-ui): embed real-time terminal console in webview panel (TerminalConsole)
 - [2026-05-07 10:02:58] feat(tests): add test fixtures for complex project file structures (jest.config.js)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-14 17:18:24 IST
 - [2026-05-14 14:08:57] fix(datasetVersioning): validate parent-child linkages in dataset tree (versionComparator)
 - [2026-05-14 14:25:58] feat(datasetDeduplication): implement MinHash Jaccard semantic overlap detector (exactMatchDetector)
 - [2026-05-14 17:18:24] feat(datasetCleaning): standardize LF line endings and collapse excess blank lines (whitespaceNormalizer)
+- [2026-05-14 18:10:34] fix(modelManager): add model installer hooks for background download tracking (modelManager)

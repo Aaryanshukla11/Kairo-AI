@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 5: Deduplication, Versioning & Model Management
-Last Updated: 2026-05-14 11:22:45 IST
+Last Updated: 2026-05-14 14:08:57 IST
 
 ## Recent Engineering Milestones
-- [2026-05-06 16:45:31] feat(activity): implement live FileActivityRow with status pills and file paths (ReviewChangesBar)
 - [2026-05-06 17:16:26] fix(activity): add ReviewChangesBar showing modified file count and diff preview (FileActivityRow)
 - [2026-05-06 20:17:26] feat(datasetCollector): generate dataset provenance manifest JSON (licenseDetector)
 - [2026-05-07 00:29:02] refactor(tests): mock Ollama API stream for offline test runs (realTimeActivityUX.test)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-14 11:22:45 IST
 - [2026-05-13 19:10:26] feat(datasetCleaning): repair malformed and truncated JSON samples (sampleNormalizer)
 - [2026-05-14 00:12:46] fix(datasetCleaning): implement UTF-8 NFC character normalization (repairEngine)
 - [2026-05-14 11:22:45] feat(modelManager): implement local model weight scanner and registry (modelRegistry)
+- [2026-05-14 14:08:57] fix(datasetVersioning): validate parent-child linkages in dataset tree (versionComparator)

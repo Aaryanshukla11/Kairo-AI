@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 5: Deduplication, Versioning & Model Management
-Last Updated: 2026-05-14 23:17:23 IST
+Last Updated: 2026-05-15 01:10:51 IST
 
 ## Recent Engineering Milestones
-- [2026-05-07 15:16:57] fix(tests): add unit tests for real-time activity UX components (realTimeActivityUX.test)
 - [2026-05-07 15:33:59] fix(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (provenanceTracker)
 - [2026-05-07 15:49:32] refactor(datasetCollector): generate dataset provenance manifest JSON (licenseDetector)
 - [2026-05-07 15:51:28] fix(datasetCollector): generate dataset provenance manifest JSON (licenseDetector)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-14 23:17:23 IST
 - [2026-05-14 21:47:51] refactor(datasetDeduplication): cluster duplicate candidates and choose best representative (similarityEngine)
 - [2026-05-14 22:14:54] test(modelManager): implement local model weight scanner and registry (modelRegistry)
 - [2026-05-14 23:17:23] test(modelManager): implement generic OpenAI-compatible provider adapter (modelInstaller)
+- [2026-05-15 01:10:51] feat(modelManager): verify SHA-256 checksums of local model weights (modelManager)

@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 5: Deduplication, Versioning & Model Management
-Last Updated: 2026-05-15 15:47:58 IST
+Last Updated: 2026-05-15 16:40:17 IST
 
 ## Recent Engineering Milestones
-- [2026-05-07 20:56:22] docs(activity): animate file write progress indicator (PlanProposalMessage)
 - [2026-05-07 21:28:26] feat(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (collectorEngine)
 - [2026-05-08 00:09:56] refactor(activity): implement live FileActivityRow with status pills and file paths (PlanProposalMessage)
 - [2026-05-08 11:10:35] fix(tests): assert workspace lifecycle transitions and error states (realTimeActivityUX.test)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-15 15:47:58 IST
 - [2026-05-15 11:08:34] docs(modelManager): add model installer hooks for background download tracking (modelRegistry)
 - [2026-05-15 11:21:05] refactor(datasetDeduplication): generate deduplication efficiency report and statistics (duplicateResolver)
 - [2026-05-15 15:47:58] chore(datasetVersioning): generate immutable dataset snapshots and manifests (versionBuilder)
+- [2026-05-15 16:40:17] feat(datasetCleaning): repair malformed and truncated JSON samples (sampleNormalizer)

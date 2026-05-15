@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 5: Deduplication, Versioning & Model Management
-Last Updated: 2026-05-15 11:08:34 IST
+Last Updated: 2026-05-15 11:21:05 IST
 
 ## Recent Engineering Milestones
-- [2026-05-07 19:31:44] fix(datasetCollector): filter binary and minified files during collection (collectorEngine)
 - [2026-05-07 19:59:50] refactor(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (integrityValidator)
 - [2026-05-07 20:56:22] docs(activity): animate file write progress indicator (PlanProposalMessage)
 - [2026-05-07 21:28:26] feat(datasetCollector): support LocalFolderProvider and GitRepositoryProvider (collectorEngine)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-15 11:08:34 IST
 - [2026-05-15 09:55:32] feat(datasetVersioning): support semantic version increments (v1.0.0 -> v1.1.0) (lineageTracker)
 - [2026-05-15 10:15:47] docs(datasetVersioning): implement dataset lineage tracker DAG (semanticVersioning)
 - [2026-05-15 11:08:34] docs(modelManager): add model installer hooks for background download tracking (modelRegistry)
+- [2026-05-15 11:21:05] refactor(datasetDeduplication): generate deduplication efficiency report and statistics (duplicateResolver)

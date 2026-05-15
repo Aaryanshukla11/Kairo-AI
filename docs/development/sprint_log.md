@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 5: Deduplication, Versioning & Model Management
-Last Updated: 2026-05-15 17:45:40 IST
+Last Updated: 2026-05-15 22:12:27 IST
 
 ## Recent Engineering Milestones
-- [2026-05-08 11:10:35] fix(tests): assert workspace lifecycle transitions and error states (realTimeActivityUX.test)
 - [2026-05-08 13:48:29] test(activity): support side-by-side diff review modal in editor (PlanProposalMessage)
 - [2026-05-08 18:10:50] refactor(activity): support side-by-side diff review modal in editor (PlanProposalMessage)
 - [2026-05-08 20:49:55] fix(terminal-ui): embed real-time terminal console in webview panel (terminalEngine)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-15 17:45:40 IST
 - [2026-05-15 16:40:17] feat(datasetCleaning): repair malformed and truncated JSON samples (sampleNormalizer)
 - [2026-05-15 17:17:21] feat(datasetVersioning): implement dataset lineage tracker DAG (versionComparator)
 - [2026-05-15 17:45:40] docs(datasetCleaning): compute weighted sample quality score across 8 dimensions (sampleNormalizer)
+- [2026-05-15 22:12:27] refactor(datasetVersioning): generate immutable dataset snapshots and manifests (semanticVersioning)

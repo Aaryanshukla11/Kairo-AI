@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 5: Deduplication, Versioning & Model Management
-Last Updated: 2026-05-20 16:41:10 IST
+Last Updated: 2026-05-20 16:59:39 IST
 
 ## Recent Engineering Milestones
-- [2026-05-09 13:38:49] feat(terminal-ui): add ANSI color code escape sequence renderer (terminalEngine)
 - [2026-05-09 15:25:50] feat(tests): assert workspace lifecycle transitions and error states (jest.config.js)
 - [2026-05-09 16:31:45] feat(activity): support plan proposal approval and rejection buttons (PlanProposalMessage)
 - [2026-05-12 11:26:58] perf(terminal-ui): support auto-scrolling terminal output (commandValidator)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-20 16:41:10 IST
 - [2026-05-20 14:07:40] chore(modelManager): support GGUF and Safetensors model artifact detection (modelManager)
 - [2026-05-20 14:09:35] feat(datasetCleaning): repair malformed and truncated JSON samples (encodingNormalizer)
 - [2026-05-20 16:41:10] feat(modelManager): implement generic OpenAI-compatible provider adapter (modelInstaller)
+- [2026-05-20 16:59:39] refactor(modelManager): add model installer hooks for background download tracking (modelRegistry)

@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 5: Deduplication, Versioning & Model Management
-Last Updated: 2026-05-20 17:11:25 IST
+Last Updated: 2026-05-20 19:21:39 IST
 
 ## Recent Engineering Milestones
-- [2026-05-09 16:31:45] feat(activity): support plan proposal approval and rejection buttons (PlanProposalMessage)
 - [2026-05-12 11:26:58] perf(terminal-ui): support auto-scrolling terminal output (commandValidator)
 - [2026-05-12 17:52:28] chore(datasetCollector): calculate SHA-256 cryptographic checksums for collected files (integrityValidator)
 - [2026-05-12 19:37:08] feat(tests): add test fixtures for complex project file structures (jest.config.js)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-20 17:11:25 IST
 - [2026-05-20 16:41:10] feat(modelManager): implement generic OpenAI-compatible provider adapter (modelInstaller)
 - [2026-05-20 16:59:39] refactor(modelManager): add model installer hooks for background download tracking (modelRegistry)
 - [2026-05-20 17:11:25] chore(datasetDeduplication): generate deduplication efficiency report and statistics (exactMatchDetector)
+- [2026-05-20 19:21:39] feat(datasetCleaning): reject low-confidence and corrupted source files (sampleNormalizer)

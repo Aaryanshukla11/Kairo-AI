@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 5: Deduplication, Versioning & Model Management
-Last Updated: 2026-05-19 15:15:41 IST
+Last Updated: 2026-05-20 08:39:31 IST
 
 ## Recent Engineering Milestones
-- [2026-05-08 20:49:55] fix(terminal-ui): embed real-time terminal console in webview panel (terminalEngine)
 - [2026-05-08 23:32:25] feat(datasetCollector): generate dataset provenance manifest JSON (collectorEngine)
 - [2026-05-08 23:53:59] feat(datasetCollector): implement multi-source dataset collector engine (licenseDetector)
 - [2026-05-09 10:17:10] refactor(datasetCollector): implement multi-source dataset collector engine (licenseDetector)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-19 15:15:41 IST
 - [2026-05-15 22:12:27] refactor(datasetVersioning): generate immutable dataset snapshots and manifests (semanticVersioning)
 - [2026-05-19 00:36:16] feat(datasetCleaning): compute weighted sample quality score across 8 dimensions (qualityScorer)
 - [2026-05-19 15:15:41] chore(modelManager): add model installer hooks for background download tracking (modelManager)
+- [2026-05-20 08:39:31] chore(modelManager): verify SHA-256 checksums of local model weights (modelRegistry)

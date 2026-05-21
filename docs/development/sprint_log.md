@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 5: Deduplication, Versioning & Model Management
-Last Updated: 2026-05-21 11:00:19 IST
+Last Updated: 2026-05-21 14:21:31 IST
 
 ## Recent Engineering Milestones
-- [2026-05-13 00:15:34] docs(datasetDeduplication): implement AST structural hash comparison (similarityEngine)
 - [2026-05-13 01:59:59] test(datasetVersioning): validate parent-child linkages in dataset tree (semanticVersioning)
 - [2026-05-13 09:50:30] fix(datasetVersioning): validate parent-child linkages in dataset tree (semanticVersioning)
 - [2026-05-13 14:25:11] fix(datasetVersioning): compare token volumes and language breakdown across versions (lineageTracker)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-21 11:00:19 IST
 - [2026-05-21 03:25:14] test(datasetDeduplication): implement MinHash Jaccard semantic overlap detector (structuralSimilarity)
 - [2026-05-21 09:48:17] perf(modelManager): add model installer hooks for background download tracking (modelManager)
 - [2026-05-21 11:00:19] feat(datasetDeduplication): implement MinHash Jaccard semantic overlap detector (similarityEngine)
+- [2026-05-21 14:21:31] refactor(datasetDeduplication): implement MinHash Jaccard semantic overlap detector (duplicateResolver)

@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 5: Deduplication, Versioning & Model Management
-Last Updated: 2026-05-22 23:15:31 IST
+Last Updated: 2026-05-23 08:41:27 IST
 
 ## Recent Engineering Milestones
-- [2026-05-14 14:25:58] feat(datasetDeduplication): implement MinHash Jaccard semantic overlap detector (exactMatchDetector)
 - [2026-05-14 17:18:24] feat(datasetCleaning): standardize LF line endings and collapse excess blank lines (whitespaceNormalizer)
 - [2026-05-14 18:10:34] fix(modelManager): add model installer hooks for background download tracking (modelManager)
 - [2026-05-14 19:31:48] style(datasetCleaning): reject low-confidence and corrupted source files (qualityScorer)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-22 23:15:31 IST
 - [2026-05-22 08:43:12] chore(datasetDeduplication): implement MinHash Jaccard semantic overlap detector (structuralSimilarity)
 - [2026-05-22 09:38:33] chore(datasetCleaning): repair malformed and truncated JSON samples (qualityScorer)
 - [2026-05-22 23:15:31] refactor(datasetCleaning): standardize LF line endings and collapse excess blank lines (whitespaceNormalizer)
+- [2026-05-23 08:41:27] perf(datasetDeduplication): cluster duplicate candidates and choose best representative (exactMatchDetector)

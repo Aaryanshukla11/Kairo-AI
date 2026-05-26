@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-05-22T09:38:33+05:30",
+  "timestamp": "2026-05-26T12:11:18+05:30",
   "phase": "Phase 5: Deduplication, Versioning & Model Management",
-  "activeModule": "qualityScorer",
-  "totalCommitsToDate": 402,
-  "testPassRate": "99.01%",
-  "estimatedInferenceLatencyMs": 55,
-  "tokenThroughputPerSec": 49,
+  "activeModule": "lineageTracker",
+  "totalCommitsToDate": 405,
+  "testPassRate": "99.79%",
+  "estimatedInferenceLatencyMs": 46,
+  "tokenThroughputPerSec": 37,
   "buildStatus": "passing"
 }

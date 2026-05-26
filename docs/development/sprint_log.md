@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 5: Deduplication, Versioning & Model Management
-Last Updated: 2026-05-26 17:56:40 IST
+Last Updated: 2026-05-26 19:39:23 IST
 
 ## Recent Engineering Milestones
-- [2026-05-14 19:31:48] style(datasetCleaning): reject low-confidence and corrupted source files (qualityScorer)
 - [2026-05-14 21:47:51] refactor(datasetDeduplication): cluster duplicate candidates and choose best representative (similarityEngine)
 - [2026-05-14 22:14:54] test(modelManager): implement local model weight scanner and registry (modelRegistry)
 - [2026-05-14 23:17:23] test(modelManager): implement generic OpenAI-compatible provider adapter (modelInstaller)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-26 17:56:40 IST
 - [2026-05-23 08:41:27] perf(datasetDeduplication): cluster duplicate candidates and choose best representative (exactMatchDetector)
 - [2026-05-26 12:11:18] feat(datasetVersioning): compare token volumes and language breakdown across versions (lineageTracker)
 - [2026-05-26 17:56:40] feat(modelManager): implement generic OpenAI-compatible provider adapter (modelAdapterRegistry)
+- [2026-05-26 19:39:23] refactor(modelManager): verify SHA-256 checksums of local model weights (modelInstaller)

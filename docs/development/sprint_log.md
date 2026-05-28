@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 5: Deduplication, Versioning & Model Management
-Last Updated: 2026-05-28 21:51:56 IST
+Last Updated: 2026-05-29 01:18:22 IST
 
 ## Recent Engineering Milestones
-- [2026-05-15 09:42:38] feat(modelManager): implement generic OpenAI-compatible provider adapter (modelRegistry)
 - [2026-05-15 09:55:32] feat(datasetVersioning): support semantic version increments (v1.0.0 -> v1.1.0) (lineageTracker)
 - [2026-05-15 10:15:47] docs(datasetVersioning): implement dataset lineage tracker DAG (semanticVersioning)
 - [2026-05-15 11:08:34] docs(modelManager): add model installer hooks for background download tracking (modelRegistry)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-28 21:51:56 IST
 - [2026-05-26 22:14:41] feat(datasetDeduplication): cluster duplicate candidates and choose best representative (semanticSimilarity)
 - [2026-05-28 14:06:40] feat(modelManager): verify SHA-256 checksums of local model weights (modelRegistry)
 - [2026-05-28 21:51:56] fix(datasetDeduplication): cluster duplicate candidates and choose best representative (structuralSimilarity)
+- [2026-05-29 01:18:22] fix(modelManager): implement local model weight scanner and registry (modelAdapterRegistry)

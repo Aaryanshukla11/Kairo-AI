@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 5: Deduplication, Versioning & Model Management
-Last Updated: 2026-05-29 21:03:15 IST
+Last Updated: 2026-05-31 10:15:12 IST
 
 ## Recent Engineering Milestones
-- [2026-05-15 11:08:34] docs(modelManager): add model installer hooks for background download tracking (modelRegistry)
 - [2026-05-15 11:21:05] refactor(datasetDeduplication): generate deduplication efficiency report and statistics (duplicateResolver)
 - [2026-05-15 15:47:58] chore(datasetVersioning): generate immutable dataset snapshots and manifests (versionBuilder)
 - [2026-05-15 16:40:17] feat(datasetCleaning): repair malformed and truncated JSON samples (sampleNormalizer)
@@ -44,3 +43,4 @@ Last Updated: 2026-05-29 21:03:15 IST
 - [2026-05-29 01:18:22] fix(modelManager): implement local model weight scanner and registry (modelAdapterRegistry)
 - [2026-05-29 17:26:05] fix(datasetDeduplication): implement MinHash Jaccard semantic overlap detector (duplicateResolver)
 - [2026-05-29 21:03:15] test(modelManager): add model installer hooks for background download tracking (modelAdapterRegistry)
+- [2026-05-31 10:15:12] fix(modelManager): verify SHA-256 checksums of local model weights (modelManager)

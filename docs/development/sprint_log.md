@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 6: Performance, Hardening & Release Polish
-Last Updated: 2026-06-02 14:50:31 IST
+Last Updated: 2026-06-02 16:57:09 IST
 
 ## Recent Engineering Milestones
-- [2026-05-15 17:45:40] docs(datasetCleaning): compute weighted sample quality score across 8 dimensions (sampleNormalizer)
 - [2026-05-15 22:12:27] refactor(datasetVersioning): generate immutable dataset snapshots and manifests (semanticVersioning)
 - [2026-05-19 00:36:16] feat(datasetCleaning): compute weighted sample quality score across 8 dimensions (qualityScorer)
 - [2026-05-19 15:15:41] chore(modelManager): add model installer hooks for background download tracking (modelManager)
@@ -44,3 +43,4 @@ Last Updated: 2026-06-02 14:50:31 IST
 - [2026-06-02 09:08:11] refactor(perf): cache parsed AST trees across generation steps (runtimeOptimizer)
 - [2026-06-02 14:05:19] perf(security): validate all postMessage payloads with Zod schemas (commandValidator)
 - [2026-06-02 14:50:31] fix(security): conduct security audit of shell execution sandboxing (SECURITY_AUDIT_REPORT.md)
+- [2026-06-02 16:57:09] docs(release): finalize installation and developer guide markdown docs (DOGFOODING_REPORT.md)

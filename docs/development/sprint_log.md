@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 6: Performance, Hardening & Release Polish
-Last Updated: 2026-06-05 10:35:26 IST
+Last Updated: 2026-06-05 14:52:42 IST
 
 ## Recent Engineering Milestones
-- [2026-05-20 14:07:40] chore(modelManager): support GGUF and Safetensors model artifact detection (modelManager)
 - [2026-05-20 14:09:35] feat(datasetCleaning): repair malformed and truncated JSON samples (encodingNormalizer)
 - [2026-05-20 16:41:10] feat(modelManager): implement generic OpenAI-compatible provider adapter (modelInstaller)
 - [2026-05-20 16:59:39] refactor(modelManager): add model installer hooks for background download tracking (modelRegistry)
@@ -44,3 +43,4 @@ Last Updated: 2026-06-05 10:35:26 IST
 - [2026-06-02 20:50:19] feat(release): document dogfooding results on real-world web apps (RC1_MANIFEST.md)
 - [2026-06-04 00:26:23] chore(release): finalize installation and developer guide markdown docs (DOGFOODING_REPORT.md)
 - [2026-06-05 10:35:26] fix(security): restrict filesystem tool access to current workspace root only (SECURITY_AUDIT_REPORT.md)
+- [2026-06-05 14:52:42] refactor(release): finalize installation and developer guide markdown docs (DOGFOODING_REPORT.md)

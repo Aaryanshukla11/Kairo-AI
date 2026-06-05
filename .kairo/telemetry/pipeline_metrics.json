@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-06-02T20:50:19+05:30",
+  "timestamp": "2026-06-05T14:52:42+05:30",
   "phase": "Phase 6: Performance, Hardening & Release Polish",
-  "activeModule": "RC1_MANIFEST.md",
-  "totalCommitsToDate": 423,
-  "testPassRate": "98.73%",
-  "estimatedInferenceLatencyMs": 52,
-  "tokenThroughputPerSec": 49,
+  "activeModule": "DOGFOODING_REPORT.md",
+  "totalCommitsToDate": 426,
+  "testPassRate": "98.28%",
+  "estimatedInferenceLatencyMs": 46,
+  "tokenThroughputPerSec": 48,
   "buildStatus": "passing"
 }

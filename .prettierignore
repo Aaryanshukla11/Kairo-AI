@@ -1,0 +1,6 @@
+node_modules
+dist
+out
+.aiidle
+package.json
+package-lock.json

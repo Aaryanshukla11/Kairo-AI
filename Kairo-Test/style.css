@@ -1,0 +1,367 @@
+:root {
+  --bg-gradient: linear-gradient(135deg, #0f0c20 0%, #15102a 50%, #060212 100%);
+  --glob-1: radial-gradient(circle, rgba(124, 77, 255, 0.4) 0%, rgba(0, 0, 0, 0) 70%);
+  --glob-2: radial-gradient(circle, rgba(0, 229, 255, 0.35) 0%, rgba(0, 0, 0, 0) 70%);
+  --glob-3: radial-gradient(circle, rgba(255, 64, 129, 0.3) 0%, rgba(0, 0, 0, 0) 70%);
+  
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  --card-bg: rgba(20, 16, 38, 0.65);
+  
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --text-muted: rgba(255, 255, 255, 0.35);
+
+  --btn-digit-bg: rgba(255, 255, 255, 0.07);
+  --btn-digit-hover: rgba(255, 255, 255, 0.15);
+  --btn-digit-text: #ffffff;
+
+  --btn-func-bg: rgba(255, 255, 255, 0.12);
+  --btn-func-hover: rgba(255, 255, 255, 0.22);
+  --btn-func-text: #00e5ff;
+
+  --btn-op-bg: rgba(124, 77, 255, 0.25);
+  --btn-op-hover: rgba(124, 77, 255, 0.4);
+  --btn-op-text: #7c4dff;
+
+  --btn-equals-bg: linear-gradient(135deg, #7c4dff 0%, #00e5ff 100%);
+  --btn-equals-hover: linear-gradient(135deg, #651fff 0%, #18ffff 100%);
+  --btn-equals-text: #ffffff;
+  --btn-equals-shadow: 0 8px 25px rgba(0, 229, 255, 0.35);
+}
+
+[data-theme="light"] {
+  --bg-gradient: linear-gradient(135deg, #eef2f7 0%, #dfe7f2 50%, #cfd9df 100%);
+  --glob-1: radial-gradient(circle, rgba(124, 77, 255, 0.25) 0%, rgba(255, 255, 255, 0) 70%);
+  --glob-2: radial-gradient(circle, rgba(0, 229, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+  --glob-3: radial-gradient(circle, rgba(255, 64, 129, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+  --card-bg: rgba(255, 255, 255, 0.65);
+
+  --text-primary: #1e1e2d;
+  --text-secondary: rgba(30, 30, 45, 0.7);
+  --text-muted: rgba(30, 30, 45, 0.4);
+
+  --btn-digit-bg: rgba(255, 255, 255, 0.8);
+  --btn-digit-hover: rgba(255, 255, 255, 1);
+  --btn-digit-text: #1e1e2d;
+
+  --btn-func-bg: rgba(0, 229, 255, 0.15);
+  --btn-func-hover: rgba(0, 229, 255, 0.25);
+  --btn-func-text: #00838f;
+
+  --btn-op-bg: rgba(124, 77, 255, 0.15);
+  --btn-op-hover: rgba(124, 77, 255, 0.25);
+  --btn-op-text: #651fff;
+
+  --btn-equals-bg: linear-gradient(135deg, #651fff 0%, #00b0ff 100%);
+  --btn-equals-hover: linear-gradient(135deg, #4527a0 0%, #0091ea 100%);
+  --btn-equals-text: #ffffff;
+  --btn-equals-shadow: 0 8px 25px rgba(101, 31, 255, 0.3);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  background: var(--bg-gradient);
+  color: var(--text-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+/* Background Animated Globs */
+.background-glob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+  animation: float 18s ease-in-out infinite alternate;
+}
+
+.glob-1 {
+  width: 450px;
+  height: 450px;
+  top: -100px;
+  left: -100px;
+  background: var(--glob-1);
+}
+
+.glob-2 {
+  width: 500px;
+  height: 500px;
+  bottom: -150px;
+  right: -100px;
+  background: var(--glob-2);
+  animation-delay: -5s;
+}
+
+.glob-3 {
+  width: 300px;
+  height: 300px;
+  top: 40%;
+  left: 60%;
+  background: var(--glob-3);
+  animation-delay: -10s;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -40px) scale(1.1); }
+  100% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+/* Main Container */
+.app-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 380px;
+  padding: 24px;
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+  box-shadow: var(--glass-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.app-container:hover {
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+}
+
+/* Header */
+.calculator-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #00e5ff;
+  background: rgba(0, 229, 255, 0.15);
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+}
+
+.brand-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-top: 2px;
+  letter-spacing: -0.5px;
+}
+
+.theme-toggle-btn {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--btn-digit-hover);
+  transform: scale(1.05);
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+[data-theme="dark"] .moon-icon { display: none; }
+[data-theme="light"] .sun-icon { display: none; }
+
+/* Display Section */
+.display-card {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  min-height: 100px;
+  word-break: break-all;
+  overflow: hidden;
+}
+
+.history-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text-secondary);
+  min-height: 18px;
+  margin-bottom: 4px;
+  text-align: right;
+  opacity: 0.85;
+}
+
+.primary-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: right;
+  width: 100%;
+  transition: font-size 0.15s ease;
+}
+
+/* Keypad Section */
+.keypad-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.keypad-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+/* Button Base Styles */
+.btn {
+  font-family: 'Outfit', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  height: 54px;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn:active, .btn.btn-active {
+  transform: translateY(1px) scale(0.96);
+}
+
+/* Button Categories */
+.btn-digit {
+  background: var(--btn-digit-bg);
+  color: var(--btn-digit-text);
+}
+
+.btn-digit:hover {
+  background: var(--btn-digit-hover);
+}
+
+.btn-function {
+  background: var(--btn-func-bg);
+  color: var(--btn-func-text);
+  font-weight: 600;
+}
+
+.btn-function:hover {
+  background: var(--btn-func-hover);
+}
+
+.btn-operator {
+  background: var(--btn-op-bg);
+  color: var(--btn-op-text);
+  font-weight: 600;
+  font-size: 22px;
+}
+
+.btn-operator:hover {
+  background: var(--btn-op-hover);
+}
+
+.btn-memory {
+  height: 36px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  border-radius: 10px;
+}
+
+.btn-equals {
+  grid-row: span 2;
+  height: 100%;
+  background: var(--btn-equals-bg);
+  color: var(--btn-equals-text);
+  font-weight: 700;
+  font-size: 24px;
+  box-shadow: var(--btn-equals-shadow);
+  border: none;
+}
+
+.btn-equals:hover {
+  background: var(--btn-equals-hover);
+  box-shadow: 0 12px 30px rgba(0, 229, 255, 0.5);
+}
+
+.btn-zero {
+  grid-column: span 2;
+}
+
+/* Footer */
+.calculator-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.dot {
+  font-size: 8px;
+}
+
+/* Responsive Scaling */
+@media (max-width: 420px) {
+  .app-container {
+    max-width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    justify-content: space-between;
+  }
+}

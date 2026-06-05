@@ -1,0 +1,24 @@
+/* Responsive VS Code theme overrides and fallbacks */
+.vscode-light {
+  --background: var(--vscode-sideBar-background, var(--vscode-editor-background, #f3f3f3));
+  --surface: var(--vscode-editor-background, var(--vscode-sideBar-background, #ffffff));
+  --border: color-mix(in srgb, var(--vscode-sideBar-border, var(--vscode-widget-border, #e4e4e4)) 30%, transparent);
+  --text-primary: var(--vscode-sideBar-foreground, var(--vscode-foreground, #333333));
+  --text-secondary: var(--vscode-descriptionForeground, var(--vscode-disabledForeground, #717171));
+}
+
+.vscode-dark {
+  --background: var(--vscode-sideBar-background, var(--vscode-editor-background, #1e1e1e));
+  --surface: var(--vscode-editor-background, var(--vscode-sideBar-background, #1e1e1e));
+  --border: color-mix(in srgb, var(--vscode-sideBar-border, var(--vscode-widget-border, #3c3c3c)) 30%, transparent);
+  --text-primary: var(--vscode-sideBar-foreground, var(--vscode-foreground, #cccccc));
+  --text-secondary: var(--vscode-descriptionForeground, var(--vscode-disabledForeground, #8c8c8c));
+}
+
+.vscode-high-contrast {
+  --background: var(--vscode-sideBar-background, var(--vscode-editor-background, #000000));
+  --surface: var(--vscode-editor-background, var(--vscode-sideBar-background, #000000));
+  --border: var(--vscode-sideBar-border, var(--vscode-widget-border, #ffffff));
+  --text-primary: var(--vscode-sideBar-foreground, var(--vscode-foreground, #ffffff));
+  --text-secondary: var(--vscode-descriptionForeground, var(--vscode-disabledForeground, #ffffff));
+}

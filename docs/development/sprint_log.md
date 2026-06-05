@@ -1,10 +1,9 @@
 # Kairo-AI Development Sprint Log
 
 Active Phase: Phase 6: Performance, Hardening & Release Polish
-Last Updated: 2026-06-05 21:08:45 IST
+Last Updated: 2026-06-05 22:32:06 IST
 
 ## Recent Engineering Milestones
-- [2026-05-20 16:59:39] refactor(modelManager): add model installer hooks for background download tracking (modelRegistry)
 - [2026-05-20 17:11:25] chore(datasetDeduplication): generate deduplication efficiency report and statistics (exactMatchDetector)
 - [2026-05-20 19:21:39] feat(datasetCleaning): reject low-confidence and corrupted source files (sampleNormalizer)
 - [2026-05-21 03:25:14] test(datasetDeduplication): implement MinHash Jaccard semantic overlap detector (structuralSimilarity)
@@ -44,3 +43,4 @@ Last Updated: 2026-06-05 21:08:45 IST
 - [2026-06-05 14:52:42] refactor(release): finalize installation and developer guide markdown docs (DOGFOODING_REPORT.md)
 - [2026-06-05 16:47:02] feat(release): finalize installation and developer guide markdown docs (RC1_MANIFEST.md)
 - [2026-06-05 21:08:45] perf(release): finalize installation and developer guide markdown docs (RC1_MANIFEST.md)
+- [2026-06-05 22:32:06] feat(perf): benchmark token streaming latency across local models (MEMORY_PROFILE_REPORT.md)

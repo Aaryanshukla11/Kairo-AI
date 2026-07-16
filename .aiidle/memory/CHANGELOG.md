@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 ## [1.0.0-draft] - 2026-07-16
 
 ### Added
+- Completed Task M01-S03-T006: Context Builder Foundation.
+  - Assembled `ContextBuilder` mapping engine consolidating Workspace, Editor, Terminal, and configuration states seamlessly.
+  - Defined rigid Context typings (`Context.ts`, `ContextSnapshot.ts`) driven by structured ingestion points via decoupled `ContextCollector.ts` logic.
+  - Implemented future AI deduplication hooks inside `ContextCompressor.ts`.
 - Completed Task M01-S03-T005: Workspace Scanner Foundation.
   - Initialized isolated, non-executing read-only project detection algorithms locking against accidental codebase mutations.
   - Formatted global root type structures bridging File/Folder mapping into a scalable `WorkspaceSnapshot` format.

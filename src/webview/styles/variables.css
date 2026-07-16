@@ -21,26 +21,28 @@
   --warning: var(--vscode-testing-iconQueuedColor, #d29922);
   --error: var(--vscode-testing-iconFailedColor, var(--vscode-errorForeground, #f85149));
 
-  /* Strict Spacing Scale (Pixels) */
+  /* Strict Spacing Scale (8px System) */
   --spacing-4: 4px;
   --spacing-8: 8px;
-  --spacing-12: 12px;
   --spacing-16: 16px;
-  --spacing-20: 20px;
   --spacing-24: 24px;
   --spacing-32: 32px;
   --spacing-40: 40px;
   --spacing-48: 48px;
+  --spacing-64: 64px;
 
   /* Premium Border Radii */
-  --radius-button: 14px;
+  --radius-button: 12px;
+  --radius-card: 16px;
   --radius-input: 16px;
+  --radius-composer: 24px;
   --radius-panel: 18px;
   --radius-badge: 999px;
 
   /* Soft Shadows for Floating Surfaces */
   --shadow-subtle: 0 2px 10px rgba(0, 0, 0, 0.03);
   --shadow-floating: 0 8px 30px rgba(0, 0, 0, 0.06);
+  --shadow-composer: 0 -4px 24px rgba(0, 0, 0, 0.08);
 
   /* Subtle Animation Transitions */
   --duration-hover: 120ms;

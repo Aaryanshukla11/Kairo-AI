@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 ## [1.0.0-draft] - 2026-07-16
 
 ### Added
+- Completed Task M01-S05-T001: Execution Planner Foundation in `src/core/planner`.
+  - Defined ExecutionPlan and Task types with validation schema.
+  - Added mock deterministic intent parser and plan builder logic.
+  - Registered PLAN_REQUEST / PLAN_RESPONSE protocols in `messageTypes.ts` and `messageRouter.ts`.
+- Completed Task M01-S02-T010: Composer UI Redesign.
+  - Implemented a floating, detached composer architecture wrapping premium 24px radii surfaces mapping native 150ms SVG tooltips elegantly.
+- Completed Task M01-S02-T009: AIIdle Premium UI Redesign.
+  - Implemented sleek floating Composer UI, minimal SVG action toolbars, and Inter font scales mapping standard 8px premium visual metrics natively.
+- Completed Task M01-S02-T008A: Responsive Layout System.
+  - Refactored `layout.css` and `execution.css` dynamically injecting fluid responsive bounds resolving rigid UI clipping constraints efficiently natively.
+- Completed Task M01-S04-T004: Interactive Chat MVP.
+  - Linked VS Code IPC with `MessageRouter` returning `MOCK_RESPONSE` tracking user states safely.
+- Completed Task M01-S04-T003: Execution Timeline UI.
+  - Implemented the `ExecutionTimeline` suite visualizing execution steps dynamically.
+  - Assembled `execution.css` establishing layout progression tracks.
+- Completed Task M01-S04-T002: Approval Engine Foundation.
+  - Implemented the `ApprovalRequest` typings isolating system modifications from uncontrolled AI behavior.
+  - Assembled `ApprovalEngine.ts` governing strict user-decision states locking execution routes seamlessly into an `ApprovalRegistry`.
+- Completed Task M01-S04-T001: Planner Engine Foundation.
+  - Implemented the `Plan` structures acting as the backbone interface interpreting user intentions into executable steps (`ActionType.ts`).
+  - Added risk mitigation layers globally tracking plan security scores (`RiskLevel.ts`).
+  - Orchestrated `PlannerEngine.ts` mapping contexts into `Plan` artifacts and storing them into the globally persistent `PlannerRegistry.ts` cache block.
 - Completed Task M01-S03-T006: Context Builder Foundation.
   - Assembled `ContextBuilder` mapping engine consolidating Workspace, Editor, Terminal, and configuration states seamlessly.
   - Defined rigid Context typings (`Context.ts`, `ContextSnapshot.ts`) driven by structured ingestion points via decoupled `ContextCollector.ts` logic.

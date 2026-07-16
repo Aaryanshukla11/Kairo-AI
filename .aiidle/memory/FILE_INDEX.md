@@ -16,11 +16,32 @@
   - [launch.json](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.vscode/launch.json) - Extension host debugger config.
 - [src/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/) - Active codebase.
   - [common/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/) - Shared types mapping.
+    - [approval/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/approval/) - Approval lifecycle logic typings.
+      - [ApprovalRequest.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/approval/ApprovalRequest.ts) - Root approval authorization object.
+      - [ApprovalDecision.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/approval/ApprovalDecision.ts) - User input action enum (`APPROVE`, `REJECT`).
+      - [ApprovalAction.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/approval/ApprovalAction.ts) - Execution boundaries enum (`CREATE_FILE`, `RUN_TERMINAL`).
+      - [ApprovalStatus.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/approval/ApprovalStatus.ts) - Request persistence tracking enum (`WAITING`, `APPROVED`).
+      - [ApprovalMetadata.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/approval/ApprovalMetadata.ts) - Configuration metrics encapsulating expiration states.
+      - [ApprovalValidator.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/approval/ApprovalValidator.ts) - Approval execution request constraint blocks.
+      - [ApprovalFactory.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/approval/ApprovalFactory.ts) - Object initialization generator locking schema.
+      - [ApprovalPolicy.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/approval/ApprovalPolicy.ts) - Business rules calculating authorization necessity from RiskLevel.
+      - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/approval/index.ts) - Barrel exporter.
     - [context/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/context/) - Context abstraction typings.
       - [Context.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/context/Context.ts) - Root structure typing.
       - [ContextMetadata.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/context/ContextMetadata.ts) - Context metadata flags typing.
       - [ContextSummary.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/context/ContextSummary.ts) - Pre-analyzed summary structures.
       - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/context/index.ts) - Barrel exporter.
+    - [planner/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/planner/) - Execution plan architectural typing.
+      - [Plan.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/planner/Plan.ts) - Root structure typing for an execution block.
+      - [PlanStep.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/planner/PlanStep.ts) - Step-by-step block logic abstraction.
+      - [PlanStatus.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/planner/PlanStatus.ts) - Plan progression lifecycle ENUMs.
+      - [PlanMetadata.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/planner/PlanMetadata.ts) - Execution settings wrappers.
+      - [ActionType.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/planner/ActionType.ts) - Execution mapping logic ENUMs.
+      - [RiskLevel.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/planner/RiskLevel.ts) - Security injection logic ENUMs.
+      - [ExecutionStrategy.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/planner/ExecutionStrategy.ts) - PARALLEL vs SEQUENTIAL runtime enum hooks.
+      - [PlanValidator.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/planner/PlanValidator.ts) - Constraint verification tools.
+      - [PlanFactory.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/planner/PlanFactory.ts) - Object initialization generator locking schemas.
+      - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/planner/index.ts) - Barrel exporter.
     - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/index.ts) - Shared interfaces.
     - [prompt/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/prompt/) - Prompt foundational objects.
       - [Prompt.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/prompt/Prompt.ts) - Core Prompt Object model.
@@ -56,6 +77,12 @@
     - [pipeline/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/pipeline/) - Execution pipeline layers.
       - [PromptDispatcher.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/pipeline/PromptDispatcher.ts) - Routes incoming raw prompts to the generic pipeline runner.
       - [PromptPipeline.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/pipeline/PromptPipeline.ts) - Validates and normalizes prompts before AI handover.
+    - [approval/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/approval/) - Decision tracking mapping boundaries.
+      - [ApprovalEngine.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/approval/ApprovalEngine.ts) - Master rule controller generating mapped requests against `ApprovalPolicy`.
+      - [ApprovalDispatcher.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/approval/ApprovalDispatcher.ts) - Ingestion hook consuming IPC messages propagating downstream changes.
+      - [ApprovalRegistry.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/approval/ApprovalRegistry.ts) - Map-based single memory store retaining approval requests dynamically.
+      - [ApprovalEvents.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/approval/ApprovalEvents.ts) - Internal mapping enum triggers (`DECISION_ACCEPTED`).
+      - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/approval/index.ts) - Barrel exporter.
     - [context/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/context/) - Context aggregation and compression.
       - [ContextBuilder.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/context/ContextBuilder.ts) - Aggregates data sources into the Context Snapshot.
       - [ContextCollector.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/context/ContextCollector.ts) - Architectural stub mapping Workspace, Editor, etc.
@@ -65,6 +92,12 @@
       - [ContextSnapshot.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/context/ContextSnapshot.ts) - Output contract schema.
       - [ContextValidator.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/context/ContextValidator.ts) - Payload constraint enforcement.
       - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/context/index.ts) - Barrel exporter.
+    - [planner/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/planner/) - Decision-making and execution routing logic.
+      - [PlannerEngine.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/planner/PlannerEngine.ts) - Master intelligence stub routing Plans mapping AI steps.
+      - [PlannerDispatcher.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/planner/PlannerDispatcher.ts) - Ingestion API boundary translating pipeline streams into PlannerEngine queues.
+      - [PlannerRegistry.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/planner/PlannerRegistry.ts) - Map-based tracker maintaining Plan persistence across node lifecycle.
+      - [PlannerEvents.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/planner/PlannerEvents.ts) - Internal broadcast mappings.
+      - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/planner/index.ts) - Barrel exporter.
     - [session/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/session/) - Node extension session persistence handlers.
       - [SessionManager.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/session/SessionManager.ts) - Session operations logic and broadcast orchestration.
       - [SessionRegistry.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/session/SessionRegistry.ts) - Map-based singleton caching current live sessions.
@@ -104,6 +137,15 @@
         - [ComposerTextarea.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/composer/ComposerTextarea.tsx) - Main typing area.
         - [ComposerToolbar.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/composer/ComposerToolbar.tsx) - Placeholder actions toolbar.
         - [SendButton.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/composer/SendButton.tsx) - Composer send button.
+      - [execution/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/execution/) - Plan progress visualization layers.
+        - [ExecutionTimeline.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/execution/ExecutionTimeline.tsx) - Master vertical step layout component.
+        - [ExecutionCard.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/execution/ExecutionCard.tsx) - Container housing timeline and summaries.
+        - [ExecutionStep.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/execution/ExecutionStep.tsx) - Individual atomic action block rendering.
+        - [ExecutionStatusBadge.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/execution/ExecutionStatusBadge.tsx) - Lifecycle icon indicators (`PENDING`, `RUNNING`).
+        - [ExecutionProgress.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/execution/ExecutionProgress.tsx) - Animated success percentage tracker.
+        - [ExecutionSummary.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/execution/ExecutionSummary.tsx) - Header logic analyzing RiskLevel and Duration globally.
+        - [ExecutionToolbar.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/execution/ExecutionToolbar.tsx) - Interactive hooks for Pause/Resume.
+        - [ExecutionEmptyState.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/execution/ExecutionEmptyState.tsx) - Default idle placeholder layer.
       - [layout/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/layout/) - Legacy Layout components (Deprecated).
       - [state/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/) - React Native contexts (no third party).
         - [appState.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/appState.ts) - High-level initialization flags.
@@ -121,6 +163,8 @@
         - [sessionService.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/sessionService.ts) - Provides API methods matching SessionManager backend ops.
         - [workspaceService.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/workspaceService.ts) - IPC hooks matching Workspace Scanner extension host calls.
         - [contextService.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/contextService.ts) - IPC hooks triggering backend context generation.
+        - [plannerService.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/plannerService.ts) - IPC hooks linking UI with Planner execution generation mapping boundaries.
+        - [approvalService.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/approvalService.ts) - IPC hooks linking UI confirmation forms into `ApprovalEngine`.
         - [Header.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/layout/Header.tsx) - App title header panel.
         - [ConversationPanel.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/layout/ConversationPanel.tsx) - Chat message containers.
         - [PromptPanel.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/layout/PromptPanel.tsx) - Textarea input area.
@@ -134,6 +178,7 @@
       - [theme.css](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/styles/theme.css) - Light/Dark theme adaptors.
       - [layout.css](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/styles/layout.css) - Shell grid positioning styles.
       - [globals.css](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/styles/globals.css) - Primary stylesheet importer.
+      - [execution.css](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/styles/execution.css) - Isolated UI styling defining progression animations and spacing rules for the Timeline.
 - [vite.config.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/vite.config.ts) - Vite configuration mapping build settings.
 - [tests/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/tests/) - Integrated test suites.
   - [runTest.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/tests/runTest.ts) - VS Code sandbox test runner boostrap.

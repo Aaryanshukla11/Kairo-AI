@@ -5,9 +5,11 @@ import { AppProvider } from "./providers/AppProvider";
 import { vscodeBridge } from "./services/vscodeBridge";
 import "./styles/globals.css";
 
+import { MessageType } from "../common/protocol";
+
 // 1. Initialize native VS Code API bridge channel
 try {
-  vscodeBridge.postMessage({ type: "INIT" });
+  vscodeBridge.postMessage({ type: MessageType.INIT as any });
   console.log("[Sasta-Antigravity] VS Code API bridge successfully initialized.");
 } catch (err) {
   console.warn("[Sasta-Antigravity] Failed to acquire VS Code API inside browser environment:", err);

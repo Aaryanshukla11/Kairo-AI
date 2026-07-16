@@ -1,0 +1,229 @@
+/* Execution UI Styles */
+
+.execution-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+  padding: var(--spacing-16);
+  height: 100%;
+  overflow-y: auto;
+}
+
+.execution-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  box-shadow: var(--shadow-subtle);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.execution-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.execution-summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+}
+
+.execution-summary-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1 1 auto;
+}
+
+.execution-summary-meta {
+  display: flex;
+  gap: var(--spacing-16);
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.execution-progress-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  width: 100%;
+}
+
+.execution-progress-bar-bg {
+  height: 8px;
+  background-color: var(--secondary);
+  border-radius: 4px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.execution-progress-bar-fill {
+  height: 100%;
+  background-color: var(--primary);
+  transition: width 0.3s var(--ease-in-out);
+}
+
+.execution-progress-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.execution-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: var(--spacing-16);
+  width: 100%;
+}
+
+.execution-step {
+  display: flex;
+  gap: var(--spacing-16);
+  position: relative;
+  padding-bottom: var(--spacing-24);
+  width: 100%;
+}
+
+.execution-step:last-child {
+  padding-bottom: 0;
+}
+
+.execution-step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.execution-step-line {
+  position: absolute;
+  top: 24px;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--border);
+  z-index: 0;
+}
+
+.execution-step:last-child .execution-step-line {
+  display: none;
+}
+
+.execution-step-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--surface);
+  border: 2px solid var(--border);
+  z-index: 1;
+}
+
+/* Status Colors */
+.status-pending { color: var(--text-secondary); border-color: var(--text-secondary); }
+.status-running { color: var(--primary); border-color: var(--primary); }
+.status-success { color: var(--success); border-color: var(--success); }
+.status-failed { color: var(--error); border-color: var(--error); }
+.status-skipped { color: var(--text-secondary); border-color: var(--border); }
+.status-waiting { color: var(--warning); border-color: var(--warning); }
+.status-cancelled { color: var(--text-secondary); border-color: var(--text-secondary); }
+
+.execution-step-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  flex: 1;
+  padding-top: 2px;
+  min-width: 0;
+}
+
+.execution-step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+}
+
+.execution-step-title {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.execution-step-duration {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.execution-step-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.execution-step-logs {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: var(--spacing-12);
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--text-primary);
+  margin-top: var(--spacing-8);
+  white-space: pre-wrap;
+  word-break: break-all;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.execution-toolbar {
+  display: flex;
+  gap: var(--spacing-12);
+  padding-top: var(--spacing-16);
+  border-top: 1px solid var(--border);
+  margin-top: var(--spacing-16);
+  flex-wrap: wrap;
+}
+
+.execution-btn {
+  padding: var(--spacing-8) var(--spacing-16);
+  border-radius: var(--radius-button);
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+  transition: opacity var(--duration-hover);
+  flex: 1 1 auto;
+  min-width: 100px;
+}
+
+.execution-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.execution-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: var(--spacing-32);
+}

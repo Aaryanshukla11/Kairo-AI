@@ -7,12 +7,14 @@ export interface AppContextType {
   appState: AppState;
   uiState: UiState;
   chatState: ChatState;
+  setChatState: React.Dispatch<React.SetStateAction<ChatState>>;
 }
 
 export const initialAppContext: AppContextType = {
   appState: initialAppState,
   uiState: initialUiState,
   chatState: initialChatState,
+  setChatState: () => {},
 };
 
 export const AppContext = createContext<AppContextType>(initialAppContext);

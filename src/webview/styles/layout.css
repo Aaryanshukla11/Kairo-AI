@@ -1,55 +1,78 @@
+/* 
+  AIIdle Premium UI Redesign - Core Layout
+*/
+
 .chat-layout {
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100vw;
+  max-width: 100%;
+  overflow: hidden;
   background-color: var(--background);
   color: var(--text-primary);
 }
 
+/* ==================================================
+   HEADER
+   ================================================== */
 .chat-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-20) var(--spacing-32);
+  padding: var(--spacing-8) var(--spacing-16);
   background-color: var(--background);
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  height: 48px;
 }
 
 .chat-header-identity {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.chat-header-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.chat-header-actions {
+  display: flex;
   gap: var(--spacing-4);
 }
 
-.chat-status-badge {
+.header-icon-button {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  border-radius: var(--radius-button);
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
-  gap: var(--spacing-8);
-  padding: var(--spacing-4) var(--spacing-12);
-  border-radius: var(--radius-badge);
-  background-color: color-mix(in srgb, var(--surface) 50%, transparent);
-  border: 1px solid var(--border);
+  justify-content: center;
+  cursor: pointer;
   transition: all var(--duration-hover) var(--ease-in-out);
 }
 
-.chat-status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: var(--radius-badge);
+.header-icon-button:hover {
+  background-color: var(--surface);
+  color: var(--text-primary);
 }
 
-.status-ready .chat-status-dot { background-color: var(--success); }
-.status-working .chat-status-dot { background-color: var(--warning); }
-.status-error .chat-status-dot { background-color: var(--error); }
-.status-offline .chat-status-dot { background-color: var(--text-secondary); }
 
+/* ==================================================
+   TIMELINE
+   ================================================== */
 .chat-timeline {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   overflow-y: auto;
-  padding: var(--spacing-32);
+  overflow-x: hidden;
+  padding: var(--spacing-32) var(--spacing-16);
 }
 
 .chat-empty-state {
@@ -59,122 +82,15 @@
   align-items: center;
   text-align: center;
   height: 100%;
-}
-
-.chat-empty-title {
-  margin-bottom: var(--spacing-8);
-}
-
-.chat-empty-subtitle {
-  margin-bottom: var(--spacing-40);
   color: var(--text-secondary);
 }
 
-.chat-empty-features {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 var(--spacing-40) 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-16);
-  align-items: center;
-}
-
-.composer-panel {
-  padding: var(--spacing-20) var(--spacing-32) var(--spacing-32) var(--spacing-32);
-  background-color: var(--background);
-  flex-shrink: 0;
-}
-
-.composer-wrapper {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  border-radius: var(--radius-input);
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-subtle);
-  transition: box-shadow var(--duration-focus) var(--ease-in-out), border-color var(--duration-focus) var(--ease-in-out);
-}
-
-.composer-wrapper:focus-within {
-  box-shadow: var(--shadow-floating);
-  border-color: var(--primary);
-}
-
-.composer-textarea {
-  width: 100%;
-  min-height: 120px;
-  max-height: 300px;
-  padding: var(--spacing-20) var(--spacing-24);
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-input) var(--radius-input) 0 0;
-  color: var(--text-primary);
-  resize: none;
-  outline: none;
-  cursor: not-allowed;
-  opacity: 0.6;
-  font-family: inherit;
-  box-sizing: border-box;
-}
-
-.composer-divider {
-  height: 1px;
-  background-color: var(--border);
-  margin: 0 var(--spacing-24);
-}
-
-.composer-actions-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--spacing-12) var(--spacing-16);
-}
-
-.composer-toolbar {
-  display: flex;
-  gap: var(--spacing-12);
-  align-items: center;
-}
-
-.composer-toolbar-button {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  cursor: not-allowed;
-  padding: var(--spacing-4) var(--spacing-8);
-  border-radius: var(--radius-button);
-}
-
-.composer-send-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-8);
-  padding: var(--spacing-8) var(--spacing-20);
-  border-radius: var(--radius-button);
-  background-color: var(--primary);
-  color: var(--primary-foreground);
-  border: 1px solid color-mix(in srgb, var(--primary) 90%, black);
-  opacity: 0.5;
-  font-weight: 500;
-  font-size: 14px;
-  cursor: not-allowed;
-  transition: background-color var(--duration-hover) var(--ease-in-out), opacity var(--duration-hover) var(--ease-in-out);
-}
-
-/* Chat Message Architectures */
 .chat-messages-container {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-24);
+  gap: var(--spacing-32);
   width: 100%;
-  max-width: 800px;
+  max-width: 768px; /* Maximum readable width */
   margin: 0 auto;
 }
 
@@ -182,6 +98,7 @@
   display: flex;
   gap: var(--spacing-16);
   width: 100%;
+  max-width: 100%;
 }
 
 .message-user {
@@ -213,7 +130,7 @@
 }
 
 .avatar-user {
-  background-color: var(--surface);
+  background-color: transparent;
   border: 1px solid var(--border);
   color: var(--text-secondary);
 }
@@ -221,14 +138,15 @@
 .message-bubble-body {
   display: flex;
   flex-direction: column;
-  max-width: 80%;
+  max-width: calc(100% - 44px);
+  min-width: 0;
 }
 
 .message-user .message-bubble-body {
   background-color: var(--surface);
   border: 1px solid var(--border);
-  padding: var(--spacing-12) var(--spacing-16);
-  border-radius: var(--radius-input);
+  padding: var(--spacing-16);
+  border-radius: var(--radius-card);
   border-top-right-radius: 4px;
 }
 
@@ -248,12 +166,13 @@
   line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-word;
+  font-size: 14px;
 }
 
 .typing-indicator {
   display: flex;
   gap: var(--spacing-4);
-  padding: var(--spacing-12) var(--spacing-16);
+  padding: var(--spacing-16) 0;
 }
 
 .typing-dot {
@@ -262,5 +181,178 @@
   background-color: var(--text-secondary);
   border-radius: 50%;
   opacity: 0.5;
+  animation: typing 1.4s infinite ease-in-out both;
 }
 
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+
+/* ==================================================
+   COMPOSER
+   ================================================== */
+.composer-panel {
+  padding: 0 var(--spacing-24) var(--spacing-24) var(--spacing-24);
+  background-color: transparent;
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Gradient fade to hide scroll under composer */
+.composer-panel::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to top, var(--background), transparent);
+  pointer-events: none;
+}
+
+/* Toolbar Floating Above */
+.composer-toolbar {
+  display: flex;
+  gap: var(--spacing-16);
+  align-items: center;
+  margin-bottom: var(--spacing-16);
+  padding: 0 var(--spacing-8);
+}
+
+.composer-toolbar-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: var(--spacing-4);
+  transition: transform 150ms var(--ease-in-out), color 150ms var(--ease-in-out);
+}
+
+.composer-toolbar-button:hover:not(:disabled) {
+  color: var(--text-primary);
+  transform: scale(1.05);
+}
+
+.composer-toolbar-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Animated Tooltip */
+.composer-toolbar-button::after {
+  content: attr(aria-label);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px) scale(0.95);
+  background-color: var(--surface);
+  color: var(--text-primary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms var(--ease-in-out), transform 150ms var(--ease-in-out);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-subtle);
+  z-index: 10;
+}
+
+.composer-toolbar-button:hover:not(:disabled)::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-8px) scale(1);
+}
+
+/* Composer Wrapper */
+.composer-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: var(--spacing-24);
+  border-radius: var(--radius-composer);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-composer);
+  transition: box-shadow var(--duration-focus) var(--ease-in-out), border-color var(--duration-focus) var(--ease-in-out);
+  box-sizing: border-box;
+}
+
+.composer-wrapper:focus-within {
+  box-shadow: var(--shadow-floating);
+  border-color: var(--primary);
+}
+
+.composer-textarea {
+  width: calc(100% - 72px); /* Leave room for button */
+  min-height: 56px;
+  max-height: 40vh;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  resize: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 15px; /* Large readable font */
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.composer-textarea::placeholder {
+  color: var(--text-secondary);
+}
+
+.composer-textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Send Button (Bottom Right Inside Composer) */
+.composer-send-button {
+  position: absolute;
+  right: var(--spacing-16);
+  bottom: var(--spacing-16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  cursor: pointer;
+  transition: all var(--duration-hover) var(--ease-in-out);
+  box-shadow: var(--shadow-subtle);
+}
+
+.composer-send-button:disabled {
+  background-color: var(--background);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.composer-send-button:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-floating);
+}

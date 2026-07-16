@@ -1,0 +1,50 @@
+:root {
+  /* VS Code Native Palette Bindings */
+  --background: var(--vscode-sideBar-background, var(--vscode-editor-background, #1e1e1e));
+  --surface: var(--vscode-editor-background, var(--vscode-sideBar-background, #1e1e1e));
+  
+  /* Reduced border contrast */
+  --border: color-mix(in srgb, var(--vscode-widget-border, #3c3c3c) 30%, transparent);
+  
+  --primary: var(--vscode-button-background, #007acc);
+  --primary-hover: var(--vscode-button-hoverBackground, #0062a3);
+  --primary-foreground: var(--vscode-button-foreground, #ffffff);
+  
+  --secondary: var(--vscode-button-secondaryBackground, #3c3c3c);
+  --secondary-hover: var(--vscode-button-secondaryHoverBackground, #4c4c4c);
+  --secondary-foreground: var(--vscode-button-secondaryForeground, #ffffff);
+  
+  --text-primary: var(--vscode-sideBar-foreground, var(--vscode-foreground, #cccccc));
+  --text-secondary: var(--vscode-descriptionForeground, var(--vscode-disabledForeground, #8c8c8c));
+  
+  --success: var(--vscode-testing-iconPassedColor, #2ea043);
+  --warning: var(--vscode-testing-iconQueuedColor, #d29922);
+  --error: var(--vscode-testing-iconFailedColor, var(--vscode-errorForeground, #f85149));
+
+  /* Strict Spacing Scale (Pixels) */
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+
+  /* Premium Border Radii */
+  --radius-button: 14px;
+  --radius-input: 16px;
+  --radius-panel: 18px;
+  --radius-badge: 999px;
+
+  /* Soft Shadows for Floating Surfaces */
+  --shadow-subtle: 0 2px 10px rgba(0, 0, 0, 0.03);
+  --shadow-floating: 0 8px 30px rgba(0, 0, 0, 0.06);
+
+  /* Subtle Animation Transitions */
+  --duration-hover: 120ms;
+  --duration-focus: 150ms;
+  --duration-panel: 200ms;
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+}

@@ -1,0 +1,174 @@
+# File Index
+
+## Directory Map
+
+- [.gitignore](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.gitignore) - Excludes standard runtime logs from Git.
+- [.eslintignore](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.eslintignore) - ESLint check exclusion list.
+- [.prettierignore](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.prettierignore) - Prettier check exclusion list.
+- [.eslintrc.json](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.eslintrc.json) - ESLint configuration checks.
+- [.prettierrc](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.prettierrc) - Prettier code styling checks.
+- [package.json](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/package.json) - Node dependencies wrapper descriptions and commands.
+- [tsconfig.json](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/tsconfig.json) - Strict TypeScript options.
+- [tsconfig.test.json](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/tsconfig.test.json) - TS test compiler configurations.
+- [jest.config.js](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/jest.config.js) - Deprecated (Mocha migrated).
+- [.vscode/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.vscode/) - Workspace visual preferences.
+  - [settings.json](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.vscode/settings.json) - Editor preferences.
+  - [launch.json](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.vscode/launch.json) - Extension host debugger config.
+- [src/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/) - Active codebase.
+  - [common/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/) - Shared types mapping.
+    - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/index.ts) - Shared interfaces.
+  - [extension/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/) - Node-based VS Code extension host runtime.
+    - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/index.ts) - Extension initialization hook.
+    - [webviewProvider.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/webviewProvider.ts) - Main Webview binding container.
+    - [messageRouter.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/messageRouter.ts) - Extension-side incoming message router.
+  - [shared/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/shared/) - Shared logic between extension and webview.
+    - [messages.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/shared/messages.ts) - Bridge message structures and schemas.
+  - [webview/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/) - React user dashboards component folders.
+    - [main.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/main.tsx) - React DOM bootstrap and vscode bridge initializer.
+    - [App.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/App.tsx) - Primary React component output.
+    - [components/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/) - React layout and component files.
+      - [chat/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/chat/) - Chat UI shell and interactive components.
+        - [ChatHeader.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/chat/ChatHeader.tsx) - Main status header.
+        - [ChatTimeline.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/chat/ChatTimeline.tsx) - Scrollable message container.
+        - [EmptyState.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/chat/EmptyState.tsx) - Default chat welcome view.
+        - [MessageBubble.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/chat/MessageBubble.tsx) - Generic chat bubble wrapper.
+        - [MessageAvatar.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/chat/MessageAvatar.tsx) - Role-based avatar icon.
+        - [MessageContent.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/chat/MessageContent.tsx) - Text string display content container.
+        - [UserMessage.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/chat/UserMessage.tsx) - Specific user layout proxy.
+        - [AssistantMessage.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/chat/AssistantMessage.tsx) - Specific AI layout proxy.
+        - [SystemMessage.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/chat/SystemMessage.tsx) - Event/status proxy message.
+        - [TypingIndicator.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/chat/TypingIndicator.tsx) - Loading state visual proxy.
+        - [PromptComposer.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/chat/PromptComposer.tsx) - Legacy textarea component (Deprecated).
+        - [SendButton.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/chat/SendButton.tsx) - Legacy disabled submission button (Deprecated).
+        - [StatusBadge.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/chat/StatusBadge.tsx) - Reusable indicator UI.
+      - [composer/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/composer/) - Premium Prompt Composer module.
+        - [PromptComposer.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/composer/PromptComposer.tsx) - Main composer container.
+        - [ComposerActions.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/composer/ComposerActions.tsx) - Composer toolbar and send button wrapper.
+        - [ComposerTextarea.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/composer/ComposerTextarea.tsx) - Main typing area.
+        - [ComposerToolbar.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/composer/ComposerToolbar.tsx) - Placeholder actions toolbar.
+        - [SendButton.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/composer/SendButton.tsx) - Composer send button.
+      - [layout/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/layout/) - Legacy Layout components (Deprecated).
+      - [state/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/) - Application state interface definitions.
+        - [appState.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/appState.ts) - Top-level initialization states.
+        - [uiState.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/uiState.ts) - Panel and visual layouts state.
+        - [chatState.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/chatState.ts) - Message and conversational states.
+      - [context/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/context/) - React contexts.
+        - [AppContext.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/context/AppContext.tsx) - Root compound context wrapper.
+      - [providers/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/providers/) - React context providers.
+        - [AppProvider.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/providers/AppProvider.tsx) - App state logic encapsulator.
+      - [services/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/) - External interfaces and bridges.
+        - [vscodeBridge.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/vscodeBridge.ts) - Webview abstraction boundary to VS Code host.
+        - [messageBus.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/messageBus.ts) - Webview-internal publish/subscribe bus.
+        - [Header.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/layout/Header.tsx) - App title header panel.
+        - [ConversationPanel.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/layout/ConversationPanel.tsx) - Chat message containers.
+        - [PromptPanel.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/layout/PromptPanel.tsx) - Textarea input area.
+        - [MainLayout.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/layout/MainLayout.tsx) - Composite container.
+      - [ui/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/ui/) - Reusable interface components.
+        - [StatusIndicator.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/ui/StatusIndicator.tsx) - Status indicators.
+    - [styles/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/styles/) - CSS stylesheets mapping.
+      - [variables.css](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/styles/variables.css) - Global design tokens.
+      - [reset.css](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/styles/reset.css) - CSS margin resets.
+      - [typography.css](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/styles/typography.css) - Text styles mappings.
+      - [theme.css](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/styles/theme.css) - Light/Dark theme adaptors.
+      - [layout.css](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/styles/layout.css) - Shell grid positioning styles.
+      - [globals.css](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/styles/globals.css) - Primary stylesheet importer.
+- [vite.config.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/vite.config.ts) - Vite configuration mapping build settings.
+- [tests/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/tests/) - Integrated test suites.
+  - [runTest.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/tests/runTest.ts) - VS Code sandbox test runner boostrap.
+  - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/tests/index.ts) - Deprecated file runner entry.
+  - [suite/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/tests/suite/)
+    - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/tests/suite/index.ts) - Mocha test loading directory.
+  - [unit/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/tests/unit/)
+    - [.gitkeep](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/tests/unit/.gitkeep) - Keeps directories folder in git.
+  - [integration/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/tests/integration/)
+    - [.gitkeep](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/tests/integration/.gitkeep) - Keeps directories folder in git.
+- [.aiidle/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/) - AIIdle workspace configuration and persistent memory system.
+  - [reports/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/reports/) - Task execution outputs.
+    - [implementation-report.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/reports/implementation-report.md) - Consolidated task implementation report.
+    - [foundation-correction-report.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/reports/foundation-correction-report.md) - Deprecated.
+  - [memory/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/) - Constitutional files, logs, and standards.
+    - [CONTEXT.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/CONTEXT.md) - Active context and current workspace status.
+    - [VISION.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/VISION.md) - Repository constitution, mission, and rules.
+    - [RULEBOOK.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/RULEBOOK.md) - Immutable coding and engineering rules.
+    - [PROJECT_STATUS.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/PROJECT_STATUS.md) - Project metadata, progress metrics, and statuses.
+    - [SESSION_LOG.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/SESSION_LOG.md) - History logs showing prompt-by-prompt activity.
+    - [ARCHITECTURE.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/ARCHITECTURE.md) - Architectural changes and patterns.
+    - [DECISIONS.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/DECISIONS.md) - Design log and decisions.
+    - [ROADMAP.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/ROADMAP.md) - Project milestones plan.
+    - [TODO.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/TODO.md) - Priority task checklists.
+    - [CHANGELOG.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/CHANGELOG.md) - Project release changelogs.
+    - [KNOWN_ISSUES.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/KNOWN_ISSUES.md) - List of active bugs or limitations.
+    - [FEATURES.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/FEATURES.md) - Features status tracker.
+    - [MODULES.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/MODULES.md) - Active modules description.
+    - [DEPENDENCIES.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/DEPENDENCIES.md) - Package configurations list.
+    - [FILE_INDEX.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/FILE_INDEX.md) - Workspace folder/file map (this file).
+    - [CODING_STANDARDS.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/CODING_STANDARDS.md) - Programming rules.
+    - [API_REFERENCE.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/API_REFERENCE.md) - Exported endpoints registry.
+    - [TEST_REPORT.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/TEST_REPORT.md) - Test suites metrics.
+    - [SECURITY.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/SECURITY.md) - System permissions log.
+    - [STACK.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/STACK.md) - Technology stack and runtimes list.
+    - [GLOSSARY.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/GLOSSARY.md) - Domain-specific glossary terms.
+    - [CHECKPOINTS.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/CHECKPOINTS.md) - Rollback checkpoints tracker.
+    - [RISKS.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/RISKS.md) - Risk register.
+    - [DOCUMENT_LOAD_ORDER.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/DOCUMENT_LOAD_ORDER.md) - Sequence checklist for task read operations.
+    - [SELF_VALIDATION.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/SELF_VALIDATION.md) - Pre-completion agent checklist.
+    - [ENGINEERING_GUIDE.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/ENGINEERING_GUIDE.md) - Coding rules, testing types, performance guidelines.
+    - [REPOSITORY_BLUEPRINT.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/REPOSITORY_BLUEPRINT.md) - Root layout and directory ownership.
+    - [WORKFLOW.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/WORKFLOW.md) - Development lifecycle, Git standard, commit rules.
+    - [RELEASE_POLICY.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/RELEASE_POLICY.md) - Packaging build settings and hotfixes.
+    - [DEPENDENCY_RULES.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/DEPENDENCY_RULES.md) - Dependency bounds, relative/absolute imports.
+    - [NAMING_CONVENTIONS.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/NAMING_CONVENTIONS.md) - Case rules for naming objects and folder files.
+    - [CURRENT_TASK.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/CURRENT_TASK.md) - Details of the active engineering task.
+    - [MASTER_DEVELOPMENT_PLAN.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/MASTER_DEVELOPMENT_PLAN.md) - Sprint-by-sprint project roadmap.
+    - [ENGINEERING_READINESS.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/ENGINEERING_READINESS.md) - Go/No-Go readiness audit report.
+    - [SPRINT_TRACKER.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/SPRINT_TRACKER.md) - Checklist state tracker for active sprint.
+    - [MILESTONE_TRACKER.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/MILESTONE_TRACKER.md) - Status listing for high-level milestones.
+  - [contracts/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/contracts/) - Interface boundaries contracts for system modules.
+    - [memory.contract.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/contracts/memory.contract.md) - Memory module contract.
+    - [planner.contract.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/contracts/planner.contract.md) - Planner module contract.
+    - [executor.contract.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/contracts/executor.contract.md) - Executor module contract.
+    - [knowledge.contract.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/contracts/knowledge.contract.md) - Knowledge module contract.
+    - [terminal.contract.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/contracts/terminal.contract.md) - Terminal module contract.
+    - [chat.contract.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/contracts/chat.contract.md) - Chat interface module contract.
+  - [logs/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/logs/) - Standard diagnostic run outputs.
+    - [agent.log](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/logs/agent.log) - Log of agent activities.
+    - [terminal.log](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/logs/terminal.log) - Command line execution logs.
+    - [build.log](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/logs/build.log) - Build success and warnings.
+    - [errors.log](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/logs/errors.log) - System errors and exceptions.
+  - [prompts/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/) - Organized prompt records index.
+    - [misc/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/misc/)
+      - [initialize-project.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/misc/initialize-project.md) - Initial prompt logs.
+    - [memory/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/)
+      - [memory-system.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/memory-system.md) - Prompt 2 memory init.
+      - [memory-system-upgrade.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/memory-system-upgrade.md) - Prompt 3 memory upgrade.
+      - [governance-upgrade.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/governance-upgrade.md) - Constitution upgrade logs.
+      - [protocol-setup.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/protocol-setup.md) - Protocol setup logs.
+      - [readiness-audit.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/readiness-audit.md) - Audit logs prompt copy.
+      - [backlog-setup.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/backlog-setup.md) - Backlog setup logs.
+      - [role-definition.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/role-definition.md) - Role locks prompt archive.
+      - [first-task.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/first-task.md) - First task prompt archive.
+      - [foundation-correction.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/foundation-correction.md) - Foundation correction prompt archive.
+      - [foundation-cleanup.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/foundation-cleanup.md) - Repository cleanup logs.
+      - [webview-host-init.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/webview-host-init.md) - Webview host initialization prompt logs.
+      - [react-runtime-init.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/react-runtime-init.md) - React runtime integration prompt logs.
+      - [design-system-init.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/design-system-init.md) - Design system initialization prompt logs.
+      - [app-layout-init.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/app-layout-init.md) - App layout initialization prompt logs.
+      - [premium-ui-polish.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/premium-ui-polish.md) - UI polish prompt logs.
+  - [specs/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/) - Core module technical specification library.
+    - [extension.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/extension.md) - Extension specifications.
+    - [chat.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/chat.md) - Chat view specifications.
+    - [planner.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/planner.md) - Planner module specifications.
+    - [approval.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/approval.md) - Gated approval specifications.
+    - [memory.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/memory.md) - Memory module specifications.
+    - [workspace.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/workspace.md) - Workspace scanner specifications.
+    - [context.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/context.md) - Context Builder specifications.
+    - [knowledge.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/knowledge.md) - Knowledge database specifications.
+    - [rag.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/rag.md) - RAG system specifications.
+    - [executor.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/executor.md) - Executor engine specifications.
+    - [terminal.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/terminal.md) - Terminal execution wrapper specs.
+    - [filesystem.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/filesystem.md) - File System engine specs.
+    - [git.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/git.md) - Git engine specs.
+    - [settings.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/settings.md) - Settings serializer specs.
+    - [logging.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/logging.md) - Diagnostic logging specs.
+    - [configuration.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/configuration.md) - Settings/Config manager specs.
+    - [error-recovery.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/specs/error-recovery.md) - Task error/rollback manager specs.

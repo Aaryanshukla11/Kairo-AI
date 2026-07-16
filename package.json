@@ -1,0 +1,95 @@
+{
+  "name": "sasta-antigravity",
+  "displayName": "Sasta Antigravity",
+  "description": "Offline AI Software Engineer VS Code Extension",
+  "version": "0.1.0-draft",
+  "publisher": "aaryanshukla11",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Aaryanshukla11/Sasta-Antigravity-.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Aaryanshukla11/Sasta-Antigravity-/issues"
+  },
+  "homepage": "https://github.com/Aaryanshukla11/Sasta-Antigravity-",
+  "keywords": [
+    "ai",
+    "offline",
+    "coding",
+    "agent"
+  ],
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sasta-antigravity-sidebar",
+          "title": "Sasta-Antigravity Panel",
+          "icon": "$(gear)"
+        }
+      ]
+    },
+    "views": {
+      "sasta-antigravity-sidebar": [
+        {
+          "type": "webview",
+          "id": "sasta-antigravity.chatView",
+          "name": "Sasta-Antigravity Chat",
+          "icon": "$(sparkle)"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "sasta-antigravity.startSession",
+        "title": "Sasta-Antigravity: Start New Session"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "clean": "node -e \"const fs = require('fs'); fs.rmSync('dist', { recursive: true, force: true }); fs.rmSync('out', { recursive: true, force: true });\"",
+    "compile:extension": "esbuild src/extension/index.ts --bundle --outfile=dist/extension.js --external:vscode --platform=node --format=cjs",
+    "compile:webview": "vite build",
+    "compile": "npm run compile:extension && npm run compile:webview",
+    "watch:extension": "esbuild src/extension/index.ts --bundle --outfile=dist/extension.js --external:vscode --platform=node --format=cjs --watch",
+    "watch:webview": "vite build --watch",
+    "watch": "npm run compile:extension -- --watch",
+    "lint": "eslint src --ext ts,tsx",
+    "format": "prettier --check \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\"",
+    "format:fix": "prettier --write \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\"",
+    "test": "mocha \"dist/tests/unit/**/*.test.js\"",
+    "test:extension": "tsc -p tsconfig.test.json && node dist/tests/runTest.js",
+    "build": "npm run clean && npm run compile",
+    "package": "npx @vscode/vsce package"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/vscode": "^1.80.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.0",
+    "@typescript-eslint/parser": "^5.59.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "@vscode/test-electron": "^2.3.0",
+    "esbuild": "^0.18.0",
+    "eslint": "^8.38.0",
+    "glob": "^10.2.2",
+    "mocha": "^10.2.0",
+    "prettier": "^2.8.8",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.0.4",
+    "vite": "^4.4.0"
+  }
+}

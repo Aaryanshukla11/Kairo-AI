@@ -1,0 +1,36 @@
+export enum ProtocolVersion {
+  V1 = "1.0.0",
+}
+
+export enum MessageType {
+  INIT = "INIT",
+  READY = "READY",
+  PING = "PING",
+  PONG = "PONG",
+  LOG = "LOG",
+  ERROR = "ERROR",
+  WARNING = "WARNING",
+  INFO = "INFO",
+  PROMPT_REQUEST = "PROMPT_REQUEST",
+  PROMPT_RESPONSE = "PROMPT_RESPONSE",
+  UNKNOWN = "UNKNOWN",
+}
+
+export enum MessageSource {
+  EXTENSION = "EXTENSION",
+  WEBVIEW = "WEBVIEW",
+  SYSTEM = "SYSTEM",
+}
+
+export enum MessageTarget {
+  EXTENSION = "EXTENSION",
+  WEBVIEW = "WEBVIEW",
+  BROADCAST = "BROADCAST",
+}
+
+export enum MessageSeverity {
+  INFO = "INFO",
+  WARNING = "WARNING",
+  ERROR = "ERROR",
+  CRITICAL = "CRITICAL",
+}

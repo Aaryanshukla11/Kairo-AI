@@ -235,6 +235,13 @@ must never be scattered throughout the project.
 
 Use constants, configuration files or the Design System.
 
+--------------------------------------------------
+
+Rule 26 — Protocol strictness
+
+All inter-module communication must use the shared protocol.
+No module may invent its own message format.
+
 ==================================================
 FINAL DIRECTIVES
 ==================================================

@@ -17,10 +17,53 @@
 - [src/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/) - Active codebase.
   - [common/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/) - Shared types mapping.
     - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/index.ts) - Shared interfaces.
+    - [prompt/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/prompt/) - Prompt foundational objects.
+      - [Prompt.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/prompt/Prompt.ts) - Core Prompt Object model.
+      - [PromptMetadata.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/prompt/PromptMetadata.ts) - Future planning metadata hooks.
+      - [PromptFactory.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/prompt/PromptFactory.ts) - Initializer and normalizer.
+      - [PromptValidator.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/prompt/PromptValidator.ts) - Input sanitization rules.
+      - [PromptResult.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/prompt/PromptResult.ts) - Output contract.
+      - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/prompt/index.ts) - Barrel exporter.
+    - [session/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/session/) - Session definitions and tracking typings.
+      - [Session.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/session/Session.ts) - Baseline session data structure.
+      - [SessionState.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/session/SessionState.ts) - Active lifecycle enums.
+      - [SessionEvents.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/session/SessionEvents.ts) - Broadcast typings.
+      - [SessionMetadata.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/session/SessionMetadata.ts) - Planner tracking keys.
+      - [SessionFactory.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/session/SessionFactory.ts) - Object instantiation generators.
+      - [SessionValidator.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/session/SessionValidator.ts) - Integrity constraint logic.
+      - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/session/index.ts) - Barrel exporter.
+    - [workspace/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/workspace/) - Workspace scanning definitions.
+      - [Workspace.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/workspace/Workspace.ts) - Root structure typing.
+      - [ProjectInfo.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/workspace/ProjectInfo.ts) - Summary framework and size typing.
+      - [FileInfo.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/workspace/FileInfo.ts) - Node file leaf map typing.
+      - [FolderInfo.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/workspace/FolderInfo.ts) - Subdirectory tree node typing.
+      - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/workspace/index.ts) - Barrel exporter.
+    - [protocol/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/protocol/) - Shared message protocol payload factory logic.
+      - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/protocol/index.ts) - Protocol interface export barrel.
+      - [messageFactory.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/protocol/messageFactory.ts) - Object instantiators for standard message formats.
+      - [messageSchemas.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/protocol/messageSchemas.ts) - Strongly typed interfaces and generic shapes.
+      - [messageTypes.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/protocol/messageTypes.ts) - Enums for type matching.
+      - [protocol.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/protocol/protocol.ts) - Payload validation guards and utilities.
   - [extension/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/) - Node-based VS Code extension host runtime.
     - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/index.ts) - Extension initialization hook.
     - [webviewProvider.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/webviewProvider.ts) - Main Webview binding container.
     - [messageRouter.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/messageRouter.ts) - Extension-side incoming message router.
+    - [pipeline/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/pipeline/) - Execution pipeline layers.
+      - [PromptDispatcher.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/pipeline/PromptDispatcher.ts) - Routes incoming raw prompts to the generic pipeline runner.
+      - [PromptPipeline.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/pipeline/PromptPipeline.ts) - Validates and normalizes prompts before AI handover.
+    - [session/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/session/) - Node extension session persistence handlers.
+      - [SessionManager.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/session/SessionManager.ts) - Session operations logic and broadcast orchestration.
+      - [SessionRegistry.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/session/SessionRegistry.ts) - Map-based singleton caching current live sessions.
+    - [workspace/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/) - Read-only project mapping.
+      - [WorkspaceScanner.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/WorkspaceScanner.ts) - High-level scanning orchestrator mapping folders/files.
+      - [WorkspaceSnapshot.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/WorkspaceSnapshot.ts) - Immutable resulting output snapshot.
+      - [WorkspaceAnalyzer.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/WorkspaceAnalyzer.ts) - High-level non-executing codebase mapping inference.
+      - [WorkspaceFilters.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/WorkspaceFilters.ts) - Whitelist routing logic.
+      - [IgnoreRules.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/IgnoreRules.ts) - Static path/directory blockers (`node_modules`, `.git`).
+      - [FileClassifier.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/FileClassifier.ts) - Categorizes files as Source/Assets/Config based on names.
+      - [ProjectDetector.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/ProjectDetector.ts) - Framework mapping using standard root file hashes (React, Vite).
+      - [LanguageDetector.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/LanguageDetector.ts) - Simple extension regex map targeting TS/JS/CSS etc.
+      - [index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/index.ts) - Barrel exporter.
   - [shared/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/shared/) - Shared logic between extension and webview.
     - [messages.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/shared/messages.ts) - Bridge message structures and schemas.
   - [webview/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/) - React user dashboards component folders.
@@ -48,10 +91,11 @@
         - [ComposerToolbar.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/composer/ComposerToolbar.tsx) - Placeholder actions toolbar.
         - [SendButton.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/composer/SendButton.tsx) - Composer send button.
       - [layout/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/layout/) - Legacy Layout components (Deprecated).
-      - [state/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/) - Application state interface definitions.
-        - [appState.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/appState.ts) - Top-level initialization states.
-        - [uiState.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/uiState.ts) - Panel and visual layouts state.
-        - [chatState.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/chatState.ts) - Message and conversational states.
+      - [state/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/) - React Native contexts (no third party).
+        - [appState.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/appState.ts) - High-level initialization flags.
+        - [chatState.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/chatState.ts) - Active thread hooks.
+        - [sessionState.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/sessionState.ts) - Session array tracking hook.
+        - [uiState.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/uiState.ts) - Active Panel logic mapping.
       - [context/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/context/) - React contexts.
         - [AppContext.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/context/AppContext.tsx) - Root compound context wrapper.
       - [providers/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/providers/) - React context providers.
@@ -59,6 +103,9 @@
       - [services/](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/) - External interfaces and bridges.
         - [vscodeBridge.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/vscodeBridge.ts) - Webview abstraction boundary to VS Code host.
         - [messageBus.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/messageBus.ts) - Webview-internal publish/subscribe bus.
+        - [promptService.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/promptService.ts) - Exposes submit UI hooks matching pipeline architecture.
+        - [sessionService.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/sessionService.ts) - Provides API methods matching SessionManager backend ops.
+        - [workspaceService.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/workspaceService.ts) - IPC hooks matching Workspace Scanner extension host calls.
         - [Header.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/layout/Header.tsx) - App title header panel.
         - [ConversationPanel.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/layout/ConversationPanel.tsx) - Chat message containers.
         - [PromptPanel.tsx](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/components/layout/PromptPanel.tsx) - Textarea input area.

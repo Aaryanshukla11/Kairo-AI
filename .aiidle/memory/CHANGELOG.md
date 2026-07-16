@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 ## [1.0.0-draft] - 2026-07-16
 
 ### Added
+- Completed Task M01-S03-T005: Workspace Scanner Foundation.
+  - Initialized isolated, non-executing read-only project detection algorithms locking against accidental codebase mutations.
+  - Formatted global root type structures bridging File/Folder mapping into a scalable `WorkspaceSnapshot` format.
+  - Implemented hard ignore arrays (`IgnoreRules.ts`) preventing heavy memory leaks traversing internal `node_modules` and `.git` caches.
+- Completed Task M01-S03-T004: Session Manager Foundation.
+  - Abstracted `Session` and `SessionMetadata` types orchestrating conversation blocks.
+  - Mounted generic Node-level `SessionManager` caching instances within `SessionRegistry`.
+  - Exported matching `sessionState.ts` custom hooks for the React frontend, driven via IPC arrays inside `sessionService.ts`.
+- Completed Task M01-S03-T003: Prompt Pipeline Foundation.
+  - Abstracted foundational Prompt models (`Prompt.ts`, `PromptMetadata.ts`, `PromptResult.ts`) supporting future immutable injections.
+  - Scaffolded native validation constraints locking incoming streams against structural overflows or null sets (`PromptValidator.ts`).
+  - Integrated `PromptPipeline` logic hooks returning mapped asynchronous lifecycle results.
+  - Interfaced React UI `promptService.ts` cleanly over the Pub/Sub bus avoiding native DOM dependencies.
+- Completed Task M01-S03-T002: Shared Message Protocol.
+  - Constructed strictly typed schemas (`messageSchemas.ts`) driven by unified Enums (`messageTypes.ts`).
+  - Implemented generic message builder `MessageFactory` abstracting required payload structures.
+  - Scaffolded native runtime `ProtocolValidator` guarding IPC ingestion against invalid objects.
 - Completed Task M01-S03-T001: VS Code Communication Bridge.
   - Initialized isolated bridge boundaries mapped via strict typings inside `src/shared/messages.ts`.
   - Engineered Webview-sided `messageBus.ts` wrapper enabling PubSub isolation over the active bridge hook.

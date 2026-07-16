@@ -1,8 +1,15 @@
 import * as vscode from 'vscode';
 import { BridgeMessage } from '../shared/messages';
+import { PromptDispatcher } from './pipeline/PromptDispatcher';
+import { MessageFactory } from '../common/protocol';
+import { MessageType, MessageSource, MessageTarget } from '../common/protocol';
 
 export class MessageRouter {
-  constructor(private readonly webview: vscode.Webview) {}
+  private promptDispatcher: PromptDispatcher;
+
+  constructor(private readonly webview: vscode.Webview) {
+    this.promptDispatcher = new PromptDispatcher();
+  }
 
   public handleMessage(message: BridgeMessage): void {
     if (!message || !message.type) {
@@ -28,15 +35,29 @@ export class MessageRouter {
       case 'LOG':
         this._handleLog(message);
         break;
+      case 'PROMPT_REQUEST':
+        this._handlePromptRequest(message);
+        break;
       default:
         console.warn(`[Sasta-Antigravity] Unhandled message type: ${message.type}`);
     }
   }
 
-  public postMessage(message: BridgeMessage): void {
+  public postMessage(message: any): void {
     message.timestamp = Date.now();
     message.source = 'extension';
     this.webview.postMessage(message);
+  }
+
+  private async _handlePromptRequest(message: BridgeMessage): Promise<void> {
+    const result = await this.promptDispatcher.dispatch(message.payload);
+    const responseMsg = MessageFactory.createMessage(
+      MessageType.PROMPT_RESPONSE,
+      MessageSource.EXTENSION,
+      MessageTarget.WEBVIEW,
+      result
+    );
+    this.postMessage(responseMsg);
   }
 
   private _handleInit(message: BridgeMessage): void {

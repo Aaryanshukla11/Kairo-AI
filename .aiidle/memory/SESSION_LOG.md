@@ -854,6 +854,121 @@
   * [.aiidle/memory/CHANGELOG.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/CHANGELOG.md)
 * **Next Recommended Step**: Awaiting architecture review and approval sign-off.
 
+---
+
+## [2026-07-16T13:48:31+05:30] - Execute Task M01-S03-T002 (Shared Message Protocol)
+
+* **Prompt Summary**: Establish a robustly typed object protocol defining the official structure of messages traversing the application infrastructure, along with helper factories and validators.
+* **Objective**: Introduce rigid contracts across `MessageSource`, `MessageTarget`, `MessageSeverity`, and `ProtocolVersion` without breaking the initial Webview compilation bridge scaffolding deployed in `M01-S03-T001`.
+* **Thought Process Summary**: Abstracted generic string literals into pure TS ENUM maps (`messageTypes.ts`) and constructed complex generic payload mappings supporting inheritance (`messageSchemas.ts`). Engineered a pure-TS `MessageFactory` using native runtime ID generators and wrapped a lightweight loop validator (`protocol.ts`) to act as the gatekeeper. Legacy bridge definitions inside `shared/messages.ts` were cleanly refactored via interface extension ensuring backwards compatibility is perfectly maintained.
+* **What was implemented**: Complete internal generic pipeline serialization/deserialization logic structures.
+* **Files Created**:
+  * [src/common/protocol/messageTypes.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/protocol/messageTypes.ts)
+  * [src/common/protocol/messageSchemas.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/protocol/messageSchemas.ts)
+  * [src/common/protocol/messageFactory.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/protocol/messageFactory.ts)
+  * [src/common/protocol/protocol.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/protocol/protocol.ts)
+  * [src/common/protocol/index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/protocol/index.ts)
+  * [.aiidle/prompts/memory/shared-message-protocol.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/shared-message-protocol.md)
+* **Files Modified**:
+  * [src/shared/messages.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/shared/messages.ts)
+  * [.aiidle/reports/implementation-report.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/reports/implementation-report.md)
+  * [.aiidle/memory/FILE_INDEX.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/FILE_INDEX.md)
+  * [.aiidle/memory/CURRENT_TASK.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/CURRENT_TASK.md)
+  * [.aiidle/memory/PROJECT_STATUS.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/PROJECT_STATUS.md)
+  * [.aiidle/memory/CHANGELOG.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/CHANGELOG.md)
+* **Next Recommended Step**: Awaiting architecture review and approval sign-off.
+
+---
+
+## [2026-07-16T13:54:08+05:30] - Execute Task M01-S03-T003 (Prompt Pipeline Foundation)
+
+* **Prompt Summary**: Build the internal Prompt Pipeline architecture mapping raw prompts from the React UI into the Node Extension host, returning a generic mock payload to test the IPC boundaries.
+* **Objective**: Decouple the prompt ingestion cycle from future AI Planner execution via strict immutability checks (`Prompt.ts`) and validation guards (`PromptValidator.ts`). Follows Rule 26 by passing data structurally across the custom generic message protocol.
+* **Thought Process Summary**: Extracted baseline Prompt metadata mapping into the `/prompt/` boundary folder. Constructed `PromptFactory.ts` to statically lock generated objects. Appended `PROMPT_REQUEST` routing logic onto `messageRouter.ts` dropping payloads safely into `PromptDispatcher.ts`, resolving in a custom asynchronous Promise pipeline handled natively via `promptService.ts` running inside the Webview layer.
+* **What was implemented**: Validated mock prompt ingestion cycles seamlessly connecting React -> MessageBus -> VS Code API -> MessageRouter -> Dispatcher -> Pipeline -> React.
+* **Files Created**:
+  * [src/common/prompt/Prompt.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/prompt/Prompt.ts)
+  * [src/common/prompt/PromptMetadata.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/prompt/PromptMetadata.ts)
+  * [src/common/prompt/PromptResult.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/prompt/PromptResult.ts)
+  * [src/common/prompt/PromptFactory.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/prompt/PromptFactory.ts)
+  * [src/common/prompt/PromptValidator.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/prompt/PromptValidator.ts)
+  * [src/common/prompt/index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/prompt/index.ts)
+  * [src/extension/pipeline/PromptPipeline.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/pipeline/PromptPipeline.ts)
+  * [src/extension/pipeline/PromptDispatcher.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/pipeline/PromptDispatcher.ts)
+  * [src/webview/services/promptService.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/promptService.ts)
+  * [.aiidle/prompts/memory/prompt-pipeline-foundation.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/prompt-pipeline-foundation.md)
+* **Files Modified**:
+  * [src/common/protocol/messageTypes.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/protocol/messageTypes.ts)
+  * [src/extension/messageRouter.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/messageRouter.ts)
+  * [.aiidle/reports/implementation-report.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/reports/implementation-report.md)
+  * [.aiidle/memory/FILE_INDEX.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/FILE_INDEX.md)
+  * [.aiidle/memory/CURRENT_TASK.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/CURRENT_TASK.md)
+  * [.aiidle/memory/PROJECT_STATUS.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/PROJECT_STATUS.md)
+  * [.aiidle/memory/CHANGELOG.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/CHANGELOG.md)
+* **Next Recommended Step**: Awaiting architecture review and approval sign-off.
+
+---
+
+## [2026-07-16T13:58:17+05:30] - Execute Task M01-S03-T004 (Session Manager Foundation)
+
+* **Prompt Summary**: Build the complete Session Management architecture mapping `React UI` <=> `Node Extension Host` ensuring immutability, runtime validations, and strict generic typed tracking structures.
+* **Objective**: Decouple the concept of a 'Session' out of the UI components and into the extension's runtime `Map` registry. Implement generic session tracking (with `status` states) decoupled from business implementations or persistence hooks.
+* **Thought Process Summary**: Initialized the core models (`Session.ts`, `SessionMetadata.ts`) into the generic protocol layout. Mapped the enumerations for states and IPC events. Abstracted Node-based singletons (`SessionManager.ts` and `SessionRegistry.ts`) to encapsulate global tracking cleanly without exposing direct maps. Exposed standard hooks inside the webview (`sessionState.ts`) to map against React Native flows without using 3rd-party dependencies.
+* **What was implemented**: Validated mock session creation, updates, and renaming structures traversing natively without accessing DOM APIs.
+* **Files Created**:
+  * [src/common/session/Session.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/session/Session.ts)
+  * [src/common/session/SessionState.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/session/SessionState.ts)
+  * [src/common/session/SessionEvents.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/session/SessionEvents.ts)
+  * [src/common/session/SessionMetadata.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/session/SessionMetadata.ts)
+  * [src/common/session/SessionFactory.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/session/SessionFactory.ts)
+  * [src/common/session/SessionValidator.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/session/SessionValidator.ts)
+  * [src/common/session/index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/session/index.ts)
+  * [src/extension/session/SessionManager.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/session/SessionManager.ts)
+  * [src/extension/session/SessionRegistry.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/session/SessionRegistry.ts)
+  * [src/webview/state/sessionState.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/state/sessionState.ts)
+  * [src/webview/services/sessionService.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/sessionService.ts)
+  * [.aiidle/prompts/memory/session-manager-foundation.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/session-manager-foundation.md)
+* **Files Modified**:
+  * [.aiidle/reports/implementation-report.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/reports/implementation-report.md)
+  * [.aiidle/memory/FILE_INDEX.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/FILE_INDEX.md)
+  * [.aiidle/memory/CURRENT_TASK.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/CURRENT_TASK.md)
+  * [.aiidle/memory/PROJECT_STATUS.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/PROJECT_STATUS.md)
+  * [.aiidle/memory/CHANGELOG.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/CHANGELOG.md)
+* **Next Recommended Step**: Awaiting architecture review and approval sign-off.
+
+---
+
+## [2026-07-16T14:05:58+05:30] - Execute Task M01-S03-T005 (Workspace Scanner Foundation)
+
+* **Prompt Summary**: Build the complete read-only Workspace Scanner infrastructure. Do not execute code or perform full AST structural mapping. Detect frameworks, lock standard exclusions (`node_modules`), map File/Folder typings, and expose `workspaceService` hook.
+* **Objective**: Scaffold safe context boundary nodes preventing unbounded parsing traps while keeping the framework dynamically aware of Project structure using simple deterministic RegEx strings and naming heuristics.
+* **Thought Process Summary**: Extracted baseline structural definitions into the `/workspace/` payload folder (`ProjectInfo`, `WorkspaceSnapshot`). Mapped hard `Set` arrays matching ignore rules (`IgnoreRules.ts`). Assembled heuristics engines (`ProjectDetector`, `LanguageDetector`, `FileClassifier`) to deterministically categorize files and infer stack setups without spinning up heavy sub-processes. Centralized routing natively within `WorkspaceScanner`. Connected Webview React layer to request payload via asynchronous `workspaceService.ts`.
+* **What was implemented**: Validated generic mapping mocks parsing node tree arrays asynchronously while classifying extensions cleanly.
+* **Files Created**:
+  * [src/common/workspace/Workspace.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/workspace/Workspace.ts)
+  * [src/common/workspace/ProjectInfo.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/workspace/ProjectInfo.ts)
+  * [src/common/workspace/FileInfo.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/workspace/FileInfo.ts)
+  * [src/common/workspace/FolderInfo.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/workspace/FolderInfo.ts)
+  * [src/common/workspace/index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/common/workspace/index.ts)
+  * [src/extension/workspace/WorkspaceScanner.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/WorkspaceScanner.ts)
+  * [src/extension/workspace/WorkspaceSnapshot.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/WorkspaceSnapshot.ts)
+  * [src/extension/workspace/WorkspaceAnalyzer.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/WorkspaceAnalyzer.ts)
+  * [src/extension/workspace/WorkspaceFilters.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/WorkspaceFilters.ts)
+  * [src/extension/workspace/IgnoreRules.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/IgnoreRules.ts)
+  * [src/extension/workspace/FileClassifier.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/FileClassifier.ts)
+  * [src/extension/workspace/ProjectDetector.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/ProjectDetector.ts)
+  * [src/extension/workspace/LanguageDetector.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/LanguageDetector.ts)
+  * [src/extension/workspace/index.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/extension/workspace/index.ts)
+  * [src/webview/services/workspaceService.ts](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/src/webview/services/workspaceService.ts)
+  * [.aiidle/prompts/memory/workspace-scanner-foundation.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/prompts/memory/workspace-scanner-foundation.md)
+* **Files Modified**:
+  * [.aiidle/reports/implementation-report.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/reports/implementation-report.md)
+  * [.aiidle/memory/FILE_INDEX.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/FILE_INDEX.md)
+  * [.aiidle/memory/CURRENT_TASK.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/CURRENT_TASK.md)
+  * [.aiidle/memory/PROJECT_STATUS.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/PROJECT_STATUS.md)
+  * [.aiidle/memory/CHANGELOG.md](file:///c:/Users/Aaryan%20shukla/OneDrive/Desktop/SASTA%20ANTIGRAVITY/.aiidle/memory/CHANGELOG.md)
+* **Next Recommended Step**: Awaiting architecture review and approval sign-off.
+
 
 
 

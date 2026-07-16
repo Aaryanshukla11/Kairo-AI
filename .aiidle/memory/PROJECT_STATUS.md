@@ -32,6 +32,10 @@
   - Completed Task M01-S02-T007: Chat Timeline & Message Components.
   - Completed Task M01-S02-T008: Frontend State Architecture provider initialization.
   - Completed Task M01-S03-T001: VS Code Communication Bridge implementation.
+  - Completed Task M01-S03-T002: Shared Message Protocol scaffolding.
+  - Completed Task M01-S03-T003: Prompt Pipeline Foundation architecture.
+  - Completed Task M01-S03-T004: Session Manager Foundation architecture.
+  - Completed Task M01-S03-T005: Workspace Scanner Foundation architecture.
 * **Modules In Progress**: None
 * **Pending Modules**: Core functionality components (Planner, Executor, Terminal, Chat)
 * **Build Status**: Build configurations finalized (clean, compile, watch, build using esbuild and vite)

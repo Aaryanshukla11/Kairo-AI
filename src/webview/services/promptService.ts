@@ -60,7 +60,7 @@ export class PromptService {
       const successHandler = (msg: any) => {
         messageBus.unsubscribe(MessageType.PLAN_RESPONSE, successHandler);
         messageBus.unsubscribe(MessageType.ERROR, errorHandler);
-        resolve(msg.payload?.plan);
+        resolve(msg.payload);
       };
 
       const errorHandler = (msg: any) => {

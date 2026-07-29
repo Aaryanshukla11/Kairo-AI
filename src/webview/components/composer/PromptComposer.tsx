@@ -31,7 +31,41 @@ export function PromptComposer(): React.JSX.Element {
     }));
 
     // Send through IPC
-    promptService.sendPromptMessage(inputValue, messageId);
+    promptService.requestPlan(inputValue)
+      .then((payload) => {
+        setChatState((prev) => ({
+          ...prev,
+          messages: [
+            ...prev.messages,
+            {
+              id: `plan-${Date.now()}`,
+              role: 'PLAN_PROPOSAL',
+              timestamp: Date.now(),
+              content: '',
+              status: 'SUCCESS',
+              plan: payload?.plan,
+              approval: payload?.approval
+            }
+          ],
+          isTyping: false
+        }));
+      })
+      .catch((error) => {
+        setChatState((prev) => ({
+          ...prev,
+          messages: [
+            ...prev.messages,
+            {
+              id: `error-${Date.now()}`,
+              role: 'ERROR',
+              timestamp: Date.now(),
+              content: error.message,
+              status: 'ERROR'
+            }
+          ],
+          isTyping: false
+        }));
+      });
 
     // Clear input
     setInputValue('');

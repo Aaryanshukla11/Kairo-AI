@@ -1,48 +1,61 @@
 import { vscodeBridge } from './vscodeBridge';
+import { messageBus } from './messageBus';
 import { MessageType, MessageSource, MessageTarget } from '../../common/protocol';
-import { WorkspaceSnapshot } from '../../extension/workspace/WorkspaceSnapshot';
+import { WorkspaceSummary } from '../../core/workspace/workspaceTypes';
 
 export class WorkspaceService {
+  /**
+   * Requests the WorkspaceSummary from the extension host.
+   */
+  public async getWorkspaceSummary(): Promise<WorkspaceSummary | string> {
+    const id = Date.now().toString();
+    return new Promise((resolve, reject) => {
+      const successHandler = (msg: any) => {
+        messageBus.unsubscribe(MessageType.WORKSPACE_RESPONSE, successHandler);
+        messageBus.unsubscribe(MessageType.ERROR, errorHandler);
+        resolve(msg.payload?.summary);
+      };
+
+      const errorHandler = (msg: any) => {
+        messageBus.unsubscribe(MessageType.WORKSPACE_RESPONSE, successHandler);
+        messageBus.unsubscribe(MessageType.ERROR, errorHandler);
+        reject(new Error(msg.payload?.error || 'Failed to scan workspace'));
+      };
+
+      messageBus.subscribe(MessageType.WORKSPACE_RESPONSE, successHandler);
+      messageBus.subscribe(MessageType.ERROR, errorHandler);
+
+      vscodeBridge.postMessage({
+        id,
+        type: MessageType.WORKSPACE_REQUEST,
+        timestamp: Date.now(),
+        source: MessageSource.WEBVIEW,
+        target: MessageTarget.EXTENSION,
+        payload: {},
+        version: "1.0.0" as any,
+      });
+    });
+  }
+
   /**
    * Triggers a workspace scan request to the extension host.
    */
   public async scanWorkspace(): Promise<void> {
-    vscodeBridge.postMessage({
-      type: MessageType.UNKNOWN, // To be mapped to WORKSPACE_SCAN_REQUEST in protocol later
-      timestamp: Date.now(),
-      source: MessageSource.WEBVIEW,
-      target: MessageTarget.EXTENSION,
-      payload: { action: 'SCAN' },
-      version: '1.0.0' as any
-    });
+    this.getWorkspaceSummary().catch(() => {});
   }
 
   /**
    * Requests the latest snapshot from the extension host.
    */
   public async getSnapshot(): Promise<void> {
-    vscodeBridge.postMessage({
-      type: MessageType.UNKNOWN,
-      timestamp: Date.now(),
-      source: MessageSource.WEBVIEW,
-      target: MessageTarget.EXTENSION,
-      payload: { action: 'GET_SNAPSHOT' },
-      version: '1.0.0' as any
-    });
+    this.getWorkspaceSummary().catch(() => {});
   }
 
   /**
    * Forces a refresh of the workspace index.
    */
   public async refresh(): Promise<void> {
-    vscodeBridge.postMessage({
-      type: MessageType.UNKNOWN,
-      timestamp: Date.now(),
-      source: MessageSource.WEBVIEW,
-      target: MessageTarget.EXTENSION,
-      payload: { action: 'REFRESH' },
-      version: '1.0.0' as any
-    });
+    this.getWorkspaceSummary().catch(() => {});
   }
 }
 

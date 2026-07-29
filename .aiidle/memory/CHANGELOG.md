@@ -5,6 +5,425 @@ All notable changes to this project will be documented in this file.
 ## [1.0.0-draft] - 2026-07-16
 
 ### Added
+- Completed Task M04-S01-T002A: Advanced Task Intelligence Pack in `src/core/taskGeneration/intelligence`.
+  - Built Hierarchical Task Network (HTN) decomposition engines (`htnEngine.ts`).
+  - Built Task Knowledge Graph metadata maps, Constraint Solver engines, Resource Models, Recovery Planners, Decision Engines, Version Trackers, and Observability Engines.
+  - Upgraded Task Planner Dashboard UI component with multi-tab HTN tree, Knowledge Graph, and Observability inspectors.
+- Completed Task M04-S01-T003: Execution Planning Engine Foundation in `src/core/executionPlanning`.
+  - Built Execution Planning Engine transforming Task Graphs into deterministic execution plans.
+  - Implemented strategies for Sequential, Parallel, Hybrid, and Isolated execution strategies.
+  - Implemented checkpoint planning, rollback boundary planning, resource allocation, schedule optimization, and plan validation.
+  - Built Execution Planner Dashboard UI component in React webview sidebar.
+- Completed Task M04-S01-T002: Task Generation Engine Foundation in `src/core/taskGeneration`.
+  - Built Task Generation Engine converting feature plans into DAG task graphs without code generation.
+  - Implemented strategies for UI, Backend, API, Database, and Testing tasks.
+  - Implemented DAG dependency resolution, topological scheduling, critical path calculation, effort estimation, and cycle validation.
+  - Built Task Planner Dashboard UI component in React webview sidebar.
+- Completed Task M03-S03-T011: Event Bus & Workflow Orchestration Engine in `src/core/eventBus`.
+  - Built Event Bus instance supporting priority scheduling, retry managers, dead letter queues, and trace metrics.
+  - Coded authorization, metrics, logging, and tracing middlewares.
+  - Coded interactive Event Bus Dashboard UI components in webview chat panel.
+- Completed Task M03-S03-T010: Execution State Machine in `src/core/executionStateMachine`.
+  - Built state machine trackers tracking transitions from Created to Completed/Failed states.
+- Completed Task M03-S03-T009: Policy Decision Engine in `src/core/policyDecision`.
+  - Programmed reusable decision engines resolving Allow, Warn, Approval Required, Reject, Block states.
+- Completed Task M03-S03-T008: Execution Audit Engine in `src/core/audit`.
+  - Logged full execution runs including Decisions, Risk, Simulation, Rollback, and agent chains.
+- Completed Task M03-S03-T007: Virtual Workspace Engine in `src/core/virtualWorkspace`.
+  - Cloned file trees, parsed virtual imports/symbols, verified AST syntax, and simulated workspace merges.
+- Completed Task M03-S03-T006: Workspace Snapshot & Transaction Engine in `src/core/workspaceTransaction`.
+  - Programmed transaction managers, backup snapshot storages, and rollback coordinators.
+- Completed Task M03-S03-T005: Safe Edit Architecture Enhancement Pack in `src/core/safeEdit`.
+  - Upgraded pipelines with dynamic providers registries, rules executors, patch classifiers, execution contexts, and confidence calculators.
+- Completed Task M03-S03-T004: Safe Edit Engine Foundation in `src/core/safeEdit`.
+  - Created Safe Edit Types, Events, Metrics, Gate, Coordinator, Planner, Evaluator, Analyzer, Reporter, and Engine orchestrator files under `src/core/safeEdit`.
+  - Programmed workspace safety strategy checking file path boundary rules.
+  - Programmed filesystem safety strategy rejecting rm -rf and file deletion operations.
+  - Programmed dependency safety strategy checking unauthorized packages modifications.
+  - Programmed architecture safety strategy analyzing layer boundary violations.
+  - Programmed risk evaluator mapping score weights into Minimal, Low, Medium, High, and Critical risk levels.
+  - Designed React UI `SafeEditCenter.tsx` dashboard displaying execution statuses, risk scores, levels, approval status, rollback readiness status, blocking issues, warnings, and recommendations.
+  - Wired `SAFE_EDIT_REQUEST` and `SAFE_EDIT_UPDATE` message routing protocols.
+  - Added unit test suite `tests/unit/safeEdit.test.ts` verifying risk estimators, approvals, rollback checks, policies, strategies, and engines.
+- Completed Task M03-S03-T003: Patch Optimization Engine Foundation in `src/core/patchOptimization`.
+  - Created Optimization Types, Events, Parsers, Normalizers, Reducers, Mergers, Predictors, Validators, Reporters, Strategies, Metrics, Coordinators, and Engine orchestrator files under `src/core/patchOptimization`.
+  - Built structural, import, edit, and whitespace optimization strategy classes.
+  - Programmed reducer removing redundant empty replace operations.
+  - Programmed merger combining contiguous inserts content.
+  - Programmed predictor estimating low, medium, and high merge conflict risks.
+  - Wired `OPTIMIZATION_REQUEST` and `OPTIMIZATION_UPDATE` message routing protocols.
+  - Designed React UI `PatchOptimizationCenter.tsx` dashboard displaying size indicators, risk levels, merged/removed metrics logs, and diagnostics.
+  - Mounted Patch Optimization Center component in EmptyState layouts.
+  - Added unit test suite `tests/unit/patchOptimization.test.ts` verifying validator overlaps block, reducers, mergers, conflict risk estimators, and engines.
+- Completed Task M03-S03-T002: Validation Engine Foundation in `src/core/validation`.
+  - Created Validation Types, Events, Rules, Scorers, Registries, DiagnosticsCollectors, Reporters, Providers, Metrics, Pipelines, Coordinators, and Engine files under `src/core/validation`.
+  - Built TS, JS, React, and Node validation rules checker providers catalog.
+  - Programmed scorer deducting scores to 0 on blocking issue elements, and -15 on warnings.
+  - Programmed collector compiling blocking issues vs non-blocking warnings list.
+  - Wired `VALIDATION_REQUEST` and `VALIDATION_UPDATE` message routing protocols.
+  - Designed React UI `ValidationCenter.tsx` dashboard displaying validation statuses, scores, blocking failures, warnings, diagnostics, and executed rules checklist.
+  - Mounted Validation Center in EmptyState layout.
+  - Added unit test suite `tests/unit/validation.test.ts` verifying security checks, scores, collectors, and pipelines.
+- Completed Task M03-S03-T001: Self Review Engine Foundation in `src/core/review`.
+  - Created Review Types, Events, Rules, Scorers, Collectors, RecommendationEngines, Validators, Providers, Metrics, Analyzers, Coordinators, and Engine files under `src/core/review`.
+  - Built TS, JS, React, and Node conventions audit rule providers catalog.
+  - Programmed scorer subtracting scores based on Suggestions/Warnings/Errors/Criticals severity weights.
+  - Programmed recommendation engine compiling guidelines matching rule IDs.
+  - Wired `REVIEW_REQUEST` and `REVIEW_UPDATE` message routing protocols.
+  - Designed React UI `SelfReviewCenter.tsx` dashboard displaying review score dials, risk levels, warnings, failed rules, suggestions, and timeline.
+  - Mounted Self Review Center in EmptyState layout.
+  - Added unit test suite `tests/unit/review.test.ts` verifying rule checks, scorers, recommendations, and critical validators.
+- Completed Task M03-S02-T004: Symbol Resolution Engine Foundation in `src/core/codeGeneration/symbols`.
+  - Created Symbol Types, Events, Validators, NamespaceResolvers, ReferenceResolvers, OverloadResolvers, SymbolGraphs, Registries, RuleProviders, Metrics, Resolvers, Analyzers, and Engine files under `src/core/codeGeneration/symbols`.
+  - Built TS, JS, React, and Node rule reserved symbol provider extensions.
+  - Programmed namespace resolver parsing file paths into dot-delimited namespace hierarchies.
+  - Programmed reference resolver checking symbol declarations in workspace context strings.
+  - Programmed overload resolver parsing overloaded signatures parameters list.
+  - Programmed graph builder mapping nodes and edges relationships maps.
+  - Wired `SYMBOL_REQUEST` and `SYMBOL_UPDATE` message routing protocols.
+  - Designed React UI `SymbolResolutionCenter.tsx` dashboard displaying resolved symbols, namespaces, reference graph connections, visibility, diagnostics, and confidence gauges.
+  - Mounted Symbol Resolution Center component in EmptyState layouts.
+  - Added unit test suite `tests/unit/symbol.test.ts` verifying validator duplicates definition block, private visibility checks, namespace path extraction, overload parameters representation, reference graphs, and orchestrations.
+- Completed Task M03-S02-T003: Import Resolution Engine Foundation in `src/core/codeGeneration/imports`.
+  - Created Import Types, Events, Validators, AliasResolvers, DependencyResolvers, Sorters, Optimizers, Registries, RuleProviders, Metrics, Resolvers, Analyzers, and Engine files under `src/core/codeGeneration/imports`.
+  - Built TS, JS, React, and Node rule reserved package provider extensions.
+  - Programmed alias resolver expanding workspace path alias keys back to relative targets.
+  - Programmed sorter ordering core Node modules above lodash node_modules, aliases, and relatives.
+  - Programmed optimizer combining identical source paths and merging named specifiers lists.
+  - Wired `IMPORT_REQUEST` and `IMPORT_UPDATE` message routing protocols.
+  - Designed React UI `ImportResolutionCenter.tsx` dashboard displaying resolved imports, merged duplicates counters, alias path expansions, missing target warnings, and diagnostics.
+  - Mounted Import Resolution Center component in EmptyState layouts.
+  - Added unit test suite `tests/unit/import.test.ts` verifying validator broken paths, circular loop blocks, alias paths resolution, layer coupling checks, category sorting, duplicates merging optimizations, parse analyzer, and report compilers.
+- Completed Task M03-S02-T002: Naming Intelligence Foundation in `src/core/codeGeneration/naming`.
+  - Created Naming Types, Events, Validators, CollisionDetectors, SemanticAnalyzers, AbbreviationEngines, Registries, RuleProviders, Metrics, Generators, Analyzers, and Engine files under `src/core/codeGeneration/naming`.
+  - Built TS, JS, React, and Node rule reserved keyword provider extensions.
+  - Programmed abbreviation engine expanding common shorthand tag names.
+  - Setup collision check scanning proposed names against lists of existing file paths.
+  - Wired `NAMING_REQUEST` and `NAMING_UPDATE` message routing protocols.
+  - Designed React UI `NamingCenter.tsx` dashboard displaying recommended names, alternative suggestion candidate buttons list, confidence scores, collision tags, namespace metadata, and reasoning rules summary cards.
+  - Mounted Naming Center component in EmptyState layouts.
+  - Added unit test suite `tests/unit/naming.test.ts` verifying validator keywords, length checks, collision detections, abbreviation mapping expansions, provider rule matches, casing formats, and overall plans.
+- Completed Task M03-S02-T001: Project Convention Engine Foundation in `src/core/codeGeneration/conventions`.
+  - Created Convention Types, Events, Validators, Detectors, Scorers, Cache, Registries, RuleProviders, Metrics, Analyzers, and Engine files under `src/core/codeGeneration/conventions`.
+  - Built TS, JS, React, and Node rules style checkers provider extensions.
+  - Programmed validators rejecting scans with less than 2 files samples.
+  - Setup memory cache keeping compiled casings profiles in memory.
+  - Wired `CONVENTION_REQUEST` and `CONVENTION_UPDATE` message routing protocols.
+  - Designed React UI `ConventionCenter.tsx` dashboard displaying scanned files casing rule profiles, import layout selections, folder casing directions, architecture boundaries checklists, and code templates casing previews.
+  - Mounted Convention Center component in EmptyState layouts.
+  - Added unit test suite `tests/unit/convention.test.ts` verifying validator samples requirements, cache storage maps, casing detectors classifications (camelCase vs PascalCase vs snakeCase), rules checking providers, scorers confidence frequencies, and analyzers plans.
+- Completed Task M03-S01-T004: Incremental Edit Engine Foundation in `src/core/codeGeneration/incremental`.
+  - Created Incremental Types, Events, Validators, RegionDetectors, Analyzers, Matchers, Optimizers, ConflictDetectors, PreservationEngines, Metrics, Planners, and Engine files under `src/core/codeGeneration/incremental`.
+  - Built preservation engine mapping and protecting developer comments and import layouts.
+  - Programmed patch size optimizer merging contiguous ranges.
+  - Programmed validators blocking edits exceeding 90% bytes sizes or overlapping ranges.
+  - Wired `INCREMENTAL_REQUEST` and `INCREMENTAL_UPDATE` message routing protocols.
+  - Designed React UI `IncrementalEditCenter.tsx` dashboard displaying preservation ratios, patch sizes, target files, edit range offsets, operations code snippets, and estimated risk indicators.
+  - Mounted Incremental Edit Center component in EmptyState layouts.
+  - Added unit test suite `tests/unit/incremental.test.ts` verifying validator limits, region detector offsets, conflict warnings, preservation offset mapping, contiguous merges, and coordinate edit plan statistics.
+- Completed Task M03-S01-T003: Multi-file Generation Engine Foundation in `src/core/codeGeneration/multiFile`.
+  - Created Multi-file Types, Events, ConsistencyValidators, DependencyPlanners, FilePlanners, GenerationGraphs, OrderingEngines, ArtifactAssemblers, Metrics, Coordinators, and Engine files under `src/core/codeGeneration/multiFile`.
+  - Built topological sorting ordering engine resolving dependency chains and detecting circular cycles.
+  - Programmed consistency validators blocking duplicate target paths, renames conflicts, or undefined dependency linkages.
+  - Wired `MULTIFILE_REQUEST` and `MULTIFILE_UPDATE` message routing protocols.
+  - Designed React UI `MultiFileGenerationCenter.tsx` dashboard displaying affected files operations lists, dependency topological ordering sequences, validation summaries, and estimation metric values.
+  - Mounted Multi-file Generation Center component in EmptyState layouts.
+  - Added unit test suite `tests/unit/multiFile.test.ts` verifying operations validators, renames conflicts checks, undefined paths blocks, topological ordering sorts, circular loops cycle exceptions, and coordinators execution plans.
+- Completed Task M03-S01-T002: AST Generation Engine Foundation in `src/core/codeGeneration/ast`.
+  - Created AST Types, Events, Validators, Normalizers, Optimizers, Serializers, Builders, Registries, Providers, Metrics, Coordinators, and Engine files under `src/core/codeGeneration/ast`.
+  - Built language registry mapping TypeScript, JavaScript, and Python AST providers.
+  - Programmed validators rejecting syntax tree duplicate symbols definitions and empty import strings.
+  - Setup spans normalizer setting recursive start and end offset indices.
+  - Setup optimizer pruning empty statement leaf nodes.
+  - Wired `AST_REQUEST` and `AST_UPDATE` message routing protocols.
+  - Designed React UI `ASTInspector.tsx` dashboard displaying language tags, recursive tree nodes visualization, compiler diagnostic warnings list, imports/exports lists, and metrics.
+  - Mounted AST Inspector component in EmptyState layouts.
+  - Added unit test suite `tests/unit/ast.test.ts` verifying registry providers, duplicate symbols validation, normalizer index coordinates, deadStatements pruning optimizer, serialization outputs, and coordinate workflows.
+- Completed Task M03-S01-T001: Code Generation Engine Foundation in `src/core/codeGeneration`.
+  - Created code generation Types, Events, Validators, Policies, Contexts, Planners, Base/Mock Generators, ArtifactBuilders, OutputAssemblers, SessionManagers, Metrics, Coordinators, and Engine files under `src/core/codeGeneration`.
+  - Built strategy selection mechanism mapping plans keywords to strategy tags.
+  - Programmed validators rejecting plans lacking tasks list, contexts lacking targets, or unsupported language settings.
+  - Setup policies validating folder restrictions and conventions rules blocks.
+  - Wired `GENERATION_REQUEST` and `GENERATION_UPDATE` message routing protocols.
+  - Designed React UI `GenerationCenter.tsx` dashboard displaying completion status, strategy types, lines metrics, durations, warning checklists, and template preview screens.
+  - Mounted Generation Center component in EmptyState layouts.
+  - Added unit test suite `tests/unit/codeGeneration.test.ts` verifying validator criteria, strategy planners options, write policies restrictions, mock template compilers, and coordinate workflows.
+- Completed Task M02-S03-T013: Architecture Intelligence Agent Foundation in `src/core/agents/architecture`.
+  - Created architecture Types, Events, Validators, Graphs, Rules, DriftDetectors, BoundaryAnalyzers, Scorers, Analyzers, Metrics, Brain, and Agent files under `src/core/agents/architecture`.
+  - Built layering rules verification system asserting boundaries cross constraints.
+  - Programmed boundary analyzer checking feature coupling imports configurations.
+  - Setup drift detector validating folder tree paths compliance.
+  - Setup technical debt estimator weighting violation severity.
+  - Wired `ARCHITECTURE_REQUEST` and `ARCHITECTURE_UPDATE` message routing protocols.
+  - Registered `ArchitectureAgent` under `'architecture-agent'` ID inside agentRegistry constructor.
+  - Designed React UI `ArchitectureCenter.tsx` dashboard displaying structural ratings, technical debt hours, layer diagram blocks, violation checklists, drift records, and refactoring guidelines recommendations.
+  - Mounted Architecture Center component in EmptyState layouts.
+  - Added unit test suite `tests/unit/architecture.test.ts` verifying graph validator boundaries, DFS rules violations, folder drift captures, technical debt calculations, and executeTask workflows.
+- Completed Task M02-S03-T012: Dependency Intelligence Agent Foundation in `src/core/agents/dependency`.
+  - Created dependency Types, Events, Validators, Graphs, Analyzers, Resolvers, CompatibilityEngines, ImpactAnalyzers, LicenseAnalyzers, Metrics, Brain, and Agent files under `src/core/agents/dependency`.
+  - Built depth-first search graph traversal algorithm detecting circular import loops.
+  - Programmed compatibility engine identifying conflicting peer versions specifications.
+  - Setup license auditor aggregating package licenses compliance distributions.
+  - Wired `DEPENDENCY_REQUEST` and `DEPENDENCY_UPDATE` message routing protocols.
+  - Registered `DependencyAgent` under `'dependency-agent'` ID inside agentRegistry constructor.
+  - Designed React UI `DependencyCenter.tsx` dashboard displaying health scales, nodes lists, circular import cycles warnings, versions conflicts, license counts, and package upgrade recommendations.
+  - Mounted Dependency Center component in EmptyState layouts.
+  - Added unit test suite `tests/unit/dependency.test.ts` verifying manifest validation bounds, DFS loops detection cycles, compatibility conflicts, licenses categorization audits, and executeTask workflows.
+- Completed Task M02-S03-T011: Performance Agent Foundation in `src/core/agents/performance`.
+  - Created performance Types, Events, Validators, ComplexityAnalyzers, BottleneckDetectors, Profilers, Predictors, BenchmarkManagers, Metrics, Brain, and Agent files under `src/core/agents/performance`.
+  - Built complexity analyzer auditing source functions nested loop bounds to resolve Big-O scales (O(1), O(N), O(N^2)).
+  - Programmed bottleneck detector scanning CPU rates, compilation limits, memory usage thresholds, bundle scopes.
+  - Setup predictor mapping score indices to level configurations (Excellent, Good, Acceptable, etc.).
+  - Wired `PERFORMANCE_REQUEST` and `PERFORMANCE_UPDATE` message routing protocols.
+  - Registered `PerformanceAgent` under `'performance-agent'` ID inside agentRegistry constructor.
+  - Designed React UI `PerformanceCenter.tsx` dashboard displaying overall scores, telemetry grids, complexity profiles, bottleneck hot paths lists, and profiling scan triggers.
+  - Mounted Performance Center component in EmptyState layouts.
+  - Added unit test suite `tests/unit/performance.test.ts` verifying complexity loop scopes, bottleneck thresholds, validators, and executeTask workflows.
+- Completed Task M02-S03-T010: Debug Agent Foundation in `src/core/agents/debug`.
+  - Created debug Types, Events, Validators, Collectors, TraceAnalyzers, LogAnalyzers, RootCauseEngines, HypothesisEngines, Metrics, Brain, and Agent files under `src/core/agents/debug`.
+  - Built stack trace frame regex parser extracting method names, files targets, line/column coordinates.
+  - Coded log analysis scans identifying fatal error triggers.
+  - Configured hypothesis generator outputting rank likelihood values matching confidence tiers.
+  - Wired `DEBUG_REQUEST` and `DEBUG_UPDATE` message routing protocols.
+  - Registered `DebugAgent` under `'debug-agent'` ID inside agentRegistry constructor.
+  - Constructed React UI `DebugCenter.tsx` dashboard displaying failure root causes, confidence rankings, stack frame previews, alternative hypotheses, and suggested next debug tasks.
+  - Mounted Debug Center component in EmptyState layouts.
+  - Added unit test suite `tests/unit/debug.test.ts` verifying trace regex matching, validators, hypotheses confidence rules, and executeTask workflows.
+- Completed Task M02-S03-T009: Refactoring Agent Foundation in `src/core/agents/refactoring`.
+  - Created refactoring Types, Events, Validators, Analyzers, Strategies, Planners, BehaviorVerifiers, Metrics, Brain, and Agent files under `src/core/agents/refactoring`.
+  - Built static analyzer checks checking method complexity lines, nesting thresholds, constant assignments, and object line lengths.
+  - Coded strategy mapper directing CodeSmells to RefactoringType classifications (ExtractMethod, ExtractClass, etc.).
+  - Configured behavior preservation check asserting identical export statements lists.
+  - Wired `REFACTORING_REQUEST` and `REFACTORING_UPDATE` message routing switch cases.
+  - Registered `RefactoringAgent` under `'refactoring-agent'` ID inside agentRegistry constructor.
+  - Designed React UI `RefactoringCenter.tsx` dashboard displaying maintainability scores, priority metrics, risk estimates, detected smell checklist, and code scan triggers.
+  - Mounted Refactoring Center component in EmptyState layouts.
+  - Added unit test suite `tests/unit/refactoring.test.ts` verifying validator rejections, static checker rule flags, behavior verification blocks, and workflows reports.
+- Completed Task M02-S03-T008: Documentation Agent Foundation in `src/core/agents/documentation`.
+  - Created documentation Types, Events, Validators, Templates, Planners, Generators, Metrics, Brain, and Agent files under `src/core/agents/documentation`.
+  - Structured templates compiler supporting README, API references, architecture guides, and release notes layout templates.
+  - Implemented planner evaluating codebase source updates to build strategies plans.
+  - Built broken references scanner validator checking for undefined/null markdown link configurations.
+  - Wired `DOCUMENTATION_REQUEST` / `DOCUMENTATION_UPDATE` message routing protocols in extension host.
+  - Registered `DocumentationAgent` under `'documentation-agent'` ID inside agentRegistry constructor.
+  - Coded React UI `DocumentationCenter.tsx` dashboard displaying documentation coverages (%), generated lists, pending review queues, and scanner warnings.
+  - Mounted Documentation Center component in EmptyState layouts.
+  - Added unit test suite `tests/unit/documentation.test.ts` verifying templates rendering, validator exception throws, link audits, and workflow generators reports.
+- Completed Task M02-S03-T007: Security Agent Foundation in `src/core/agents/security`.
+  - Created security Types, Events, Validators, Rules, Scanners, Policies, RiskEngines, Metrics, Brain, and Agent files under `src/core/agents/security`.
+  - Defined checker rules identifying unsafe deletions, shell binary executions, hardcoded tokens/passwords, oversized plan tasks, and configuration adjustments.
+  - Implemented risk engine rating scores (0-100) mapping to Info, Low, Medium, High, and Critical severities.
+  - Coded policy engine resolving matching outcomes (Allow, Warn, Require Approval, Block) depending on RiskLevel severity rankings.
+  - Registered `SecurityAgent` under `'security-agent'` ID inside agentRegistry constructor.
+  - Wired `SECURITY_REQUEST` and `SECURITY_UPDATE` messages routing in the extension router.
+  - Designed React UI `SecurityCenter.tsx` dashboard rendering overall risk score, policy decisions, warning indices, blocked actions logs, and audit trigger button.
+  - Mounted Security Center component in EmptyState layouts.
+  - Added unit test suite `tests/unit/security.test.ts` verifying validator rejections, credential scanner checks, risk evaluation algorithms, and plan scans workflows.
+- Completed Task M02-S03-T006: Testing Agent Foundation in `src/core/agents/testing`.
+  - Created testing Types, Events, Validators, Strategies, Planners, Runners, Coverages, Metrics, Brain, and Agent files under `src/core/agents/testing`.
+  - Built risk assessment strategies mapping file changes to Critical/High/Medium/Low/Minimal risk ratings.
+  - Formed plan builders recommending test types (Unit, Integration, etc.) and matching paths.
+  - Implemented confidence score evaluator weighting failures and risk levels.
+  - Hooked up `TESTING_REQUEST` / `TESTING_UPDATE` message routing switch cases.
+  - Registered `TestingAgent` under `'testing-agent'` ID inside agentRegistry constructor.
+  - Created React UI `TestingDashboard.tsx` dashboard displaying coverage meters, confidence scores, execution list logs, and test suite run triggers.
+  - Mounted Testing Dashboard under EmptyState layouts.
+  - Added unit test suite `tests/unit/testing.test.ts` verifying validator exceptions, risk-to-strategy mappings, coverage calculations, and runner simulations.
+- Completed Task M02-S03-T005: Memory Agent Foundation in `src/core/agents/memory`.
+  - Created memory Types, Events, Validators, Stores, Indexes, Scorers, Retrievers, Compressors, Metrics, Brain, and Agent files under `src/core/agents/memory`.
+  - Built CRUD store with JSON flat-file serialization path `.aiidle/memory/project-memories.json`.
+  - Structured tag, type, and file matching indexes.
+  - Implemented relevance scorer calculating 0.0 to 1.0 ratings based on recency decays, importance levels, and search term overlaps.
+  - Hooked up `MEMORY_REQUEST` / `MEMORY_UPDATE` IPC protocol bridge formats.
+  - Registered `MemoryAgent` under `'memory-agent'` ID inside agentRegistry constructor.
+  - Rendered React UI `MemoryCenter.tsx` dashboard displaying counters, query searches, filtering drop-downs, chronologies, save decision inputs, and compression controls.
+  - Mounted Memory Center under EmptyState layouts.
+  - Added unit test suite `tests/unit/memory.test.ts` verifying validations, CRUD actions, retriever searches, relevance weights, and consolidated compressions.
+- Completed Task M02-S03-T004: Executor Agent Foundation in `src/core/agents/executor`.
+  - Created `executorTypes.ts`, `executionEvents.ts`, `executionValidator.ts`, `executionContext.ts`, `executionQueue.ts`, `executionState.ts`, `executionMetrics.ts`, `executorBrain.ts`, `executionCoordinator.ts`, and `executorAgent.ts`.
+  - Built queue manager sorting planning tasks list topologically according to dependency parameters.
+  - Formed executor coordinator running tasks sequentially, handling cancellation/pause hooks, and routing executions to Tool Calling adapters.
+  - Integrated workspace checkpoint creation and automatic rollback to backups upon execution failures.
+  - Added task execution retry loops to retry failing tool calls up to 2 times.
+  - Implemented shared blackboard contexts and success rate metric trackers.
+  - Registered ExecutorAgent under `executor-agent` ID inside agentRegistry constructor.
+  - Created `ExecutionMonitor.tsx` rendering task progress bars, elapsed timers, tools calls, and run logs lists.
+  - Mounted the Execution Monitor under `EmptyState.tsx`.
+  - Added unit test `tests/unit/executor.test.ts` verifying unapproved plan rejections, queue sorting order, and execution reports latency logs.
+- Completed Task M02-S03-T003: Reviewer Agent Foundation in `src/core/agents/reviewer`.
+  - Created `reviewerTypes.ts`, `reviewerEvents.ts`, `reviewValidator.ts`, `reviewRules.ts`, `reviewScorer.ts`, `reviewStrategies.ts`, `reviewerMetrics.ts`, `reviewerBrain.ts`, and `reviewerAgent.ts`.
+  - Built rules evaluation engines detecting large file edits, unsafe deletes, and massive refactors.
+  - Implemented health scoring weights metrics calculating overall quality levels based on issue counts and severities.
+  - Formed recommendation planners resolving strategic tips corresponding to planning strategy labels.
+  - Registered ReviewerAgent under `reviewer-agent` ID inside agentRegistry constructor.
+  - Created `ReviewCenter.tsx` rendering overall quality scores, security ratings, warnings grids, and mock plan test triggers.
+  - Mounted the Review Center under `EmptyState.tsx`.
+  - Added unit test `tests/unit/reviewer.test.ts` verifying missing dependency rejections, unsafe deletion evaluations, and score calculations.
+- Completed Task M02-S03-T002: Planner Agent Foundation in `src/core/agents/planner`.
+  - Created `plannerTypes.ts`, `plannerEvents.ts`, `plannerValidator.ts`, `plannerContext.ts`, `plannerMemory.ts`, `plannerStrategies.ts`, `plannerMetrics.ts`, `plannerBrain.ts`, and `plannerAgent.ts`.
+  - Built strategy resolver selecting Features/BugFix/Refactoring patterns depending on prompt keywords.
+  - Implemented request/plan validators throwing rejections on empty/impossible queries and circular dependency paths.
+  - Constructed plan compiler structuring goals, priority tags, affected files lists, risk assessments, and execution task lists.
+  - Registered PlannerAgent under `planner-agent` ID inside agentRegistry constructor.
+  - Created `PlannerInspector.tsx` rendering planning goal inputs, complexity scoring meters, resolved strategy badges, and task graph boxes.
+  - Mounted the Planner Inspector under `EmptyState.tsx`.
+  - Added unit test `tests/unit/planner.test.ts` verifying keyword strategy resolution, impossible request rejections, and circular dependency cycle errors.
+- Completed Task M02-S03-T001: Agent Runtime Foundation in `src/core/agents`.
+  - Created `agentTypes.ts`, `agentEvents.ts`, `agentValidator.ts`, `agentContext.ts`, `agentMemory.ts`, `base/baseAgent.ts`, `base/taskAgent.ts`, `base/reasoningAgent.ts`, `agentRegistry.ts`, `agentScheduler.ts`, `agentLifecycle.ts`, and `agentRuntime.ts`.
+  - Built registry managers loading Planner, Executor, Reviewer, Workspace, and Retriever default agent subclasses.
+  - Formed scheduler dispatching task payloads, recording execution run times, and logging traffic metrics.
+  - Implemented shared context maps and recall memory stores.
+  - Added `AGENT_UPDATE` / `AGENT_REQUEST` message protocol formats on extension bridge.
+  - Created `AgentMonitor.tsx` rendering active agents list, statuses, sent/received counters, run latencies, and dispatch inputs.
+  - Mounted the Agent Monitor Panel under `EmptyState.tsx`.
+  - Added unit test `tests/unit/agents.test.ts` verifying registries listing, duplicate ID rejections, loading lifecycle transitions, task metrics increments, and context/memory recall.
+- Completed Task M02-S02-T002: Tool Calling Engine Foundation in `src/core/toolCalling`.
+  - Created `toolTypes.ts`, `toolEvents.ts`, `toolValidator.ts`, `toolPermission.ts`, `toolScheduler.ts`, `toolContext.ts`, `toolResult.ts`, `adapters/filesystemTool.ts`, `adapters/terminalTool.ts`, `adapters/gitTool.ts`, `adapters/workspaceTool.ts`, `adapters/diagnosticsTool.ts`, `providers/baseProvider.ts`, `toolRegistry.ts`, `toolExecutor.ts`, `toolEngine.ts`, and `toolService.ts`.
+  - Built registry managers and schemas validators asserting parameters against JSON definitions.
+  - Connected tool permissions checking modules with permissionService requests.
+  - Structured execution routing mapping tool requests to filesystem, terminal, git, workspace, and diagnostics adapters.
+  - Added `TOOL_CALLING_UPDATE` / `TOOL_CALLING_REQUEST` message protocol formats on extension bridge.
+  - Created `ToolCenter.tsx` rendering registered tools list, JSON input textareas, execution output displays, and history logs.
+  - Mounted the Tool Center Panel under `EmptyState.tsx`.
+  - Added unit test `tests/unit/toolCalling.test.ts` verifying registries tool lists, parameter validation error handlers, disabled status blockages, and history updates.
+- Completed Task M02-S02-T001: Model Runtime Foundation in `src/core/runtime/model`.
+  - Created `runtimeTypes.ts`, `runtimeEvents.ts`, `runtimeValidator.ts`, `tokenizer.ts`, `contextWindow.ts`, `runtimeConfig.ts`, `providers/baseProvider.ts`, `providers/mockProvider.ts`, `inferenceQueue.ts`, `inferenceScheduler.ts`, `modelLoader.ts`, `modelManager.ts`, `sessionManager.ts`, `runtimeRegistry.ts`, `runtimeEngine.ts`, and `runtimeService.ts`.
+  - Built provider-agnostic interface designs implementing mock loading/unloading states and streaming token response structures.
+  - Formed sequential inference queues blocking parallel resource contentions.
+  - Implemented AbortSignal listener hooks to cancel running inference tasks.
+  - Added `RUNTIME_UPDATE` / `RUNTIME_REQUEST` message protocol formats on extension bridge.
+  - Created `RuntimeMonitor.tsx` rendering active configuration selectors, RAM/VRAM resource monitor meters, streaming output lines, and log details.
+  - Mounted the Runtime Monitor under `EmptyState.tsx`.
+  - Added unit test `tests/unit/modelRuntime.test.ts` verifying loaded state transitions, generate rejections on unloaded states, and token streaming output callback triggers.
+- Completed Task M02-S01-T005: Hybrid Retriever Engine Foundation in `src/core/retriever`.
+  - Created `retrieverTypes.ts`, `retrieverEvents.ts`, `retrievalValidator.ts`, `retrievalCache.ts`, `metadataFilter.ts`, `contextScorer.ts`, `strategies/semanticStrategy.ts`, `strategies/keywordStrategy.ts`, `strategies/structuralStrategy.ts`, `strategies/hybridStrategy.ts`, `rankingEngine.ts`, `retrievalPlanner.ts`, `retrievalPipeline.ts`, `retrieverEngine.ts`, and `retrieverService.ts`.
+  - Built strategy controllers implementing Semantic cosine search, lexical Keyword matching, and Structural dependency walking.
+  - Formed HybridStrategy merging all results and resolving duplicate files/symbols.
+  - Implemented final ranking layers sorting results based on proximity to active document cursor edits.
+  - Added `RETRIEVER_UPDATE` / `RETRIEVER_REQUEST` message protocol formats on extension bridge.
+  - Created `RetrievalInspector.tsx` rendering search forms, confidence statistics, files/symbols logs, and cache controls.
+  - Mounted the Retrieval Inspector under `EmptyState.tsx`.
+  - Added unit test `tests/unit/retriever.test.ts` verifying Keyword, Structural, Hybrid, and Semantic strategies, cache hits, and validator exceptions.
+- Completed Task M02-S01-T004: Vector Store Foundation in `src/core/vectorStore`.
+  - Created `vectorStoreTypes.ts`, `vectorStoreEvents.ts`, `vectorStoreValidator.ts`, `metadataFilter.ts`, `similarity.ts`, `providers/baseProvider.ts`, `providers/memoryProvider.ts`, `vectorStorePersistence.ts`, `vectorStoreCache.ts`, `vectorStoreRegistry.ts`, `vectorStoreEngine.ts`, and `vectorStoreService.ts`.
+  - Built provider-agnostic interface designs implementing memory vector storage and persisting changes to disk.
+  - Formed similarity distance libraries supporting Cosine similarity, Dot Product, and Euclidean distance scoring metrics.
+  - Implemented query metadata filters selectors matching categories and scopes.
+  - Added `VECTOR_STORE_UPDATE` / `VECTOR_STORE_REQUEST` message protocol formats on extension bridge.
+  - Created `VectorStorePanel.tsx` rendering provider metrics, dimension states, persisted storage sizes, query search scorers, and manual clear tools.
+  - Mounted the Vector Store panel under `EmptyState.tsx`.
+  - Added unit test `tests/unit/vectorStore.test.ts` verifying record inserts, metadata filters, cosine similarity scoring, dimension checks, and persistence reads/writes.
+- Completed Task M02-S01-T003: Embedding Engine Foundation in `src/core/embedding`.
+  - Created `embeddingTypes.ts`, `embeddingEvents.ts`, `embeddingValidator.ts`, `providers/baseProvider.ts`, `providers/mockProvider.ts`, `embeddingCache.ts`, `embeddingQueue.ts`, `embeddingEngine.ts`, and `embeddingService.ts`.
+  - Built pluggable provider configurations allowing mock offline providers to be swapped dynamically.
+  - Formed an embedding cache matching checksums using MD5 hashes to reuse calculations on unchanged contents.
+  - Implemented embedding queue tasks handling batches sequentially and blocking duplicate operations.
+  - Added `EMBEDDING_UPDATE` / `EMBEDDING_REQUEST` message protocol formats on extension bridge.
+  - Created `EmbeddingStatusPanel.tsx` rendering active providers, queue loaders, cache statistics, and event log lists.
+  - Mounted the Embedding Status Panel under `EmptyState.tsx`.
+  - Added unit test `tests/unit/embedding.test.ts` verifying queueing flows, cache hits, provider replacements, validators, and incremental changes.
+- Completed Task M02-S01-T001: Context Engine Foundation in `src/core/context`.
+  - Created `contextTypes.ts`, `contextEvents.ts`, `contextValidator.ts`, `contextResolver.ts`, `contextSelector.ts`, `contextBuilder.ts`, `contextEngine.ts`, and `contextService.ts`.
+  - Built unified context compiler packages gathering workspace info, active selectors (lines, filepaths, code blocks), planner state, execution graph progress, git branch branch, and diagnostic logs list.
+  - Formed a context resolver parsing package configurations and stripping ignored directories.
+  - Implemented filters dropping duplicate files and ensuring content boundaries stay under payload size targets.
+  - Added `CONTEXT_UPDATE` / `CONTEXT_REQUEST` message protocol formats on extension bridge.
+  - Created `ContextInspector.tsx` rendering estimated token counts, project tags, summaries lists, files included, and active selection blocks.
+  - Mounted the Context Inspector under `EmptyState.tsx`.
+  - Added unit test `tests/unit/context.test.ts` verifying duplicate file discards, selector bounds, token counts, validator exceptions, and context expirations.
+- Completed Task M01-S06-T009: Permission Engine Foundation in `src/core/permission`.
+  - Created `permissionTypes.ts`, `permissionEvents.ts`, `permissionValidator.ts`, `permissionRequest.ts`, `permissionResponse.ts`, `permissionPolicy.ts`, `permissionRegistry.ts`, `permissionEngine.ts`, and `permissionService.ts`.
+  - Built access control policy matchers checking requested actions (ReadFile, WriteFile, ExecuteTerminal) against stored decisions (AlwaysAllow, AlwaysDeny).
+  - Enforced request validators blocking malformed inputs, duplicate IDs, or missing risk parameters.
+  - Configured transaction audit logger appending records to `.aiidle/logs/permission-audit.log`.
+  - Added `PERMISSION_UPDATE` / `PERMISSION_REQUEST` message protocol handling on extension bridge.
+  - Created `PermissionCenter.tsx` visual Console displaying authorization request queues, risk labels, checkbox remember toggles, and histories list.
+  - Mounted the Permission center under `EmptyState.tsx`.
+  - Added unit test `tests/unit/permission.test.ts` verifying validator exceptions, policy matching evaluations, user grants, and audit log files.
+- Completed Task M01-S06-T008: Diagnostics Engine Foundation in `src/core/diagnostics`.
+  - Created `diagnosticsTypes.ts`, `diagnosticsEvents.ts`, `diagnosticsValidator.ts`, `diagnosticsFormatter.ts`, `diagnosticsRegistry.ts`, `diagnosticsCollector.ts`, `diagnosticsReporter.ts`, `diagnosticsEngine.ts`, and `diagnosticsService.ts`.
+  - Built diagnostic logs repository tracking warnings, validation rejects, trace messages, and status codes.
+  - Enforced validations requiring source module fields and content text, while blocking duplicates.
+  - Added `DIAGNOSTICS_UPDATE` / `DIAGNOSTICS_REQUEST` message formats on extension bridge.
+  - Created `DiagnosticsPanel.tsx` detailing entry severities, categories, search queries, status changes, and json exports.
+  - Mounted the Diagnostics panel under `EmptyState.tsx`.
+  - Added unit test `tests/unit/diagnostics.test.ts` verifying report logs, registry query filters, and format checks.
+- Completed Task M01-S06-T007: Checkpoint Engine Foundation in `src/core/checkpoint`.
+  - Created `checkpointTypes.ts`, `checkpointEvents.ts`, `checkpointValidator.ts`, `checkpointBuilder.ts`, `checkpointRegistry.ts`, `checkpointStorage.ts`, `checkpointEngine.ts`, and `checkpointService.ts`.
+  - Structured snapshot storage schemas copying workspace files to local disk backup directory paths.
+  - Configured validators rejecting missing files, duplicate ids, and missing metadata.
+  - Added `CHECKPOINT_UPDATE` / `CHECKPOINT_REQUEST` message handlers in routing layers.
+  - Created `CheckpointPanel.tsx` visual sidebar detailing workspace hashes, stamps, files affected, and buttons.
+  - Mounted the Checkpoints panel dashboard under `EmptyState.tsx`.
+  - Added unit test `tests/unit/checkpoint.test.ts` verifying copy buffers, restore checks, and metadata exceptions.
+- Completed Task M01-S06-T006: Rollback Engine Foundation in `src/core/rollback`.
+  - Created `rollbackTypes.ts`, `rollbackEvents.ts`, `rollbackValidator.ts`, `rollbackBuilder.ts`, `rollbackRegistry.ts`, `rollbackHistory.ts`, `rollbackEngine.ts`, and `rollbackService.ts`.
+  - Structured transactional rollback schemas identifying affected paths and previous contents mapping.
+  - Set up validator ensuring patch statuses are Applied, original states exist, and no workspace changes occurred since applying.
+  - Added `ROLLBACK_UPDATE` / `ROLLBACK_REQUEST` message protocol handling on extension bridge.
+  - Created `RollbackPanel.tsx` visual console rendering plans, estimated line restorations, estimated impacts, and restore execution buttons.
+  - Mounted the Rollback panel dashboard under `EmptyState.tsx`.
+  - Added unit test `tests/unit/rollback.test.ts` verifying builder schemas, preview calculations, status codes, and validation checks.
+- Completed Task M01-S06-T005: Patch Engine Foundation in `src/core/patch`.
+  - Created `patchTypes.ts`, `diffGenerator.ts`, `mergeResolver.ts`, `patchValidator.ts`, `patchApplier.ts`, `patchPreview.ts`, `patchBuilder.ts`, `patchRegistry.ts`, `patchEngine.ts`, and `patchService.ts`.
+  - Built a custom line-by-line unified diff compiler.
+  - Configured conflict checks, binary formats validation, and directory boundaries checks.
+  - Implemented rollback capabilities reverting files to original contents.
+  - Added `PATCH_UPDATE` / `PATCH_REQUEST` protocol message handlers in router loops.
+  - Created `PatchPreview.tsx` displaying lines modification numbers, diff code colors, and approve/reject/rollback tools.
+  - Mounted the Patch Preview Dashboard panel under `EmptyState.tsx`.
+  - Added unit test `tests/unit/patch.test.ts` verifying diff compilations, lifecycle states, applies, and rollbacks.
+- Completed Task M01-S06-T004: Git Engine Foundation in `src/core/git`.
+  - Created `gitTypes.ts`, `gitEvents.ts`, `gitValidator.ts`, `gitBranch.ts`, `gitStatus.ts`, `gitDiff.ts`, `gitCommit.ts`, `gitRepository.ts`, `gitEngine.ts`, and `gitService.ts`.
+  - Configured child process sub-commands to fetch git head branches, porcelain status modifications, diff comparison logs, and history logs.
+  - Implemented staging and commit validations guarding against empty messages and locked repositories.
+  - Added `GIT_UPDATE` / `GIT_REQUEST` protocol message schemas inside routing layers.
+  - Created `GitSummary.tsx` rendering branch details, file updates lists, code diff comparisons, and history metrics.
+  - Mounted the Git Summary card dashboard under `EmptyState.tsx`.
+  - Added unit test `tests/unit/git.test.ts` verifying branch reads, status lookups, and mock commits.
+- Completed Task M01-S06-T003: Terminal Engine Foundation in `src/core/terminal`.
+  - Created `terminalTypes.ts`, `commandWhitelist.ts`, `commandValidator.ts`, `terminalEvents.ts`, `terminalQueue.ts`, `terminalSession.ts`, `terminalEngine.ts`, and `terminalService.ts`.
+  - Configured child process spawners to trigger shell commands, capture live output, enforce 5-minute process timeouts, and support cancellations.
+  - Integrated safety guards filtering empty commands, blocked keywords (rm -rf, sudo, shutdown, etc.), and directories outside workspace root.
+  - Added `TERMINAL_UPDATE` / `TERMINAL_REQUEST` protocol types in IPC messaging routers.
+  - Created `TerminalConsole.tsx` console panel displaying output logs, active command statuses, and history logs.
+  - Mounted the console panel at the bottom of the chat layout in `App.tsx`.
+  - Added unit test `tests/unit/terminal.test.ts` verifying command validations and sequential run executions.
+- Completed Task M01-S06-T002: Filesystem Engine Foundation in `src/core/filesystem`.
+  - Created `filesystemTypes.ts`, `ignoreRules.ts`, `pathResolver.ts`, `filesystemValidator.ts`, `fileReader.ts`, `fileWriter.ts`, `directoryManager.ts`, `filesystemEngine.ts`, and `filesystemService.ts`.
+  - Implemented workspace path normalization and path traversal security guards.
+  - Locked write operations against protected directories (.git, node_modules, dist, etc.).
+  - Added file operation lifecycle event publishers (FileRead, FileCreated, FileUpdated, FileDeleted, DirectoryCreated).
+  - Added unit test `tests/unit/filesystem.test.ts` verifying operation validity, traversal guards, and file manipulation.
+- Completed Task M01-S06-T001: Executor Core Foundation in `src/core/executor`.
+  - Created `executorTypes.ts`, `executorEvents.ts`, `executorValidator.ts`, `executorQueue.ts`, `executionContext.ts`, `executorEngine.ts`, `executorRegistry.ts`, and `executorService.ts`.
+  - Designed the sequential topological queue execution framework.
+  - Hooked up `EXECUTION_REQUEST` / `EXECUTION_UPDATE` protocol messages in IPC layers.
+  - Integrated real-time timeline step status updates and progress stats inside `PlanProposalMessage.tsx`.
+  - Exposed Pause, Resume, and Cancel actions on the Webview toolbar buttons.
+  - Added unit test `tests/unit/executor.test.ts` verifying execution state machine transitions.
+- Completed Task M01-S05-T005: Execution Graph Foundation in `src/core/executionGraph`.
+  - Created `node.ts`, `edge.ts`, `graphTypes.ts`, `graphBuilder.ts`, `graphValidator.ts`, `executionOrder.ts`, `graphRegistry.ts`, and `graphEngine.ts`.
+  - Implemented Kahn's algorithm topological sorting to resolve task execution orders.
+  - Enforced DFS cycle checking, duplicate task ID checks, and dangling edge validations.
+  - Displayed the Execution Graph Summary card below the Approved timeline view.
+  - Added unit test `tests/unit/executionGraph.test.ts` verifying graph compilation and constraints.
+- Completed Task M01-S05-T004: Workspace Intelligence Foundation in `src/core/workspace`.
+  - Created `workspaceTypes.ts`, `ignoreRules.ts`, `workspaceScanner.ts`, `workspaceIndexer.ts`, `workspaceEngine.ts`, and `workspaceService.ts`.
+  - Handled automated detection for framework (React, Next, Vue, Angular, Node, Express, NestJS, Vite, Electron, Python, Java, C#, Rust, Go), language, build tool, package manager, and configs.
+  - Wired `WORKSPACE_REQUEST` / `WORKSPACE_RESPONSE` messages in IPC layers (`messageRouter.ts` and frontend services).
+  - Designed the `WorkspaceSummaryCard.tsx` React component rendering the detected details inside the empty state.
+  - Added unit test `tests/unit/workspace.test.ts` to test workspace scanning features.
+- Completed Task M01-S05-T003: Execution Timeline Foundation in `src/core/timeline`.
+  - Created `timelineTypes.ts`, `timelineBuilder.ts`, `timelineEngine.ts`, and `timelineService.ts` mapping and validating planner task sequences.
+  - Updated `messageRouter.ts` to cache plans and execute a simulated background execution loop sending status updates to the webview upon plan approval.
+  - Linked `ExecutionStatusBadge.tsx` and `ExecutionStep.tsx` UI components to render and animate the pipeline step progression (Waiting, Queued, Running, Completed).
+  - Subscribed the React frontend `ChatTimeline.tsx` and `PlanProposalMessage.tsx` to handle timeline events dynamically.
+  - Added unit test `tests/unit/timeline.test.ts` to verify timeline model operations.
+- Completed Task M01-S05-T002: Approval Engine Foundation in `src/core/approval`.
+  - Engineered robust `ApprovalEngine` and `ApprovalValidator` restricting invalid state updates.
+  - Introduced `PlanProposalMessage.tsx` blocking Execution Plans on explicit user approval clicks.
+  - Wired secure bi-directional IPC bindings for `APPROVAL_ACTION` messaging.
 - Completed Task M01-S05-T001: Execution Planner Foundation in `src/core/planner`.
   - Defined ExecutionPlan and Task types with validation schema.
   - Added mock deterministic intent parser and plan builder logic.

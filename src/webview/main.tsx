@@ -21,9 +21,8 @@ if (root) {
   ReactDOM.createRoot(root).render(
     <React.StrictMode>
       <AppProvider>
-        <App />
+        <App/>
       </AppProvider>
     </React.StrictMode>,
   );
-}
- 
+}   

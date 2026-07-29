@@ -1,17 +1,22 @@
 import React from 'react';
 
-export type ExecutionStatus = 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED' | 'SKIPPED' | 'WAITING' | 'CANCELLED';
+export type ExecutionStatus =
+  | 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED' | 'SKIPPED' | 'WAITING' | 'CANCELLED'
+  | 'Waiting' | 'Queued' | 'Running' | 'Completed' | 'Failed' | 'Skipped';
 
 interface ExecutionStatusBadgeProps {
   status: ExecutionStatus;
 }
 
 export const ExecutionStatusBadge: React.FC<ExecutionStatusBadgeProps> = ({ status }) => {
-  const getStatusIcon = (status: ExecutionStatus) => {
-    switch (status) {
+  const getStatusIcon = (stat: ExecutionStatus) => {
+    const s = stat.toUpperCase();
+    switch (s) {
       case 'PENDING': return '⏳';
+      case 'QUEUED': return '📥';
       case 'RUNNING': return '🔄';
-      case 'SUCCESS': return '✓';
+      case 'SUCCESS':
+      case 'COMPLETED': return '✓';
       case 'FAILED': return '✗';
       case 'SKIPPED': return '⏭';
       case 'WAITING': return '⏸';
@@ -20,8 +25,11 @@ export const ExecutionStatusBadge: React.FC<ExecutionStatusBadgeProps> = ({ stat
     }
   };
 
-  const getStatusClass = (status: ExecutionStatus) => {
-    return `status-${status.toLowerCase()}`;
+  const getStatusClass = (stat: ExecutionStatus) => {
+    const s = stat.toUpperCase();
+    if (s === 'COMPLETED') return 'status-success';
+    if (s === 'QUEUED') return 'status-pending';
+    return `status-${s.toLowerCase()}`;
   };
 
   return (

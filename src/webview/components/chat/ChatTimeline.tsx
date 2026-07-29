@@ -7,6 +7,7 @@ import { AssistantMessage } from './AssistantMessage';
 import { SystemMessage } from './SystemMessage';
 import { messageBus } from '../../services/messageBus';
 import { MessageType } from '../../../common/protocol';
+import { PlanProposalMessage } from './PlanProposalMessage';
 
 export function ChatTimeline(): React.JSX.Element {
   const { chatState, setChatState } = useAppContext();
@@ -37,10 +38,61 @@ export function ChatTimeline(): React.JSX.Element {
       }
     };
 
+    const handleTimelineInit = (msg: any) => {
+      if (msg.type === MessageType.TIMELINE_INIT && msg.payload?.timeline) {
+        const { timeline } = msg.payload;
+        setChatState((prev) => {
+          const updatedMessages = prev.messages.map((m) => {
+            if (m.role === 'PLAN_PROPOSAL' && m.plan && m.plan.id === timeline.planId) {
+              return { ...m, timeline };
+            }
+            return m;
+          });
+          return { ...prev, messages: updatedMessages };
+        });
+      }
+    };
+
+    const handleTimelineUpdate = (msg: any) => {
+      if (msg.type === MessageType.TIMELINE_UPDATE && msg.payload?.timeline) {
+        const { timeline } = msg.payload;
+        setChatState((prev) => {
+          const updatedMessages = prev.messages.map((m) => {
+            if (m.role === 'PLAN_PROPOSAL' && m.plan && m.plan.id === timeline.planId) {
+              return { ...m, timeline };
+            }
+            return m;
+          });
+          return { ...prev, messages: updatedMessages };
+        });
+      }
+    };
+
+    const handleExecutionUpdate = (msg: any) => {
+      if (msg.type === MessageType.EXECUTION_UPDATE && msg.payload?.progress) {
+        const { progress } = msg.payload;
+        setChatState((prev) => {
+          const updatedMessages = prev.messages.map((m) => {
+            if (m.role === 'PLAN_PROPOSAL' && m.timeline) {
+              return { ...m, executionProgress: progress };
+            }
+            return m;
+          });
+          return { ...prev, messages: updatedMessages };
+        });
+      }
+    };
+
     messageBus.subscribe(MessageType.MOCK_RESPONSE, handleMockResponse);
+    messageBus.subscribe(MessageType.TIMELINE_INIT, handleTimelineInit);
+    messageBus.subscribe(MessageType.TIMELINE_UPDATE, handleTimelineUpdate);
+    messageBus.subscribe(MessageType.EXECUTION_UPDATE, handleExecutionUpdate);
 
     return () => {
       messageBus.unsubscribe(MessageType.MOCK_RESPONSE, handleMockResponse);
+      messageBus.unsubscribe(MessageType.TIMELINE_INIT, handleTimelineInit);
+      messageBus.unsubscribe(MessageType.TIMELINE_UPDATE, handleTimelineUpdate);
+      messageBus.unsubscribe(MessageType.EXECUTION_UPDATE, handleExecutionUpdate);
     };
   }, [setChatState]);
 
@@ -59,6 +111,17 @@ export function ChatTimeline(): React.JSX.Element {
             }
             if (msg.role === 'SYSTEM' || msg.role === 'ERROR') {
               return <SystemMessage key={msg.id} content={msg.content} />;
+            }
+            if (msg.role === 'PLAN_PROPOSAL') {
+              return (
+                <PlanProposalMessage 
+                  key={msg.id} 
+                  plan={msg.plan} 
+                  approval={msg.approval} 
+                  timeline={msg.timeline}
+                  executionProgress={msg.executionProgress}
+                />
+              );
             }
             return null;
           })}

@@ -1,4 +1,4 @@
-import { BridgeMessage } from '../../shared/messages';
+import { BridgeMessage, MessageType } from '../../shared/messages';
 import { messageBus } from './messageBus';
 
 interface VSCodeAPI {
@@ -44,6 +44,14 @@ class VSCodeBridge {
 
   public setState(state: any): void {
     this.api?.setState(state);
+  }
+
+  public subscribe(type: MessageType, handler: (message: BridgeMessage) => void): void {
+    messageBus.subscribe(type, handler);
+  }
+
+  public unsubscribe(type: MessageType, handler: (message: BridgeMessage) => void): void {
+    messageBus.unsubscribe(type, handler);
   }
 
   public dispose(): void {

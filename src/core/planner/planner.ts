@@ -32,36 +32,35 @@ export class ExecutionPlanner {
       estimatedTime: '1m'
     });
 
-    if (intent.requiresFiles) {
-      builder.addTask({
-        id: `task-${planId}-2`,
-        title: 'Create Components',
-        description: 'Scaffold required files based on user intent.',
-        dependencies: [`task-${planId}-1`],
-        estimatedTime: '3m'
-      });
-      builder.addTask({
-        id: `task-${planId}-3`,
-        title: 'Create Styles',
-        description: 'Apply requested styling to newly created components.',
-        dependencies: [`task-${planId}-2`],
-        estimatedTime: '2m'
-      });
-    } else {
-      builder.addTask({
-        id: `task-${planId}-2`,
-        title: 'Execute General Action',
-        description: 'Process user request sequentially.',
-        dependencies: [`task-${planId}-1`],
-        estimatedTime: '2m'
-      });
-    }
+    builder.addTask({
+      id: `task-${planId}-2`,
+      title: 'Create Components',
+      description: 'Scaffold required UI components and code structures.',
+      dependencies: [`task-${planId}-1`],
+      estimatedTime: '3m'
+    });
+
+    builder.addTask({
+      id: `task-${planId}-3`,
+      title: 'Update Routes',
+      description: 'Configure and update application routing paths.',
+      dependencies: [`task-${planId}-2`],
+      estimatedTime: '2m'
+    });
 
     builder.addTask({
       id: `task-${planId}-4`,
       title: 'Verify Build',
-      description: 'Run basic sanity checks to ensure no syntax errors were introduced.',
-      dependencies: [`task-${planId}-2`],
+      description: 'Run basic sanity checks and compiler diagnostics to verify the build.',
+      dependencies: [`task-${planId}-3`],
+      estimatedTime: '1m'
+    });
+
+    builder.addTask({
+      id: `task-${planId}-5`,
+      title: 'Complete',
+      description: 'Finalize execution and output report summary.',
+      dependencies: [`task-${planId}-4`],
       estimatedTime: '1m'
     });
 

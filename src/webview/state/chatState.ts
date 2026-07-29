@@ -1,4 +1,4 @@
-export type MessageRole = 'USER' | 'ASSISTANT' | 'SYSTEM' | 'ERROR';
+export type MessageRole = 'USER' | 'ASSISTANT' | 'SYSTEM' | 'ERROR' | 'PLAN_PROPOSAL';
 export type MessageStatus = 'PENDING' | 'SENT' | 'ERROR' | 'SUCCESS';
 
 export interface ChatMessage {
@@ -7,6 +7,10 @@ export interface ChatMessage {
   timestamp: number;
   content: string;
   status: MessageStatus;
+  plan?: any;
+  approval?: any;
+  timeline?: any;
+  executionProgress?: any;
 }
 
 export interface ChatState {

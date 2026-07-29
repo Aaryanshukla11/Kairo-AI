@@ -1,16 +1,24 @@
 # Current Task
 
-- **Current Milestone**: M01: Foundation
-- **Current Sprint**: M01-S02: UI Components
-- **Task ID**: M01-S05-T001
-- **Task Name**: Execution Planner Foundation
-- **Status**: In Progress
-- **Started**: 2026-07-16T15:26:16+05:30
-- **Expected Completion**: 2026-07-16T15:45:00+05:30
-- **Dependencies**: None.
+- **Current Milestone**: M04: Execution
+- **Current Sprint**: M04-S01: Task Intelligence
+- **Task ID**: M04-S01-T002A
+- **Task Name**: Advanced Task Intelligence Pack
+- **Status**: Completed
+- **Started**: 2026-07-29T21:51:06+05:30
+- **Completed**: 2026-07-29T21:58:00+05:30
+- **Dependencies**: M04-S01-T002
 - **Acceptance Criteria**:
-  - [x] Toolbar detached above composer natively parsing 16px layouts.
-  - [x] Icons strictly replace verbose text strings natively parsing dynamic tooltips mapping 150ms fades precisely.
-  - [x] Composer floated mapping 24px internal paddings scaling border radii smoothly parsing transparent dark surfaces dynamically.
-  - [x] Send button nested cleanly locking bounds inside the bottom right explicitly scaling 56x56 px precisely natively.
-- **Next Task**: Awaiting architecture review and sign-off approval.
+  - [x] Part 1: Hierarchical Task Network (HTN) (`Feature -> Milestone -> Task -> Subtask -> Atomic Action`)
+  - [x] Part 2: Task Knowledge Graph (files, symbols, APIs, services, components, DB tables)
+  - [x] Part 3: Task Constraint Engine (Must Run Before/After, Mutually Exclusive, Approval/Checkpoint, Resource Lock)
+  - [x] Part 4: Task Resource Model (CPU, memory, disk, LLM context, token budget, runtime, parallel workers)
+  - [x] Part 5: Task Recovery Plan (retry, rollback, failure recovery, compensation steps, recovery confidence)
+  - [x] Part 6: Task Decision Engine (Skip, Merge, Split, Parallelize, Delay, Cancel, Escalate)
+  - [x] Part 7: Task Dependency Categories (Structural, Logical, Resource, Temporal, Policy, Security, Approval)
+  - [x] Part 8: Task Versioning (version, parent version, replanned version, reason)
+  - [x] Part 9: Task Observability (planning time, scheduling time, critical path time, efficiency, cost, confidence)
+  - [x] Upgraded Task Planner Dashboard webview component with HTN, Knowledge Graph, Constraints, & Observability tabs
+  - [x] Unit test suite created & passing
+  - [x] Documentation logs updated
+- **Next Task**: Awaiting architectural sign-off and feedback review.

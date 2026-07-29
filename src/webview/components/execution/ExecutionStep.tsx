@@ -6,6 +6,9 @@ export interface ExecutionStepData {
   title: string;
   description: string;
   status: ExecutionStatus;
+  stepNumber?: number;
+  estimatedTime?: string;
+  icon?: string;
   duration?: number;
   logs?: string;
 }
@@ -21,9 +24,14 @@ export const ExecutionStep: React.FC<ExecutionStepProps> = ({ step }) => {
       
       <div className="execution-step-content">
         <div className="execution-step-header">
-          <span className="execution-step-title">{step.title}</span>
+          <span className="execution-step-title">
+            {step.stepNumber ? `${step.stepNumber}. ` : ''}{step.title}
+          </span>
+          {step.estimatedTime && (
+            <span className="execution-step-duration">Est: {step.estimatedTime}</span>
+          )}
           {step.duration !== undefined && (
-            <span className="execution-step-duration">{step.duration}ms</span>
+            <span className="execution-step-duration">({step.duration}ms)</span>
           )}
         </div>
         

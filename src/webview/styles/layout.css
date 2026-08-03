@@ -118,8 +118,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-button);
   flex-shrink: 0;
 }
@@ -138,16 +138,15 @@
 .message-bubble-body {
   display: flex;
   flex-direction: column;
-  max-width: calc(100% - 44px);
+  max-width: calc(100% - 52px);
   min-width: 0;
 }
 
 .message-user .message-bubble-body {
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  padding: var(--spacing-16);
-  border-radius: var(--radius-card);
-  border-top-right-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: none;
+  padding: var(--spacing-12) var(--spacing-16);
+  border-radius: 8px;
 }
 
 .message-assistant .message-bubble-body {

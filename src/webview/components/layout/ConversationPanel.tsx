@@ -6,7 +6,7 @@ import React from "react";
 export function ConversationPanel(): React.JSX.Element {
   return (
     <main className="conversation-panel">
-      <h1 className="welcome-title">Welcome to Sasta-Antigravity</h1>
+      <h1 className="welcome-title">Welcome to Kaira AI</h1>
       <p className="welcome-description">Your Offline AI Software Engineer</p>
       
       <ul className="welcome-list">

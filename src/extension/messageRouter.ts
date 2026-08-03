@@ -34,6 +34,11 @@ import { safeEditEngine } from '../core/safeEdit';
 import { eventEvents, eventBusInstance } from '../core/eventBus';
 import { taskGenerationEngine, taskEvents } from '../core/taskGeneration';
 import { executionPlanningEngine, executionEvents } from '../core/executionPlanning';
+import { dependencyResolutionEngine } from '../core/dependencyResolution';
+import { milestoneOrchestrationEngine, milestoneEvents } from '../core/milestoneOrchestration';
+import { workflowCoordinator, workflowEvents } from '../core/workflowCoordinator';
+import { replanningEngine, replanningEvents } from '../core/replanning';
+import { recoveryEngine, recoveryEvents } from '../core/recovery';
 
 export class MessageRouter {
   private promptDispatcher: PromptDispatcher;
@@ -1029,6 +1034,18 @@ export class MessageRouter {
         break;
       case 'EXECUTION_PLANNING_REQUEST':
         this._handleExecutionPlanningRequest(message);
+        break;
+      case 'MILESTONE_ORCHESTRATION_REQUEST':
+        this._handleMilestoneOrchestrationRequest(message);
+        break;
+      case 'WORKFLOW_COORDINATOR_REQUEST':
+        this._handleWorkflowCoordinatorRequest(message);
+        break;
+      case 'REPLANNING_REQUEST':
+        this._handleReplanningRequest(message);
+        break;
+      case 'RECOVERY_REQUEST':
+        this._handleRecoveryRequest(message);
         break;
       default:
         console.warn(`[Sasta-Antigravity] Unhandled message type: ${message.type}`);
@@ -2431,15 +2448,10 @@ export class MessageRouter {
 
   private _handleDependencyRequest(message: BridgeMessage): void {
     try {
-      const depAgent = agentRegistry.get('dependency-agent') as DependencyAgent;
-      if (!depAgent) {
-        throw new Error('Dependency Agent not found in registry');
-      }
-
       const { action, packageJsonPath } = message.payload || {};
 
       if (action === 'ANALYZE_DEPENDENCIES') {
-        depAgent.brain.runDependencyAnalysis(packageJsonPath || '').then((report) => {
+        dependencyResolutionEngine.resolve(message.payload || {}).then((report) => {
           this.postMessage(MessageFactory.createMessage(
             MessageType.DEPENDENCY_UPDATE,
             MessageSource.EXTENSION,
@@ -3041,6 +3053,140 @@ export class MessageRouter {
             MessageTarget.WEBVIEW,
             {
               lastAction: 'PLAN_EXECUTION',
+              report
+            }
+          ));
+        }).catch((err) => {
+          this.postMessage(MessageFactory.createMessage(
+            MessageType.ERROR,
+            MessageSource.EXTENSION,
+            MessageTarget.WEBVIEW,
+            { error: err.message }
+          ));
+        });
+    } catch (error: any) {
+      this.postMessage(MessageFactory.createMessage(
+        MessageType.ERROR,
+        MessageSource.EXTENSION,
+        MessageTarget.WEBVIEW,
+        { error: error.message }
+      ));
+    }
+  }
+
+  private _handleMilestoneOrchestrationRequest(message: BridgeMessage): void {
+    try {
+      const { action } = message.payload || {};
+
+      if (action === 'ORCHESTRATE_MILESTONES' || !action) {
+        milestoneOrchestrationEngine.orchestrate(message.payload || {}).then((report) => {
+          this.postMessage(MessageFactory.createMessage(
+            MessageType.MILESTONE_ORCHESTRATION_UPDATE,
+            MessageSource.EXTENSION,
+            MessageTarget.WEBVIEW,
+            {
+              lastAction: 'ORCHESTRATE_MILESTONES',
+              report
+            }
+          ));
+        }).catch((err) => {
+          this.postMessage(MessageFactory.createMessage(
+            MessageType.ERROR,
+            MessageSource.EXTENSION,
+            MessageTarget.WEBVIEW,
+            { error: err.message }
+          ));
+        });
+    } catch (error: any) {
+      this.postMessage(MessageFactory.createMessage(
+        MessageType.ERROR,
+        MessageSource.EXTENSION,
+        MessageTarget.WEBVIEW,
+        { error: error.message }
+      ));
+    }
+  }
+
+  private _handleWorkflowCoordinatorRequest(message: BridgeMessage): void {
+    try {
+      const { action } = message.payload || {};
+
+      if (action === 'COORDINATE_WORKFLOW' || !action) {
+        workflowCoordinator.coordinate(message.payload || {}).then((report) => {
+          this.postMessage(MessageFactory.createMessage(
+            MessageType.WORKFLOW_COORDINATOR_UPDATE,
+            MessageSource.EXTENSION,
+            MessageTarget.WEBVIEW,
+            {
+              lastAction: 'COORDINATE_WORKFLOW',
+              report
+            }
+          ));
+        }).catch((err) => {
+          this.postMessage(MessageFactory.createMessage(
+            MessageType.ERROR,
+            MessageSource.EXTENSION,
+            MessageTarget.WEBVIEW,
+            { error: err.message }
+          ));
+        });
+      }
+    } catch (error: any) {
+      this.postMessage(MessageFactory.createMessage(
+        MessageType.ERROR,
+        MessageSource.EXTENSION,
+        MessageTarget.WEBVIEW,
+        { error: error.message }
+      ));
+    }
+  }
+
+  private _handleReplanningRequest(message: BridgeMessage): void {
+    try {
+      const { action } = message.payload || {};
+
+      if (action === 'DYNAMIC_REPLAN' || !action) {
+        replanningEngine.replan(message.payload || {}).then((report) => {
+          this.postMessage(MessageFactory.createMessage(
+            MessageType.REPLANNING_UPDATE,
+            MessageSource.EXTENSION,
+            MessageTarget.WEBVIEW,
+            {
+              lastAction: 'DYNAMIC_REPLAN',
+              report
+            }
+          ));
+        }).catch((err) => {
+          this.postMessage(MessageFactory.createMessage(
+            MessageType.ERROR,
+            MessageSource.EXTENSION,
+            MessageTarget.WEBVIEW,
+            { error: err.message }
+          ));
+        });
+      }
+    } catch (error: any) {
+      this.postMessage(MessageFactory.createMessage(
+        MessageType.ERROR,
+        MessageSource.EXTENSION,
+        MessageTarget.WEBVIEW,
+        { error: error.message }
+      ));
+    }
+  }
+
+  private _handleRecoveryRequest(message: BridgeMessage): void {
+    try {
+      const { action } = message.payload || {};
+
+      if (action === 'AUTONOMOUS_RECOVERY' || !action) {
+        recoveryEngine.recover(message.payload || {}).then((report) => {
+          this.postMessage(MessageFactory.createMessage(
+            MessageType.RECOVERY_UPDATE,
+            MessageSource.EXTENSION,
+            MessageTarget.WEBVIEW,
+            {
+              lastAction: 'AUTONOMOUS_RECOVERY',
               report
             }
           ));

@@ -1,45 +1,26 @@
-import * as vscode from 'vscode';
-import { RuntimeEngine } from './runtimeEngine';
-import { ModelConfig, ModelState, GenerationConfig, InferenceResult } from './runtimeTypes';
+import { runtimeEngine } from '../../modelRuntime/runtimeEngine';
+import { modelManager } from '../../modelRuntime/modelManager';
+import { ModelConfig, ModelState, GenerationConfig, InferenceResult } from '../../modelRuntime/runtimeTypes';
 
 export class RuntimeService {
-  private activeEngine: RuntimeEngine | null = null;
-
-  private getEngine(): RuntimeEngine {
-    const folders = vscode.workspace.workspaceFolders;
-    if (!folders || folders.length === 0) {
-      throw new Error('Workspace Model Runtime Service: No workspace folder is open');
-    }
-
-    if (!this.activeEngine) {
-      this.activeEngine = new RuntimeEngine();
-    }
-    return this.activeEngine;
-  }
-
-  /**
-   * Subscribes a listener to Model Runtime changes.
-   */
   public subscribe(listener: any): () => void {
-    return this.getEngine().subscribe(listener);
+    return runtimeEngine.subscribe(listener);
   }
-
-  // --- Wrapper APIs ---
 
   public getModelState(): ModelState {
-    return this.getEngine().getModelState();
+    return runtimeEngine.getModelState() as any;
   }
 
-  public getActiveConfig(): ModelConfig {
-    return this.getEngine().getActiveConfig();
+  public getActiveConfig(): ModelConfig | null {
+    return modelManager.getActiveConfig();
   }
 
   public async loadModel(config: ModelConfig): Promise<void> {
-    await this.getEngine().loadModel(config);
+    await runtimeEngine.loadModel(config);
   }
 
   public async unloadModel(): Promise<void> {
-    await this.getEngine().unloadModel();
+    await runtimeEngine.unloadModel();
   }
 
   public async generate(
@@ -48,12 +29,26 @@ export class RuntimeService {
     onToken?: (token: string) => void,
     signal?: AbortSignal
   ): Promise<InferenceResult> {
-    return this.getEngine().generate(promptPkg, config, onToken, signal);
+    return runtimeEngine.generate(promptPkg, config, onToken, signal);
   }
 
   public getStats(): any {
-    return this.getEngine().getStats();
+    const active = modelManager.getActiveConfig();
+    const metrics = runtimeEngine.getMetrics();
+    const health = runtimeEngine.getHealthReport();
+    return {
+      loadedModel: active ? active.name : 'None',
+      memoryUsageMb: metrics.ramUsageMb,
+      vramUsageMb: metrics.vramUsageMb,
+      cpuUsagePct: metrics.cpuUsagePct,
+      gpuUsagePct: metrics.gpuUsagePct,
+      inferenceSpeedTps: metrics.tokenThroughputTps,
+      queueLength: 0,
+      contextLength: metrics.contextLength,
+      healthStatus: health.status
+    };
   }
 }
 
 export const runtimeService = new RuntimeService();
+export { RuntimeEvent } from '../../modelRuntime/runtimeTypes';

@@ -8,7 +8,7 @@ export function Header(): React.JSX.Element {
   return (
     <header className="app-header">
       <div className="header-title-container">
-        <span className="header-title">Sasta-Antigravity</span>
+        <span className="header-title">Kaira AI</span>
         <span className="header-subtitle">Offline AI Software Engineer</span>
       </div>
       <StatusIndicator label="Status: Ready" type="success" />

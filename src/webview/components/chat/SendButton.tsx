@@ -4,8 +4,8 @@ export function SendButton(): React.JSX.Element {
   return (
     <button className="chat-send-button" disabled aria-label="Send prompt">
       <svg
-        width="16"
-        height="16"
+        width="21"
+        height="21"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"

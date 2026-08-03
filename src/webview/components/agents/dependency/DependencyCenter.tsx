@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { vscodeBridge } from '../../../services/vscodeBridge';
 import { MessageType, MessageSource, MessageTarget } from '../../../../common/protocol';
+import { DependencyExplorer } from './DependencyExplorer';
 
 export const DependencyCenter: React.FC = () => {
   const [report, setReport] = useState<any>(null);
@@ -63,33 +64,39 @@ export const DependencyCenter: React.FC = () => {
       gap: '12px',
       textAlign: 'left'
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
-        <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 600 }}>Dependency Center</h4>
-        <button 
-          onClick={handleScanDependencies}
-          disabled={loading}
-          style={{
-            background: 'var(--vscode-button-background)',
-            color: '#fff',
-            border: 'none',
-            padding: '3px 8px',
-            borderRadius: '3px',
-            cursor: loading ? 'default' : 'pointer',
-            fontSize: '11px'
-          }}
-        >
-          {loading ? 'Scanning...' : 'Scan Dependencies'}
-        </button>
-      </div>
-
-      {errorMsg && (
-        <div style={{ color: '#f44336', fontSize: '11px' }}>
-          ⚠️ {errorMsg}
-        </div>
-      )}
-
-      {report ? (
+      {report && report.graph ? (
+        <DependencyExplorer 
+          report={report} 
+          onScan={handleScanDependencies} 
+          loading={loading} 
+        />
+      ) : report ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
+            <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 600 }}>Dependency Center</h4>
+            <button 
+              onClick={handleScanDependencies}
+              disabled={loading}
+              style={{
+                background: 'var(--vscode-button-background)',
+                color: '#fff',
+                border: 'none',
+                padding: '3px 8px',
+                borderRadius: '3px',
+                cursor: loading ? 'default' : 'pointer',
+                fontSize: '11px'
+              }}
+            >
+              {loading ? 'Scanning...' : 'Scan Dependencies'}
+            </button>
+          </div>
+
+          {errorMsg && (
+            <div style={{ color: '#f44336', fontSize: '11px' }}>
+              ⚠️ {errorMsg}
+            </div>
+          )}
+
           {/* Main score dials */}
           <div style={{ display: 'flex', gap: '8px' }}>
             <div style={{ flex: 1.2, backgroundColor: 'rgba(255,255,255,0.03)', padding: '8px', borderRadius: '4px', textAlign: 'center' }}>
@@ -171,9 +178,29 @@ export const DependencyCenter: React.FC = () => {
           )}
         </div>
       ) : (
-        <div style={{ fontStyle: 'italic', color: '#666', textAlign: 'center', padding: '10px 0' }}>
-          No scan performed. Click Scan Dependencies to check imports health.
-        </div>
+        <>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
+            <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 600 }}>Dependency Center</h4>
+            <button 
+              onClick={handleScanDependencies}
+              disabled={loading}
+              style={{
+                background: 'var(--vscode-button-background)',
+                color: '#fff',
+                border: 'none',
+                padding: '3px 8px',
+                borderRadius: '3px',
+                cursor: loading ? 'default' : 'pointer',
+                fontSize: '11px'
+              }}
+            >
+              {loading ? 'Scanning...' : 'Scan Dependencies'}
+            </button>
+          </div>
+          <div style={{ fontStyle: 'italic', color: '#666', textAlign: 'center', padding: '10px 0' }}>
+            No scan performed. Click Scan Dependencies to check imports health.
+          </div>
+        </>
       )}
     </div>
   );

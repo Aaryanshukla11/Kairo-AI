@@ -1,7 +1,7 @@
 {
   "name": "sasta-antigravity",
-  "displayName": "Sasta Antigravity",
-  "description": "Offline AI Software Engineer VS Code Extension",
+  "displayName": "Kaira AI",
+  "description": "Offline Kaira AI Software Engineer VS Code Extension",
   "version": "0.1.0-draft",
   "publisher": "aaryanshukla11",
   "license": "MIT",
@@ -32,7 +32,7 @@
       "activitybar": [
         {
           "id": "sasta-antigravity-sidebar",
-          "title": "Sasta-Antigravity Panel",
+          "title": "Kaira AI Panel",
           "icon": "$(gear)"
         }
       ]
@@ -42,7 +42,7 @@
         {
           "type": "webview",
           "id": "sasta-antigravity.chatView",
-          "name": "Sasta-Antigravity Chat",
+          "name": "Kaira AI Chat",
           "icon": "$(sparkle)"
         }
       ]
@@ -50,7 +50,7 @@
     "commands": [
       {
         "command": "sasta-antigravity.startSession",
-        "title": "Sasta-Antigravity: Start New Session"
+        "title": "Kaira AI: Start New Session"
       }
     ]
   },

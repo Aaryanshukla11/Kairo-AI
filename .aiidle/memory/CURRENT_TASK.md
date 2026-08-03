@@ -1,24 +1,17 @@
 # Current Task
 
-- **Current Milestone**: M04: Execution
-- **Current Sprint**: M04-S01: Task Intelligence
-- **Task ID**: M04-S01-T002A
-- **Task Name**: Advanced Task Intelligence Pack
+- **Current Milestone**: M06: Model Customization & Datasets
+- **Current Sprint**: M06-S01: Offline Dataset Compilation
+- **Task ID**: M06-S01-T001
+- **Task Name**: Dataset Builder Foundation
 - **Status**: Completed
-- **Started**: 2026-07-29T21:51:06+05:30
-- **Completed**: 2026-07-29T21:58:00+05:30
-- **Dependencies**: M04-S01-T002
+- **Started**: 2026-08-03T10:31:03+05:30
+- **Completed**: 2026-08-03T12:15:00+05:30
+- **Dependencies**: M05-S01-T008
 - **Acceptance Criteria**:
-  - [x] Part 1: Hierarchical Task Network (HTN) (`Feature -> Milestone -> Task -> Subtask -> Atomic Action`)
-  - [x] Part 2: Task Knowledge Graph (files, symbols, APIs, services, components, DB tables)
-  - [x] Part 3: Task Constraint Engine (Must Run Before/After, Mutually Exclusive, Approval/Checkpoint, Resource Lock)
-  - [x] Part 4: Task Resource Model (CPU, memory, disk, LLM context, token budget, runtime, parallel workers)
-  - [x] Part 5: Task Recovery Plan (retry, rollback, failure recovery, compensation steps, recovery confidence)
-  - [x] Part 6: Task Decision Engine (Skip, Merge, Split, Parallelize, Delay, Cancel, Escalate)
-  - [x] Part 7: Task Dependency Categories (Structural, Logical, Resource, Temporal, Policy, Security, Approval)
-  - [x] Part 8: Task Versioning (version, parent version, replanned version, reason)
-  - [x] Part 9: Task Observability (planning time, scheduling time, critical path time, efficiency, cost, confidence)
-  - [x] Upgraded Task Planner Dashboard webview component with HTN, Knowledge Graph, Constraints, & Observability tabs
-  - [x] Unit test suite created & passing
-  - [x] Documentation logs updated
-- **Next Task**: Awaiting architectural sign-off and feedback review.
+  - [x] Create backend Dataset Builder, engine compilers, assemblers, indexers, statistics trackers, and version managers
+  - [x] Create dataset providers for local folders, git repos, json, markdown, and text
+  - [x] Build webview Dataset Builder Dashboard React component
+  - [x] Create unit test suite `tests/unit/datasetBuilder.test.ts`
+  - [x] Update documentation logs and implementation reports
+- **Next Milestone**: M06 complete.

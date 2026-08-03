@@ -41,7 +41,7 @@ export const ContextInspector: React.FC = () => {
         filePaths: ['package.json', 'src/extension/index.ts'],
         selection: {
           filePath: 'src/extension/index.ts',
-          selectedText: 'console.log("Welcome Sasta Antigravity Context Inspector");',
+          selectedText: 'console.log("Welcome Kaira AI Context Inspector");',
           startLine: 10,
           endLine: 12
         },

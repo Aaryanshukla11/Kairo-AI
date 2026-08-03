@@ -2986,25 +2986,548 @@ Establishes a deterministic execution plan generator bridging Task Graphs to Gen
 - Verified resource plan allocations (CPU, memory, tokens, runtime, concurrent workers).
 - Verified plan validator detecting circular step dependencies and returning validation reports.
 
+---
 
+# Implementation Report: M04-S01-T004 (Dependency Resolution Engine Foundation)
 
+## 1. Objective
+Implement the Dependency Resolution Engine responsible for discovering, analyzing, validating, optimizing, and resolving transitive dependency chains across task structures, workspace files, symbols, imports, configuration parameters, and package manifest boundaries.
 
+## 2. Changes Implemented
 
+### Core Logic
+- Created `src/core/dependencyResolution/` containing `dependencyResolutionEngine.ts`, `dependencyAnalyzer.ts`, `dependencyGraph.ts`, `dependencyResolver.ts`, `dependencyValidator.ts`, `dependencyClassifier.ts`, `dependencyOptimizer.ts`, `dependencyCache.ts`, `dependencyMetrics.ts`, `dependencyEvents.ts`, and `dependencyTypes.ts`.
+- Created specific collectors under `src/core/dependencyResolution/providers/` (File, Symbol, Import, API, Database, Configuration, Package dependency providers).
+- Updated `src/extension/messageRouter.ts` to dispatch dependency requests directly to the engine and emit update payloads.
 
+### UI & React
+- Created `src/webview/components/agents/dependency/DependencyExplorer.tsx` featuring tabbed views for Relations Graph, Critical Path topological tree hierarchies, Circular Import cycles validator, and Optimization Suggestions log panels.
+- Integrated explorer views within `src/webview/components/agents/dependency/DependencyCenter.tsx`.
 
+### Tests
+- Created `tests/unit/dependencyResolution.test.ts` verifying graph compilation, cycle detection scans, topological ordering calculations, link validation errors, and redundant/unused node optimizations.
 
+## 3. Impact Assessment
+Establishes a comprehensive, cross-domain dependency analyzer that ensures all implementation tasks have their requirements fully resolved and verified before milestone orchestrations begin.
 
+## 4. Validation Results
+- Verified DFS cycle detection logic finding circular dependency paths.
+- Verified topological sorting for execution ordering.
+- Verified validator flags broken nodes and references.
+- Verified optimizer detects redundant transitive links.
 
+---
 
+# Implementation Report: M04-S01-T005 (Milestone Orchestration Engine Foundation)
 
+## 1. Objective
+Implement the Milestone Orchestration Engine responsible for coordinating feature implementation across multiple milestones without code generation. Transforms execution plans into structured milestone workflows with dependency tracking, state management, checkpoint schedules, recovery plans, and execution confidence scoring.
 
+## 2. Changes Implemented
 
+### Core Logic
+- Created `src/core/milestoneOrchestration/` containing `milestoneOrchestrationEngine.ts`, `milestonePlanner.ts`, `milestoneScheduler.ts`, `milestoneCoordinator.ts`, `milestoneDependencyResolver.ts`, `milestoneStateMachine.ts`, `milestoneProgressTracker.ts`, `milestoneCheckpointManager.ts`, `milestoneRecoveryPlanner.ts`, `milestoneValidator.ts`, `milestoneMetrics.ts`, `milestoneEvents.ts`, and `milestoneTypes.ts`.
+- Created strategy providers under `src/core/milestoneOrchestration/strategies/` (`sequentialMilestoneStrategy.ts`, `parallelMilestoneStrategy.ts`, `hybridMilestoneStrategy.ts`, `isolatedMilestoneStrategy.ts`).
+- Updated `src/common/protocol/messageTypes.ts` with `MILESTONE_ORCHESTRATION_REQUEST` and `MILESTONE_ORCHESTRATION_UPDATE`.
+- Updated `src/extension/messageRouter.ts` to route requests to `milestoneOrchestrationEngine.orchestrate()`.
 
+### UI & React
+- Created `src/webview/components/chat/MilestoneDashboard.tsx` featuring tabbed views for Timeline & Statuses, Parallel Execution Groups, Checkpoint Maps, and Recovery Plans.
+- Mounted dashboard in `EmptyState.tsx`.
 
+### Tests
+- Created `tests/unit/milestoneOrchestration.test.ts` verifying workflow generation, state transitions, cycle detection, topological sorting, strategy execution, and graph validation.
 
+## 3. Impact Assessment
+Establishes an execution orchestration engine bridging high-level execution plans to milestone workflows while strictly preserving rollback boundaries and zero code generation policies.
 
+## 4. Validation Results
+- Verified topological milestone scheduling and DFS cycle validation.
+- Verified state machine allowed vs invalid state transition enforcement.
+- Verified checkpoint schedule generation and rollback boundary mapping.
+- Verified recovery plan compilation and confidence score calculations.
 
+---
 
+# Implementation Report: M04-S01-T007 (Dynamic Replanning Engine Foundation)
+
+## 1. Objective
+Implement the Dynamic Replanning Engine responsible for continuously monitoring workflow execution and automatically generating updated execution plans when unexpected events occur, while strictly preserving completed work and replanning only affected portions of the graph.
+
+## 2. Changes Implemented
+
+### Core Logic
+- Created `src/core/replanning/` containing `replanningEngine.ts`, `replanningCoordinator.ts`, `replanningAnalyzer.ts`, `replanningPlanner.ts`, `replanningScheduler.ts`, `replanningValidator.ts`, `replanningHistory.ts`, `replanningGraph.ts`, `replanningMetrics.ts`, `replanningEvents.ts`, `replanningTypes.ts`, `changeDetector.ts`, `impactAnalyzer.ts`, `workflowComparator.ts`, and `conflictResolver.ts`.
+- Created strategy providers under `src/core/replanning/strategies/` (`partialReplanStrategy.ts`, `milestoneReplanStrategy.ts`, `taskReplanStrategy.ts`, `dependencyReplanStrategy.ts`, `recoveryReplanStrategy.ts`).
+- Updated `src/common/protocol/messageTypes.ts` with `REPLANNING_REQUEST` and `REPLANNING_UPDATE`.
+- Updated `src/extension/messageRouter.ts` to route requests to `replanningEngine.replan()`.
+
+### UI & React
+- Created `src/webview/components/chat/ReplanningDashboard.tsx` featuring tabbed views for Impact Summary, Execution Delta, Conflicts Resolution, and Recovery Suggestions.
+- Mounted dashboard in `EmptyState.tsx`.
+
+### Tests
+- Created `tests/unit/replanning.test.ts` verifying trigger detection, impact analysis, work preservation rules, workflow comparison deltas, conflict resolution, and preservation graph validation.
+
+## 3. Impact Assessment
+Establishes an adaptive replanning engine that guarantees completed work is preserved while dynamically repairing graph dependencies on unexpected task/workspace failures without code generation.
+
+## 4. Validation Results
+- Verified trigger detection across 8 trigger types.
+- Verified work preservation rules (Never discard completed work).
+- Verified execution delta calculations (added/removed/modified/preserved).
+- Verified conflict resolver clearing transitive dependency overlaps.
+
+---
+
+# Implementation Report: M04-S01-T008 (Autonomous Recovery Engine Foundation)
+
+## 1. Objective
+Implement the Autonomous Recovery Engine responsible for automatically recovering from execution failures without losing completed work. Classifies failures, selects optimal recovery plans, restores checkpoints, performs workspace rollbacks, and resumes workflow execution safely with zero data loss.
+
+## 2. Changes Implemented
+
+### Core Logic
+- Created `src/core/recovery/` containing `recoveryEngine.ts`, `recoveryCoordinator.ts`, `recoveryAnalyzer.ts`, `recoveryPlanner.ts`, `recoveryStrategies.ts`, `recoveryExecutor.ts`, `recoveryHistory.ts`, `checkpointRecovery.ts`, `workflowRecovery.ts`, `failureClassifier.ts`, `failurePredictor.ts`, `rollbackRecovery.ts`, `recoveryMetrics.ts`, `recoveryEvents.ts`, and `recoveryTypes.ts`.
+- Created strategy providers under `src/core/recovery/strategies/` (`retryRecovery.ts`, `rollbackRecovery.ts`, `checkpointRecovery.ts`, `workflowRecovery.ts`, `partialRecovery.ts`, `manualRecovery.ts`).
+- Updated `src/common/protocol/messageTypes.ts` with `RECOVERY_REQUEST` and `RECOVERY_UPDATE`.
+- Updated `src/extension/messageRouter.ts` to route requests to `recoveryEngine.recover()`.
+
+### UI & React
+- Created `src/webview/components/chat/RecoveryDashboard.tsx` displaying failure classifications, strategy selection, checkpoint restoration details, rollback statuses, recovered task lists, and confidence dials.
+- Mounted dashboard in `EmptyState.tsx`.
+
+### Tests
+- Created `tests/unit/recovery.test.ts` verifying failure classification, strategy selection, checkpoint restoration, rollback execution, and workflow resumption without data loss.
+
+## 3. Impact Assessment
+Completes Phase 5 by establishing an autonomous recovery pipeline that guarantees zero data loss and automated state restoration upon unexpected runtime/policy failures.
+
+## 4. Validation Results
+- Verified failure classifier accuracy across error patterns.
+- Verified checkpoint restore and rollback integrity.
+- Verified workflow reconstruction & resume logic.
+- Verified recovery confidence calculation and telemetry collection.
+
+---
+
+# Implementation Report: M05-S01-T001 (Model Runtime Foundation)
+
+## 1. Objective
+Implement the Model Runtime responsible for loading, managing, executing and monitoring local AI models inside Kaira-AI. The runtime is provider-agnostic, executes completely locally without cloud API dependencies, handles resource usage metrics, schedules execution, and provides a rich diagnostic dashboard.
+
+## 2. Changes Implemented
+
+### Core Logic
+- Created `src/core/modelRuntime/` containing:
+  - `modelRuntime.ts` - Main entrypoint coordinating managers and engines.
+  - `runtimeEngine.ts` - Core engine handling model lifecycle, loading/unloading, queueing inference jobs, and invoking providers.
+  - `runtimeManager.ts` - High-level manager for initialization, shutdown, and dynamic provider registration.
+  - `runtimeRegistry.ts` - Registry managing available local model backends (Mock, llama.cpp, ONNX Runtime, GGUF, MLX).
+  - `runtimeContext.ts` - State holder for active context window, process environmental metadata, memory/thread limits.
+  - `runtimeLifecycle.ts` - State machine tracking model lifecycle transitions (`Registered`, `Loading`, `Loaded`, `Ready`, `Running`, `Idle`, `Unloading`, `Failed`).
+  - `runtimeMetrics.ts` - Telemetry tracker calculating resource usage stats (CPU, GPU, RAM, VRAM, context sizes, throughput).
+  - `runtimeEvents.ts` - Event emitter and broker for model status notifications.
+  - `runtimeTypes.ts` - Type definitions for model configurations, contexts, sessions, metrics, and event structures.
+  - `runtimeValidator.ts` - Configuration validator asserting resource capacities, prompt limits, and backend status.
+  - `runtimeHealth.ts` - Health evaluator determining overall runtime state (Healthy/Degraded/Unhealthy).
+  - `modelLoader.ts` - Loader handling loading/unloading actions and transitioning state.
+  - `modelManager.ts` - Registry for registered model configs (Qwen 2.5 Coder, Llama 3 Instruct) and active configs.
+  - `modelMetadata.ts` - Parser for GGUF and other local model details.
+  - `modelCache.ts` - Local cache to speed up model swapping and load cycles.
+  - `inferenceSession.ts` - Manager for conversation history and user session bounds.
+  - `inferenceQueue.ts` - FIFO queue for scheduling multi-tenant or back-to-back prompts.
+  - `inferenceScheduler.ts` - Scheduler executing queued tasks sequentially.
+  - `inferenceMetrics.ts` - Metrics compiler calculating TPS, prompt/completion token limits, and time-to-first-token latencies.
+- Created local backend provider plugins under `src/core/modelRuntime/providers/`:
+  - `baseProvider.ts` - Defines standard unified interface (`ModelProvider`) that all local engines implement.
+  - `mockProvider.ts` - Mock provider simulating model text streaming and cancellation via abort signal.
+  - `llamaCppProvider.ts` - Local llama.cpp integration provider wrapper.
+  - `onnxProvider.ts` - Local ONNX Runtime provider wrapper.
+  - `ggufProvider.ts` - GGUF binary executor provider wrapper.
+  - `mlxProvider.ts` - Apple Silicon MLX local provider wrapper.
+  - `index.ts` - Exports all providers.
+- Integrated the new Model Runtime engine by updating `src/core/runtime/model/runtimeService.ts` to delegate directly to the new engine and format all system metrics for the dashboard view.
+
+### UI & React
+- Updated `src/webview/components/runtime/RuntimeMonitor.tsx` to build a rich visual glassmorphic dashboard showcasing active models, execution engines, health status badges, RAM/VRAM resource bars, CPU/GPU utilisation percentages, throughput TPS, context lengths, and live token streaming outputs.
+
+### Tests
+- Updated `tests/unit/modelRuntime.test.ts` to verify the initialization, state transitions, config validations, prompt restrictions, abort signal cancellation, and completion outputs of the new model runtime.
+
+## 3. Impact Assessment
+Establishes a provider-agnostic, completely local model runtime layer. Enables Kaira-AI to execute and monitor open-source LLMs offline using standard backends like llama.cpp, ONNX, and MLX under one unified schema.
+
+## 4. Validation Results
+- Verified runtime initialization and event subscriptions.
+- Verified state machine allowed state transitions (Registered -> Loading -> Ready -> Running -> Idle -> Registered).
+- Verified mock, llama.cpp, ONNX, GGUF, and MLX provider validation and availability.
+- Verified validation rules rejecting oversized prompt context lengths and empty input prompts.
+- Verified abort signal cancellations on streaming generation.
+
+---
+
+# Implementation Report: M05-S01-T002 (Model Registry Foundation)
+
+## 1. Objective
+Implement the Model Registry responsible for discovering, registering, validating and managing every AI model available inside Kairo-AI. The registry acts as a single source of truth for model discovery, capability mapping (Chat, Code Generation, Reasoning, etc.), platform compatibility checks (such as device RAM/OS requirements), and health reporting.
+
+## 2. Changes Implemented
+
+### Core Logic
+- Created `src/core/modelRegistry/` containing:
+  - `modelRegistry.ts` - Central facade coordinating the registry engine.
+  - `registryEngine.ts` - Core engine managing catalogs, validation checklists, compatibility assessments, health metrics, and events.
+  - `registryScanner.ts` - Main folder scan coordinator integrating cache, capabilities extraction, and provider scanners.
+  - `registryValidator.ts` - Metadata validator verifying IDs, formats, tokenizers, and parameter counts.
+  - `registryCache.ts` - TTL cache speeding up scan operations.
+  - `modelCatalog.ts` - Catalog storage listing all discovered and verified models.
+  - `modelCapabilities.ts` - Capability detector extracting features (Chat, Code Gen, RAG, Reasoning, Function calling) via heuristics.
+  - `modelCompatibility.ts` - Compatibility analyzer checking RAM requirements, platforms, and MLX constraints.
+  - `modelMetadata.ts` - Parser extracting model metadata from filenames and binary attributes.
+  - `modelHealth.ts` - Health evaluator producing registry health reports.
+  - `registryMetrics.ts` - Metrics tracker registering scan times, cache efficiency, and counts.
+  - `registryEvents.ts` - Event broker publishing registry actions.
+  - `registryTypes.ts` - Declares ModelInfo schemas, states (`Discovered`, `Registered`, `Validated`, `Ready`, `Deprecated`, `Unavailable`, `Corrupted`), and capabilities.
+- Created scanners under `src/core/modelRegistry/providers/`:
+  - `ggufScanner.ts` - GGUF parser.
+  - `onnxScanner.ts` - ONNX parser.
+  - `mlxScanner.ts` - Apple Silicon MLX folder parser.
+  - `localFolderScanner.ts` - Main workspace scan directory spawner.
+  - `customProviderScanner.ts` - Custom manifest scanner.
+
+### UI & React
+- Created `src/webview/components/runtime/ModelRegistryDashboard.tsx` displaying installed local models, capability metrics, supported languages, context lengths, RAM requirements, and quantization.
+
+### Tests
+- Created `tests/unit/modelRegistry.test.ts` verifying heuristic capability detection, memory compatibility analyzers, and health reports.
+
+## 3. Impact Assessment
+Creates a unified model registry schema mapping local capabilities, ensuring correct LLM routing and compatibility boundaries without hardcoded cloud overrides.
+
+## 4. Validation Results
+- Verified GGUF, ONNX, and MLX file signature metadata parses.
+- Verified heuristic capability detection matches (Instruct -> Chat/Tool, Coder -> CodeGen).
+- Verified compatibility reports flag low memory systems and invalid MLX platforms.
+- Verified state machine transitions and health reports.
+
+---
+
+# Implementation Report: M05-S01-T003 (Inference Pipeline Foundation)
+
+## 1. Objective
+Implement the Inference Pipeline responsible for executing prompts against local AI models while coordinating context assembly, prompt compilation, streaming responses, tool execution hooks, cancellation, metrics collection, and session management.
+
+## 2. Changes Implemented
+
+### Core Logic
+- Created `src/core/inference/` containing:
+  - `inferencePipeline.ts` - Facade wrapper coordinating queues and pipelines.
+  - `inferenceEngine.ts` - Core prompt engine directing model execution, processing validators, assembling telemetry calculations, and executing backends.
+  - `inferenceCoordinator.ts` - Request coordinator registering abort signals, enqueuing pipelines, and triggering schedulers.
+  - `inferenceSession.ts` - Manager for thread history and state transitions (`Created`, `Queued`, `Running`, `Streaming`, `Completed`, `Cancelled`, `Failed`).
+  - `inferenceRequest.ts` - Parser and normalizer for incoming prompt request configurations.
+  - `inferenceResponse.ts` - Response builder structure.
+  - `inferenceStream.ts` - Controller for streaming tokens, backpressures, and progress emitters.
+  - `inferenceQueue.ts` - Queue storing pending jobs.
+  - `inferenceScheduler.ts` - Sequential task loop processor.
+  - `inferenceMetrics.ts` - Compiler calculating latencies, TPS, and prompt/completion counts.
+  - `inferenceEvents.ts` - Event dispatcher.
+  - `inferenceTypes.ts` - Standard type definitions.
+  - `inferenceValidator.ts` - Request validator.
+  - `requestCompiler.ts` - Builder combining system prompts, workspace context files, and user messages.
+  - `responseAssembler.ts` - Pipeline assembler.
+  - `cancellationManager.ts` - Abort controllers mapper.
+- Created executors under `src/core/inference/providers/`:
+  - `mockExecutor.ts` - Simulated streaming provider.
+  - `llamaCppExecutor.ts` - Local llama.cpp prompt executor.
+  - `onnxExecutor.ts` - ONNX pipeline executor.
+  - `mlxExecutor.ts` - MLX prompt executor.
+
+### UI & React
+- Created `src/webview/components/runtime/InferenceDashboard.tsx` rendering session states, current model details, streaming output streams, tokens/sec rate gauges, latencies, and token count calculations.
+
+### Tests
+- Created `tests/unit/inferencePipeline.test.ts` verifying prompt template compilation, request validators, streaming outputs, and cancellation tokens.
+
+## 3. Impact Assessment
+Establishes a provider-agnostic, offline-first prompt execution pipeline. Integrates directly with model registries and model runtimes to run and monitor inferences locally.
+
+## 4. Validation Results
+- Verified compilation formats combining system headers and workspace files.
+- Verified validation constraints rejecting empty prompts and unloaded models.
+- Verified sequential queuing executes tasks back-to-back without race conditions.
+- Verified cancellation abort signals terminate streaming models immediately.
+
+---
+
+# Implementation Report: M05-S01-T004 (Context Window Manager Foundation)
+
+## 1. Objective
+Implement the Context Window Manager responsible for intelligently selecting, organizing, compressing, prioritizing, and managing context before it is sent to the local AI model. The system maximizes useful information while maintaining tokens budget boundaries.
+
+## 2. Changes Implemented
+
+### Core Logic
+- Created `src/core/contextWindow/` containing:
+  - `contextWindowManager.ts` - Orchestrator coordinating the context compilation pipeline.
+  - `contextAssembler.ts` - Formats and groups selected contexts into a clean text block with metadata headers.
+  - `contextSelector.ts` - Selects items respecting strict token budgets.
+  - `contextRanker.ts` - Ranks items using keyword matches.
+  - `contextCompressor.ts` - Strips comments and whitespaces from context blocks.
+  - `contextDeduplicator.ts` - Filters identical contents and duplicate IDs.
+  - `contextChunker.ts` - Chunks long workspace files.
+  - `contextPrioritizer.ts` - Sets priorities (`Critical`, `High`, `Medium`, `Low`, `Background`) based on relevance.
+  - `contextCache.ts` - TTL context cache spawner.
+  - `contextHistory.ts` - Registry keeping execution history logs.
+  - `contextMetrics.ts` - Telemetry tracker compiling token allocations and priorities.
+  - `contextEvents.ts` - Event dispatcher.
+  - `contextValidator.ts` - Validator ensuring budget limits and critical items are preserved.
+  - `contextTypes.ts` - Schema types.
+- Created context provider bridges under `src/core/contextWindow/providers/`:
+  - `workspaceProvider.ts` - Traverses open workspaces.
+  - `memoryProvider.ts` - Collects history.
+  - `retrievalProvider.ts` - Resolves retrieval search contexts.
+  - `conversationProvider.ts` - Maps session conversations.
+  - `diagnosticsProvider.ts` - Collects warnings.
+
+### UI & React
+- Created `src/webview/components/runtime/ContextManagerDashboard.tsx` visualizing allocation sources, utilized tokens, compression ratios, priority levels, cache hit rates, and timelines.
+
+### Tests
+- Created `tests/unit/contextWindow.test.ts` verifying duplicate filters, comments strippers, keyword weights, and allocations budgets.
+
+## 3. Impact Assessment
+Establishes a provider-independent context management system. Enables offline-first optimizations that fit workspace, memory, and history context elements into limited context windows.
+
+## 4. Validation Results
+- Verified deduplication filters identical lines.
+- Verified comment strippers trim whitespace and block comments.
+- Verified rankers select highest keyword overlaps.
+- Verified selectors truncate low-priority elements first to fit token limits.
+
+---
+
+# Implementation Report: M05-S01-T005 (Prompt Compiler Foundation)
+
+## 1. Objective
+Implement the Prompt Compiler responsible for transforming high-level execution requests into optimized, provider-independent prompts. The compiler assembles system instructions, developer instructions, workspace rules, context sections, and user prompts while optimizing formatting and compressing tokens.
+
+## 2. Changes Implemented
+
+### Core Logic
+- Created `src/core/promptCompiler/` containing:
+  - `promptCompiler.ts` - Main facade for loading caches and routing compile actions.
+  - `compilerEngine.ts` - Primary execution engine managing compiler steps (Template Loading -> Context Assembly -> Rule Injections -> Optimization -> Compression -> Sanitization -> Validation).
+  - `promptAssembler.ts` - Builder compiling system instructions, conventions rules, and user/context blocks.
+  - `templateEngine.ts` - Loader resolving templates based on prompt type.
+  - `promptOptimizer.ts` - Formatter normalising whitespaces and merging duplicated context headers.
+  - `promptValidator.ts` - Validator ensuring prompt completeness, required fields, and budget limits.
+  - `promptSanitizer.ts` - Cleaner scrubbing secrets (JWT tokens, API keys, credentials).
+  - `promptCompressor.ts` - Compressor collapsing spaces and tabs.
+  - `promptCache.ts` - Cache storing compiled prompts.
+  - `promptHistory.ts` - Logging store recording reports.
+  - `promptMetrics.ts` - Telemetry tracker calculating generation times and token ratios.
+  - `promptEvents.ts` - Event dispatcher.
+  - `promptTypes.ts` - Schema types.
+- Created template maps under `src/core/promptCompiler/templates/`:
+  - `planning.template.ts`, `coding.template.ts`, `review.template.ts`, `testing.template.ts`, `debugging.template.ts`, `documentation.template.ts`.
+- Created prompt providers under `src/core/promptCompiler/providers/`:
+  - `plannerPromptProvider.ts`, `codingPromptProvider.ts`, `reviewPromptProvider.ts`, `testingPromptProvider.ts`, `debuggingPromptProvider.ts`, `documentationPromptProvider.ts`, `index.ts`.
+
+### UI & React
+- Created `src/webview/components/runtime/PromptCompilerDashboard.tsx` rendering template metadata, compression ratios, token usage bar breakdowns, duplicate merges, and final assembled previews.
+
+### Tests
+- Created `tests/unit/promptCompiler.test.ts` verifying template loading engines, API key/JWT sanitizers, whitespace normalizers, header merges, and compiled prompt templates.
+
+## 3. Impact Assessment
+Establishes a provider-independent prompt compiler layer. Standardizes prompts generated across different agents (Planner, Coding, Review, Testing) before they are sent to the local Model Runtime.
+
+## 4. Validation Results
+- Verified template engine loader matches correct instruction templates.
+- Verified sanitizers successfully redact JWTs and OpenAI/Google API keys.
+- Verified optimizers prune multiple empty lines and merge duplicated context blocks.
+- Verified validator rejects empty prompt requests.
+
+---
+
+# Implementation Report: M05-S01-T006 (Token Budget Manager Foundation)
+
+## 1. Objective
+Implement the Token Budget Manager responsible for estimating, allocating, tracking, and optimizing token usage across the entire inference pipeline. The system maximizes context capacity under strict model token limits while reserving safety margins.
+
+## 2. Changes Implemented
+
+### Core Logic
+- Created `src/core/tokenBudget/` containing:
+  - `tokenBudgetManager.ts` - Central manager implementing caches and fetching engine pipelines.
+  - `budgetEngine.ts` - Primary budget engine running the pipeline steps (Estimation -> Completion Prediction -> Allocation -> Optimization -> Overflow Trimming -> Validation).
+  - `budgetAllocator.ts` - Allocator distributing budgets adaptively.
+  - `budgetEstimator.ts` - Estimator calculating character counts.
+  - `budgetOptimizer.ts` - Optimizer shifting token allocations adaptively.
+  - `budgetValidator.ts` - Validator ensuring limits are respected and margins maintained.
+  - `budgetHistory.ts` - History logs compiler.
+  - `budgetCache.ts` - Budget Cache database.
+  - `budgetMetrics.ts` - Telemetry tracker calculating rates.
+  - `budgetEvents.ts` - Event dispatcher.
+  - `budgetTypes.ts` - Types for allocations and overflow strategies (`Fixed`, `Adaptive`, `Priority-Based`, `Task-Aware`, `Model-Aware`, `Dynamic` and `Compression`, `Summarization`, `ChunkRemoval`, `PriorityTrimming`, `SlidingWindow`, `MultiPassExecution`).
+  - `tokenCounter.ts` - Characters-to-token converter.
+  - `tokenPredictor.ts` - Code/planning completion size predictor.
+  - `contextAllocator.ts` - Allocation budget distributor.
+  - `overflowManager.ts` - Overflow handler trimming low-priority fields.
+- Created providers under `src/core/tokenBudget/providers/`:
+  - `tokenizerAdapter.ts` - Encoder wrapper.
+  - `estimationProvider.ts` - Estimator.
+  - `allocationProvider.ts` - Allocator.
+  - `index.ts` - Provider exports.
+
+### UI & React
+- Created `src/webview/components/runtime/TokenBudgetDashboard.tsx` displaying total budgets, remaining allowances, completion predictions, overflow alerts, and category bar breakdowns.
+
+### Tests
+- Created `tests/unit/tokenBudget.test.ts` verifying token counter algorithms, priority allocations, overflow trimming strategies, and budget pipeline processor executions.
+
+## 3. Impact Assessment
+Establishes a provider-independent token budget manager. Avoids model-level context crashes by dynamically downscaling context volumes before issuing requests to inference backends.
+
+## 4. Validation Results
+- Verified token counter returns correct token ratios.
+- Verified budget allocator maps proportions.
+- Verified overflow manager trims low-priority segments when budgets exceed thresholds.
+- Verified validator flags margins below minimal constraints.
+
+---
+
+# Implementation Report: M05-S01-T007 (Multi-Model Router Foundation)
+
+## 1. Objective
+Implement the Multi-Model Router responsible for selecting the optimal local AI model for every request based on task type, capabilities, resource availability, execution policies, and runtime performance. The system acts completely provider-independently.
+
+## 2. Changes Implemented
+
+### Core Logic
+- Created `src/core/modelRouter/` containing:
+  - `modelRouter.ts` - Central facade implementing caches and routing resolve requests.
+  - `routerEngine.ts` - Core engine orchestrating the routing pipeline (Candidate Collection -> Capability Matching -> Resource Validation -> Performance Scoring -> Decision -> Fallback Validation).
+  - `routerPolicy.ts` - Maps task types (`Chat`, `CodeCompletion`, `CodeGeneration`, `Review`, `Debugging`, `Testing`, `Planning`, `Architecture`, `Documentation`, `Embedding`, `Vision`) to capabilities.
+  - `routingDecision.ts` - Builder compiling decision reports.
+  - `routingHistory.ts` - Logger saving decision reports.
+  - `routingMetrics.ts` - Telemetry tracker calculating fallback rates.
+  - `routingEvents.ts` - Event broker.
+  - `routingTypes.ts` - Declarations for requests, decisions, and strategies (`NextBestModel`, `SameFamily`, `LowerParameterModel`, `CpuFallback`, `EmergencyFallback`, `ManualSelection`).
+  - `capabilityMatcher.ts` - Matches capabilities.
+  - `performanceAnalyzer.ts` - Estimates TPS throughput.
+  - `resourceAnalyzer.ts` - Asserts RAM limits.
+  - `modelScorer.ts` - Combines capability weight, resource margins, and TPS speeds.
+  - `fallbackManager.ts` - Selects lower parameter or next best models during failures.
+  - `routingCache.ts` - Caches routing decisions.
+- Created providers under `src/core/modelRouter/providers/`:
+  - `capabilityProvider.ts`, `runtimeProvider.ts`, `registryProvider.ts`, `index.ts`.
+
+### UI & React
+- Created `src/webview/components/runtime/ModelRouterDashboard.tsx` displaying selected models, alternative candidate scores, decision factors, and fallback chains.
+
+### Tests
+- Created `tests/unit/modelRouter.test.ts` verifying capability matches, memory exclusions, score weights, next best fallbacks, and engine pipelines.
+
+## 3. Impact Assessment
+Establishes a provider-independent model router. Enables automatic local model selections based on request type (e.g. routing code generation to specialized coders and complex orchestration to reasoning families).
+
+## 4. Validation Results
+- Verified capability match calculations.
+- Verified resource validation rejects models requiring RAM beyond available capacities.
+- Verified scorer ranks faster and safer models higher.
+- Verified fallbacks resolve to alternative available models.
+
+---
+
+# Implementation Report: M05-S01-T008 (Runtime Optimizer Foundation)
+
+## 1. Objective
+Implement the Runtime Optimizer responsible for continuously monitoring and optimizing Kairo-AI's local inference runtime. The optimizer balances latencies, memory, throughput, and CPU/GPU usage adaptively under host limits.
+
+## 2. Changes Implemented
+
+### Core Logic
+- Created `src/core/runtimeOptimizer/` containing:
+  - `runtimeOptimizer.ts` - Central facade routing strategies.
+  - `optimizerEngine.ts` - Engine wrapper invoking execution strategies.
+  - `optimizationCoordinator.ts` - Orchestrator coordinating optimizer steps (Metrics Collection -> Bottleneck Analysis -> Plan Generation -> Execution -> Validation -> Verification -> Metrics Publish).
+  - `optimizationPlanner.ts` - Planner generating decisions based on bottlenecks and strategies (`Latency`, `Memory`, `Balanced`, `HighThroughput`, `PowerSaving`, `ThermalProtection`).
+  - `optimizationExecutor.ts` - Executor updating active thread pools, triggers memory collections, and context boundaries.
+  - `optimizationValidator.ts` - Validator rejecting plans causing memory leaks, thread starvation, or performance degradation.
+  - `optimizationHistory.ts` - History logs compiler.
+  - `optimizationMetrics.ts` - Telemetry tracker calculating optimization counts.
+  - `optimizationEvents.ts` - Event broker.
+  - `optimizationTypes.ts` - Standard definitions.
+  - `resourceMonitor.ts` - Collects CPU, GPU, RAM, VRAM, queue length, and throughput levels.
+  - `performanceMonitor.ts` - Identifies cpu/gpu bottlenecks.
+  - `loadBalancer.ts` - Balanced executor suggesting batch size.
+  - `cacheOptimizer.ts` - Caches optimizer adjusting TTL parameters.
+  - `memoryOptimizer.ts` - Garbage collector memory allocator.
+  - `threadOptimizer.ts` - Thread pool throttle corrector.
+  - `contextOptimizer.ts` - Context compression bounds selector.
+  - `schedulerOptimizer.ts` - Scheduler intervals loop selector.
+- Created providers under `src/core/runtimeOptimizer/providers/`:
+  - `runtimeProvider.ts`, `hardwareProvider.ts`, `modelProvider.ts`, `index.ts`.
+
+### UI & React
+- Created `src/webview/components/runtime/RuntimeOptimizerDashboard.tsx` displaying CPU/GPU/RAM/VRAM charts, TPS gauges, latency counters, active strategies, and optimizer decisions timeline logs.
+
+### Tests
+- Created `tests/unit/runtimeOptimizer.test.ts` verifying thread throttles, garbage collectors, context compression triggers, validator bounds, and coordinator pipeline executions.
+
+## 3. Impact Assessment
+Establishes a provider-independent runtime optimizer. Automatically keeps local LLM execution footprint within stable host boundaries without causing CPU freezes or memory overflow crashes.
+
+## 4. Validation Results
+- Verified thread optimizer throttles thread counts under high CPU usage.
+- Verified garbage collections trigger under high RAM conditions.
+- Verified context optimizer suggests compressed parameters under high usage.
+- Verified validation checks block optimization plans causing resource starvation.
+
+---
+
+# Implementation Report: M06-S01-T001 (Dataset Builder Foundation)
+
+## 1. Objective
+Implement the Dataset Builder responsible for creating, organizing, validating, and versioning datasets used for training, fine-tuning, and evaluating local AI models. The system prepares datasets without executing any training code.
+
+## 2. Changes Implemented
+
+### Core Logic
+- Created `src/core/datasetBuilder/` containing:
+  - `datasetBuilder.ts` - Main facade for spawning dataset configurations.
+  - `datasetEngine.ts` - Orchestrator running build steps (Source Discovery -> File Extraction -> Content Validation -> Metadata Generation -> Dataset Assembly -> Manifest Compilation -> Versioning).
+  - `datasetAssembler.ts` - Bundler compiling file lists, manifests, and alphabetic paths indexes.
+  - `datasetValidator.ts` - Validator ensuring files are not empty/corrupted and manifests are complete.
+  - `datasetOrganizer.ts` - Organizer grouping files by language extensions.
+  - `datasetVersionManager.ts` - Version tracker saving released version histories.
+  - `datasetMetadata.ts` - Metadata generator extracting language distributions and token boundaries.
+  - `datasetIndexer.ts` - Index compiler sorting files alphabetically.
+  - `datasetStatistics.ts` - Statistics tracker compiling byte sizes and tokens ratios.
+  - `datasetMetrics.ts` - Telemetry logging total dataset creations.
+  - `datasetEvents.ts` - Event dispatcher.
+  - `datasetTypes.ts` - Standard definitions.
+  - `datasetManifest.ts` - Manifest compiler.
+- Created dataset providers under `src/core/datasetBuilder/providers/`:
+  - `localFolderProvider.ts`, `gitRepositoryProvider.ts`, `jsonProvider.ts`, `markdownProvider.ts`, `textProvider.ts`, `index.ts`.
+
+### UI & React
+- Created `src/webview/components/runtime/DatasetBuilderDashboard.tsx` displaying dataset catalogs, sizes, counts, language distributions, token approximations, manifest previews, and versions.
+
+### Tests
+- Created `tests/unit/datasetBuilder.test.ts` verifying language classifications, metadata distribution extraction, stable indexes, file format warnings, and builder engine pipelines.
+
+## 3. Impact Assessment
+Establishes a provider-independent dataset builder. Prepares training and fine-tuning pipelines offline with consistent manifests, index integrity, and format checks.
+
+## 4. Validation Results
+- Verified organizers separate TypeScript and JavaScript modules correctly.
+- Verified metadata calculators summarize token limits.
+- Verified indexers sort path lists alphabetically.
+- Verified validators reject empty files and throw warnings on raw extensions.
 
 
 

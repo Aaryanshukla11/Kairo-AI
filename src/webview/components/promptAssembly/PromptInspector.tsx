@@ -37,7 +37,7 @@ export const PromptInspector: React.FC = () => {
         request: {
           prompt: userInput,
           type: promptType as any,
-          workspaceSummary: 'Sasta Antigravity extension codebase with core engines.',
+          workspaceSummary: 'Kaira AI extension codebase with core engines.',
           gitSummary: 'Changes in context resolver and metadata filters.',
           diagnostics: ['Warning: Duplicate key index.json'],
           tokenLimit: tokenLimit,

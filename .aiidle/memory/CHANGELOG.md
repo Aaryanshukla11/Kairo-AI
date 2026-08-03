@@ -5,6 +5,112 @@ All notable changes to this project will be documented in this file.
 ## [1.0.0-draft] - 2026-07-16
 
 ### Added
+- Completed Task M06-S01-T001: Dataset Builder Foundation in `src/core/datasetBuilder`.
+  - Built a local offline dataset builder compiling training metadata.
+  - Implemented validator modules checking format schemas.
+  - Programmed indexers ensuring stable alphabetical path ordering.
+  - Programmed organizers grouping files by language extensions.
+  - Created version manager registering compiled dataset releases.
+  - Built `DatasetBuilderDashboard.tsx` dashboard webview React component.
+  - Added unit test suite under `tests/unit/datasetBuilder.test.ts`.
+- Completed Task M05-S01-T008: Runtime Optimizer Foundation in `src/core/runtimeOptimizer`.
+  - Built a provider-independent runtime performance monitoring and optimization coordinator.
+  - Implemented resource and bottleneck analyzer trackers.
+  - Programmed thread pools throttle optimizers and context window compressors.
+  - Programmed memory garbage collectors and scheduler interval coordinators.
+  - Built `RuntimeOptimizerDashboard.tsx` dashboard webview React component.
+  - Added unit test suite under `tests/unit/runtimeOptimizer.test.ts`.
+- Completed Task M05-S01-T007: Multi-Model Router Foundation in `src/core/modelRouter`.
+  - Built a provider-independent multi-model routing system selecting local LLMs based on workloads.
+  - Implemented capability matcher comparing requirements to registry capabilities.
+  - Programmed resource validation analyzing available RAM safety parameters.
+  - Programmed scorers weighting capability relevance, resource margins, and TPS speeds.
+  - Created fallback manager directing next best model family loops.
+  - Built `ModelRouterDashboard.tsx` dashboard webview React component.
+  - Added unit test suite under `tests/unit/modelRouter.test.ts`.
+- Completed Task M05-S01-T006: Token Budget Manager Foundation in `src/core/tokenBudget`.
+  - Built a provider-independent token budget allocation and estimation system.
+  - Implemented token counters approximating characters to token weights.
+  - Programmed predictors for planning and coding completion sizes.
+  - Programmed overflow manager handling priority trimming or uniform downscaling.
+  - Built tokenizers adapters and context allocations maps.
+  - Built `TokenBudgetDashboard.tsx` dashboard webview React component.
+  - Added unit test suite under `tests/unit/tokenBudget.test.ts`.
+- Completed Task M05-S01-T005: Prompt Compiler Foundation in `src/core/promptCompiler`.
+  - Built a provider-independent prompt compilation system routing optimized developer instructions.
+  - Implemented Template Engine supporting planning, coding, review, testing, debugging, and documentation templates.
+  - Programmed Optimizer and Compressor collapsing redundant instruction spaces.
+  - Programmed Sanitizer removing JWT tokens and API keys.
+  - Built prompt providers for planning, coding, reviews, tests, debugging, and docs.
+  - Built `PromptCompilerDashboard.tsx` dashboard webview React component.
+  - Added unit test suite under `tests/unit/promptCompiler.test.ts`.
+- Completed Task M05-S01-T004: Context Window Manager Foundation in `src/core/contextWindow`.
+  - Built a provider-independent context management system optimizing context compilation.
+  - Implemented deduplicator filters and code comment strippers.
+  - Programmed text ranking based on query keyword overlap scores.
+  - Programmed selector engine fitting prioritised context (`Critical`, `High`, `Medium`, `Low`, `Background`) within strict token budgets.
+  - Built context providers for workspace, memory, retrieval, conversation, and diagnostics.
+  - Built `ContextManagerDashboard.tsx` dashboard webview React component.
+  - Added unit test suite under `tests/unit/contextWindow.test.ts`.
+- Completed Task M05-S01-T003: Inference Pipeline Foundation in `src/core/inference`.
+  - Built a provider-independent local offline inference pipeline routing prompt operations.
+  - Implemented Prompt Compiler formatting system prompts, context files, and user messages.
+  - Programmed Inference Coordinator coordinating abort signals, enqueuing pipelines, and triggering schedulers.
+  - Programmed state session managers supporting state transitions (`Created`, `Queued`, `Running`, `Streaming`, `Completed`, `Cancelled`, `Failed`).
+  - Created executors for llama.cpp, ONNX Runtime, and Apple Silicon MLX.
+  - Built `InferenceDashboard.tsx` dashboard webview React component.
+  - Added unit test suite under `tests/unit/inferencePipeline.test.ts`.
+- Completed Task M05-S01-T002: Model Registry Foundation in `src/core/modelRegistry`.
+  - Built a provider-independent model registry for discovering, registering, and validating local models.
+  - Implemented catalog database for verified model profiles (disk/memory footprint, context boundaries, parameters, tokenizer schemas, supported languages).
+  - Programmed Model Capabilities Detector resolving 12 different capabilities (Chat, Code Generation, Reasoning, Function calling, RAG, etc.).
+  - Programmed Model Compatibility Analyzer checking RAM limitations and macOS Apple Silicon MLX platform boundaries.
+  - Programmed Model Health Monitor tracking `Discovered`, `Registered`, `Validated`, `Ready`, `Deprecated`, `Unavailable`, and `Corrupted` states.
+  - Created `ModelRegistryDashboard.tsx` dashboard webview React component.
+  - Added unit test suite under `tests/unit/modelRegistry.test.ts`.
+- Completed Task M05-S01-T001: Model Runtime Foundation in `src/core/modelRuntime`.
+  - Built a provider-agnostic local model runtime executing models offline without cloud API dependencies.
+  - Created base ModelProvider interface and implementations for Mock, llama.cpp, ONNX Runtime, GGUF, and Apple Silicon MLX backends.
+  - Programmed Model Lifecycle Tracker supporting states `Registered`, `Loading`, `Loaded`, `Ready`, `Running`, `Idle`, `Unloading`, and `Failed`.
+  - Programmed telemetry resource tracker (CPU, GPU, RAM, VRAM, context window, TPS throughput, latencies).
+  - Built Model Runtime Monitor / Dashboard view webview React component with glassmorphism visual styling.
+  - Added unit test suite under `tests/unit/modelRuntime.test.ts`.
+- Completed Task M04-S01-T008: Autonomous Recovery Engine Foundation in `src/core/recovery`.
+  - Built Autonomous Recovery Engine automatically recovering from execution failures without code generation or data loss.
+  - Implemented Failure Classifier & Failure Predictor categorizing 9 failure types.
+  - Implemented Checkpoint Recovery Manager, Rollback Recovery Manager, Workflow Recovery Manager, and Recovery Planner.
+  - Implemented recovery strategies for Retry, Rollback, CheckpointRestore, PartialResume, WorkflowReconstruction, and ManualIntervention.
+  - Created `RecoveryDashboard.tsx` webview React panel component.
+  - Added unit test suite `tests/unit/recovery.test.ts`.
+- Completed Task M04-S01-T007: Dynamic Replanning Engine Foundation in `src/core/replanning`.
+  - Built Dynamic Replanning Engine automatically adjusting execution graphs on trigger changes without code generation.
+  - Implemented Change Detector supporting 8 trigger types (TaskFailure, DependencyFailure, WorkspaceChange, ResourceLimitation, PolicyChange, etc.).
+  - Implemented Impact Analyzer strictly enforcing work preservation rules (Never discard completed work).
+  - Implemented Workflow Comparator, Conflict Resolver, Replanning History Logger, and Validator.
+  - Implemented strategies for Partial, Milestone, Incremental, Dependency, and Recovery replans.
+  - Created `ReplanningDashboard.tsx` webview React panel component.
+  - Added unit test suite `tests/unit/replanning.test.ts`.
+- Completed Task M04-S01-T006: Autonomous Workflow Coordinator Foundation in `src/core/workflowCoordinator`.
+  - Built Autonomous Workflow Coordinator orchestrating multi-engine workflows without code generation.
+  - Implemented strategies for Sequential, Parallel, Conditional, Recovery, and Approval workflow executions.
+  - Implemented provider modules for Planner, Execution, Milestone, Dependency, and Recovery integration.
+  - Programmed Workflow Lifecycle Manager, Queue Manager (FIFO & Priority queues), Policy Manager, Retry Manager, and Validator (deadlock & cycle detection).
+  - Created `WorkflowDashboard.tsx` webview React panel component.
+  - Added unit test suite `tests/unit/workflowCoordinator.test.ts`.
+- Completed Task M04-S01-T005: Milestone Orchestration Engine Foundation in `src/core/milestoneOrchestration`.
+  - Built Milestone Orchestration Engine transforming execution plans into milestone workflows without code generation.
+  - Programmed Milestone State Machine enforcing valid state transitions (`Created`, `Planned`, `Waiting`, `Running`, `Completed`, `RolledBack`, `Failed`, `Recovered`).
+  - Implemented strategies for Sequential, Parallel, Hybrid, and Isolated milestone executions.
+  - Programmed milestone dependency cycle detection (DFS) and topological ordering resolvers.
+  - Implemented Milestone Checkpoint Manager, Recovery Planner, Progress Tracker, and Validator.
+  - Created `MilestoneDashboard.tsx` webview React panel component.
+  - Added unit test suite `tests/unit/milestoneOrchestration.test.ts`.
+- Completed Task M04-S01-T004: Dependency Resolution Engine Foundation in `src/core/dependencyResolution`.
+  - Built Dependency Resolution Engine mapping nodes and edges with multi-provider dependency collectors (Files, Symbols, Imports, APIs, Databases, Configs, Packages).
+  - Implemented circular dependency cycle detection and topological execution ordering.
+  - Implemented graph integrity validation and topological/unused graph node optimizations.
+  - Created Dependency Explorer dashboard React component in webview workspace panel.
+  - Added unit test suite `tests/unit/dependencyResolution.test.ts`.
 - Completed Task M04-S01-T002A: Advanced Task Intelligence Pack in `src/core/taskGeneration/intelligence`.
   - Built Hierarchical Task Network (HTN) decomposition engines (`htnEngine.ts`).
   - Built Task Knowledge Graph metadata maps, Constraint Solver engines, Resource Models, Recovery Planners, Decision Engines, Version Trackers, and Observability Engines.

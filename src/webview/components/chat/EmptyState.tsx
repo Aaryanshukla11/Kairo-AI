@@ -42,6 +42,10 @@ import { SafeEditCenter } from './SafeEditCenter';
 import { EventBusDashboard } from './EventBusDashboard';
 import { TaskPlannerDashboard } from './TaskPlannerDashboard';
 import { ExecutionPlannerDashboard } from './ExecutionPlannerDashboard';
+import { MilestoneDashboard } from './MilestoneDashboard';
+import { WorkflowDashboard } from './WorkflowDashboard';
+import { ReplanningDashboard } from './ReplanningDashboard';
+import { RecoveryDashboard } from './RecoveryDashboard';
 
 export function EmptyState(): React.JSX.Element {
   return (
@@ -90,6 +94,10 @@ export function EmptyState(): React.JSX.Element {
       <EventBusDashboard />
       <TaskPlannerDashboard />
       <ExecutionPlannerDashboard />
+      <MilestoneDashboard />
+      <WorkflowDashboard />
+      <ReplanningDashboard />
+      <RecoveryDashboard />
     </div>
   );
 }

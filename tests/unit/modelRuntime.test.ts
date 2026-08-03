@@ -1,9 +1,7 @@
 import * as assert from 'assert';
-import * as path from 'path';
-import * as fs from 'fs';
-import { RuntimeEngine } from '../../src/core/runtime/model/runtimeEngine';
-import { ModelState } from '../../src/core/runtime/model/runtimeTypes';
-import { DEFAULT_MODELS } from '../../src/core/runtime/model/runtimeConfig';
+import { RuntimeEngine } from '../../src/core/modelRuntime/runtimeEngine';
+import { ModelState } from '../../src/core/modelRuntime/runtimeTypes';
+import { DEFAULT_MODELS } from '../../src/core/modelRuntime/modelManager';
 
 describe('AI Model Runtime Engine Tests', () => {
   let engine: RuntimeEngine;
@@ -14,7 +12,7 @@ describe('AI Model Runtime Engine Tests', () => {
 
   describe('Model Loading & Inference Lifecycle', () => {
     it('should assert model states loading, switch configurations, and run streaming queries', async () => {
-      assert.strictEqual(engine.getModelState(), ModelState.NotLoaded);
+      assert.strictEqual(engine.getModelState(), ModelState.Registered);
 
       const promptPkg = {
         systemPrompt: '',
@@ -33,7 +31,7 @@ describe('AI Model Runtime Engine Tests', () => {
 
       await engine.loadModel(DEFAULT_MODELS[0]);
       assert.strictEqual(engine.getModelState(), ModelState.Ready);
-      assert.strictEqual(engine.getActiveConfig().modelId, 'qwen-2.5-7b-coder');
+      assert.strictEqual(engine.getActiveConfig()?.modelId, 'qwen-2.5-7b-coder');
 
       let tokenReceived = false;
       const res = await engine.generate(promptPkg, { temperature: 0.7 }, (tok) => {
@@ -45,7 +43,7 @@ describe('AI Model Runtime Engine Tests', () => {
       assert.ok(res.response.includes('Mock response'));
 
       await engine.unloadModel();
-      assert.strictEqual(engine.getModelState(), ModelState.NotLoaded);
+      assert.strictEqual(engine.getModelState(), ModelState.Registered);
     });
 
     it('should throw validation error on empty prompts', async () => {

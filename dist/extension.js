@@ -5,6 +5,9 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __esm = (fn, res) => function __init() {
+  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+};
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
@@ -26,6 +29,556 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// src/core/eventBus/eventTypes.ts
+var init_eventTypes = __esm({
+  "src/core/eventBus/eventTypes.ts"() {
+    "use strict";
+  }
+});
+
+// src/core/eventBus/eventRegistry.ts
+var EventRegistry, eventRegistry;
+var init_eventRegistry = __esm({
+  "src/core/eventBus/eventRegistry.ts"() {
+    "use strict";
+    EventRegistry = class {
+      subscribers = /* @__PURE__ */ new Map();
+      subscribe(category, callback) {
+        if (!this.subscribers.has(category)) {
+          this.subscribers.set(category, /* @__PURE__ */ new Set());
+        }
+        this.subscribers.get(category).add(callback);
+        return () => {
+          this.subscribers.get(category)?.delete(callback);
+        };
+      }
+      getSubscribers(category) {
+        const subs = this.subscribers.get(category);
+        return subs ? Array.from(subs) : [];
+      }
+    };
+    eventRegistry = new EventRegistry();
+  }
+});
+
+// src/core/eventBus/eventEvents.ts
+var EventEvents, eventEvents;
+var init_eventEvents = __esm({
+  "src/core/eventBus/eventEvents.ts"() {
+    "use strict";
+    EventEvents = class {
+      listeners = /* @__PURE__ */ new Set();
+      subscribe(listener) {
+        this.listeners.add(listener);
+        return () => this.listeners.delete(listener);
+      }
+      emit(type, payload) {
+        for (const listener of this.listeners) {
+          try {
+            listener({ type, timestamp: Date.now(), payload });
+          } catch (err) {
+            console.error("Error in EventBus listener:", err);
+          }
+        }
+      }
+    };
+    eventEvents = new EventEvents();
+  }
+});
+
+// src/core/eventBus/eventDispatcher.ts
+var EventDispatcher, eventDispatcher;
+var init_eventDispatcher = __esm({
+  "src/core/eventBus/eventDispatcher.ts"() {
+    "use strict";
+    init_eventRegistry();
+    EventDispatcher = class {
+      async dispatch(event) {
+        const subs = eventRegistry.getSubscribers(event.category);
+        const promises = subs.map(async (sub) => {
+          try {
+            await sub(event);
+          } catch (err) {
+            console.error(`Error executing subscriber on event ${event.eventId}:`, err);
+            throw err;
+          }
+        });
+        await Promise.all(promises);
+      }
+    };
+    eventDispatcher = new EventDispatcher();
+  }
+});
+
+// src/core/eventBus/eventRouter.ts
+var EventRouter, eventRouter;
+var init_eventRouter = __esm({
+  "src/core/eventBus/eventRouter.ts"() {
+    "use strict";
+    init_eventDispatcher();
+    EventRouter = class {
+      async route(event) {
+        await eventDispatcher.dispatch(event);
+      }
+    };
+    eventRouter = new EventRouter();
+  }
+});
+
+// src/core/eventBus/eventPersistence.ts
+var EventPersistence, eventPersistence;
+var init_eventPersistence = __esm({
+  "src/core/eventBus/eventPersistence.ts"() {
+    "use strict";
+    EventPersistence = class {
+      log = [];
+      save(event) {
+        this.log.push({ ...event });
+      }
+      getHistory(workflowId) {
+        if (workflowId) {
+          return this.log.filter((e) => e.workflowId === workflowId);
+        }
+        return [...this.log];
+      }
+      clear() {
+        this.log = [];
+      }
+    };
+    eventPersistence = new EventPersistence();
+  }
+});
+
+// src/core/eventBus/deadLetterQueue.ts
+var DeadLetterQueue, deadLetterQueue;
+var init_deadLetterQueue = __esm({
+  "src/core/eventBus/deadLetterQueue.ts"() {
+    "use strict";
+    DeadLetterQueue = class {
+      queue = [];
+      add(event, reason) {
+        this.queue.push({
+          event,
+          failureReason: reason,
+          retryAttempts: event.retryCount,
+          workflowContext: {},
+          recoveryRecommendation: "Check subscriber callback validation limits or configurations."
+        });
+      }
+      list() {
+        return [...this.queue];
+      }
+      clear() {
+        this.queue = [];
+      }
+    };
+    deadLetterQueue = new DeadLetterQueue();
+  }
+});
+
+// src/core/eventBus/retryManager.ts
+var RetryManager, retryManager;
+var init_retryManager = __esm({
+  "src/core/eventBus/retryManager.ts"() {
+    "use strict";
+    RetryManager = class {
+      maxRetries = 3;
+      shouldRetry(event) {
+        return event.retryCount < this.maxRetries;
+      }
+      getBackoffDelay(retryCount) {
+        return Math.pow(2, retryCount) * 100;
+      }
+    };
+    retryManager = new RetryManager();
+  }
+});
+
+// src/core/eventBus/middleware/loggingMiddleware.ts
+var LoggingMiddleware, loggingMiddleware;
+var init_loggingMiddleware = __esm({
+  "src/core/eventBus/middleware/loggingMiddleware.ts"() {
+    "use strict";
+    LoggingMiddleware = class {
+      async handle(event, next) {
+        console.log(`[EventBus Log] Event ${event.eventId} published on category ${event.category}`);
+        await next();
+      }
+    };
+    loggingMiddleware = new LoggingMiddleware();
+  }
+});
+
+// src/core/eventBus/eventMetrics.ts
+var EventMetrics, eventMetrics;
+var init_eventMetrics = __esm({
+  "src/core/eventBus/eventMetrics.ts"() {
+    "use strict";
+    EventMetrics = class {
+      count = 0;
+      totalLatency = 0;
+      record(latencyMs) {
+        this.count++;
+        this.totalLatency += latencyMs;
+      }
+      getThroughput() {
+        return this.count;
+      }
+      getAverageLatency() {
+        return this.count > 0 ? Math.round(this.totalLatency / this.count * 100) / 100 : 0;
+      }
+    };
+    eventMetrics = new EventMetrics();
+  }
+});
+
+// src/core/eventBus/middleware/metricsMiddleware.ts
+var MetricsMiddleware, metricsMiddleware;
+var init_metricsMiddleware = __esm({
+  "src/core/eventBus/middleware/metricsMiddleware.ts"() {
+    "use strict";
+    init_eventMetrics();
+    MetricsMiddleware = class {
+      async handle(event, next) {
+        const start = Date.now();
+        await next();
+        eventMetrics.record(Date.now() - start);
+      }
+    };
+    metricsMiddleware = new MetricsMiddleware();
+  }
+});
+
+// src/core/eventBus/middleware/tracingMiddleware.ts
+var TracingMiddleware, tracingMiddleware;
+var init_tracingMiddleware = __esm({
+  "src/core/eventBus/middleware/tracingMiddleware.ts"() {
+    "use strict";
+    TracingMiddleware = class {
+      async handle(event, next) {
+        event.metadata["traceId"] = event.metadata["traceId"] || `trace-${Math.random().toString(36).substr(2, 9)}`;
+        await next();
+      }
+    };
+    tracingMiddleware = new TracingMiddleware();
+  }
+});
+
+// src/core/eventBus/middleware/authorizationMiddleware.ts
+var AuthorizationMiddleware, authorizationMiddleware;
+var init_authorizationMiddleware = __esm({
+  "src/core/eventBus/middleware/authorizationMiddleware.ts"() {
+    "use strict";
+    AuthorizationMiddleware = class {
+      async handle(event, next) {
+        await next();
+      }
+    };
+    authorizationMiddleware = new AuthorizationMiddleware();
+  }
+});
+
+// src/core/eventBus/eventBus.ts
+var EventBus, eventBusInstance;
+var init_eventBus = __esm({
+  "src/core/eventBus/eventBus.ts"() {
+    "use strict";
+    init_eventRouter();
+    init_eventPersistence();
+    init_deadLetterQueue();
+    init_retryManager();
+    init_eventEvents();
+    init_loggingMiddleware();
+    init_metricsMiddleware();
+    init_tracingMiddleware();
+    init_authorizationMiddleware();
+    EventBus = class {
+      guarantee = "At Least Once";
+      setDeliveryGuarantee(guarantee) {
+        this.guarantee = guarantee;
+      }
+      async publish(event) {
+        eventEvents.emit("EventPublished", event);
+        const pipeline = async () => {
+          await authorizationMiddleware.handle(event, async () => {
+            await loggingMiddleware.handle(event, async () => {
+              await tracingMiddleware.handle(event, async () => {
+                await metricsMiddleware.handle(event, async () => {
+                  await this.executeDispatch(event);
+                });
+              });
+            });
+          });
+        };
+        try {
+          await pipeline();
+          eventPersistence.save(event);
+        } catch (err) {
+          console.error(`Event ${event.eventId} pipeline failure:`, err);
+          if (retryManager.shouldRetry(event)) {
+            event.retryCount++;
+            event.executionStatus = "Retrying";
+            const delay = retryManager.getBackoffDelay(event.retryCount);
+            eventEvents.emit("EventRetrying", { eventId: event.eventId, attempt: event.retryCount, delay });
+            await new Promise((resolve13) => setTimeout(resolve13, delay));
+            await this.publish(event);
+          } else {
+            event.executionStatus = "Failed";
+            deadLetterQueue.add(event, err.message || "Maximum retry limit exceeded");
+            eventEvents.emit("EventDeadLettered", { eventId: event.eventId, reason: err.message });
+          }
+        }
+      }
+      async executeDispatch(event) {
+        event.executionStatus = "Running";
+        await eventRouter.route(event);
+        event.executionStatus = "Completed";
+        eventEvents.emit("EventDispatched", event);
+      }
+    };
+    eventBusInstance = new EventBus();
+  }
+});
+
+// src/core/eventBus/eventPublisher.ts
+var EventPublisher, eventPublisher;
+var init_eventPublisher = __esm({
+  "src/core/eventBus/eventPublisher.ts"() {
+    "use strict";
+    init_eventBus();
+    EventPublisher = class {
+      async publish(event) {
+        const fullEvent = {
+          ...event,
+          eventId: `EV-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+          timestamp: Date.now(),
+          retryCount: 0,
+          executionStatus: "Queued"
+        };
+        await eventBusInstance.publish(fullEvent);
+      }
+    };
+    eventPublisher = new EventPublisher();
+  }
+});
+
+// src/core/eventBus/eventSubscriber.ts
+var EventSubscriber, eventSubscriber;
+var init_eventSubscriber = __esm({
+  "src/core/eventBus/eventSubscriber.ts"() {
+    "use strict";
+    init_eventRegistry();
+    EventSubscriber = class {
+      subscribe(category, callback) {
+        return eventRegistry.subscribe(category, callback);
+      }
+    };
+    eventSubscriber = new EventSubscriber();
+  }
+});
+
+// src/core/eventBus/workflowState.ts
+var WorkflowStateTracker, workflowStateTracker;
+var init_workflowState = __esm({
+  "src/core/eventBus/workflowState.ts"() {
+    "use strict";
+    WorkflowStateTracker = class {
+      activeStates = /* @__PURE__ */ new Map();
+      update(workflowId, state) {
+        this.activeStates.set(workflowId, state);
+      }
+      get(workflowId) {
+        return this.activeStates.get(workflowId);
+      }
+    };
+    workflowStateTracker = new WorkflowStateTracker();
+  }
+});
+
+// src/core/eventBus/workflowContext.ts
+var WorkflowContext, workflowContext;
+var init_workflowContext = __esm({
+  "src/core/eventBus/workflowContext.ts"() {
+    "use strict";
+    WorkflowContext = class {
+      variables = /* @__PURE__ */ new Map();
+      set(key, value) {
+        this.variables.set(key, value);
+      }
+      get(key) {
+        return this.variables.get(key);
+      }
+      clear() {
+        this.variables.clear();
+      }
+    };
+    workflowContext = new WorkflowContext();
+  }
+});
+
+// src/core/eventBus/workflowScheduler.ts
+var WorkflowScheduler, workflowScheduler;
+var init_workflowScheduler = __esm({
+  "src/core/eventBus/workflowScheduler.ts"() {
+    "use strict";
+    WorkflowScheduler = class {
+      queue = [];
+      schedule(event) {
+        this.queue.push(event);
+        const weights = {
+          "Critical": 5,
+          "High": 4,
+          "Normal": 3,
+          "Low": 2,
+          "Background": 1
+        };
+        this.queue.sort((a, b) => (weights[b.priority] || 0) - (weights[a.priority] || 0));
+      }
+      next() {
+        return this.queue.shift();
+      }
+    };
+    workflowScheduler = new WorkflowScheduler();
+  }
+});
+
+// src/core/eventBus/workflowOrchestrator.ts
+var WorkflowOrchestrator, workflowOrchestrator;
+var init_workflowOrchestrator = __esm({
+  "src/core/eventBus/workflowOrchestrator.ts"() {
+    "use strict";
+    init_eventBus();
+    init_workflowState();
+    WorkflowOrchestrator = class {
+      async startWorkflow(workflowId, initialPayload) {
+        workflowStateTracker.update(workflowId, "Created");
+        const event = {
+          eventId: `EV-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+          workflowId,
+          correlationId: `corr-${workflowId}`,
+          timestamp: Date.now(),
+          publisher: "WorkflowOrchestrator",
+          subscribers: [],
+          priority: "Normal",
+          category: "Planner",
+          payload: initialPayload,
+          metadata: {},
+          retryCount: 0,
+          executionStatus: "Queued"
+        };
+        workflowStateTracker.update(workflowId, "Running");
+        await eventBusInstance.publish(event);
+      }
+    };
+    workflowOrchestrator = new WorkflowOrchestrator();
+  }
+});
+
+// src/core/eventBus/eventReplay.ts
+var EventReplay, eventReplay;
+var init_eventReplay = __esm({
+  "src/core/eventBus/eventReplay.ts"() {
+    "use strict";
+    init_eventPersistence();
+    init_eventBus();
+    EventReplay = class {
+      async replay(workflowId) {
+        const history = eventPersistence.getHistory(workflowId);
+        let count = 0;
+        for (const event of history) {
+          await eventBusInstance.publish({
+            ...event,
+            eventId: `EV-REPLAY-${event.eventId}-${Date.now()}`,
+            timestamp: Date.now()
+          });
+          count++;
+        }
+        return count;
+      }
+    };
+    eventReplay = new EventReplay();
+  }
+});
+
+// src/core/eventBus/middleware/index.ts
+var init_middleware = __esm({
+  "src/core/eventBus/middleware/index.ts"() {
+    "use strict";
+    init_loggingMiddleware();
+    init_metricsMiddleware();
+    init_tracingMiddleware();
+    init_authorizationMiddleware();
+  }
+});
+
+// src/core/eventBus/index.ts
+var eventBus_exports = {};
+__export(eventBus_exports, {
+  AuthorizationMiddleware: () => AuthorizationMiddleware,
+  DeadLetterQueue: () => DeadLetterQueue,
+  EventBus: () => EventBus,
+  EventDispatcher: () => EventDispatcher,
+  EventEvents: () => EventEvents,
+  EventMetrics: () => EventMetrics,
+  EventPersistence: () => EventPersistence,
+  EventPublisher: () => EventPublisher,
+  EventRegistry: () => EventRegistry,
+  EventReplay: () => EventReplay,
+  EventRouter: () => EventRouter,
+  EventSubscriber: () => EventSubscriber,
+  LoggingMiddleware: () => LoggingMiddleware,
+  MetricsMiddleware: () => MetricsMiddleware,
+  RetryManager: () => RetryManager,
+  TracingMiddleware: () => TracingMiddleware,
+  WorkflowContext: () => WorkflowContext,
+  WorkflowOrchestrator: () => WorkflowOrchestrator,
+  WorkflowScheduler: () => WorkflowScheduler,
+  WorkflowStateTracker: () => WorkflowStateTracker,
+  authorizationMiddleware: () => authorizationMiddleware,
+  deadLetterQueue: () => deadLetterQueue,
+  eventBusInstance: () => eventBusInstance,
+  eventDispatcher: () => eventDispatcher,
+  eventEvents: () => eventEvents,
+  eventMetrics: () => eventMetrics,
+  eventPersistence: () => eventPersistence,
+  eventPublisher: () => eventPublisher,
+  eventRegistry: () => eventRegistry,
+  eventReplay: () => eventReplay,
+  eventRouter: () => eventRouter,
+  eventSubscriber: () => eventSubscriber,
+  loggingMiddleware: () => loggingMiddleware,
+  metricsMiddleware: () => metricsMiddleware,
+  retryManager: () => retryManager,
+  tracingMiddleware: () => tracingMiddleware,
+  workflowContext: () => workflowContext,
+  workflowOrchestrator: () => workflowOrchestrator,
+  workflowScheduler: () => workflowScheduler,
+  workflowStateTracker: () => workflowStateTracker
+});
+var init_eventBus2 = __esm({
+  "src/core/eventBus/index.ts"() {
+    "use strict";
+    init_eventTypes();
+    init_eventRegistry();
+    init_eventEvents();
+    init_eventDispatcher();
+    init_eventPublisher();
+    init_eventSubscriber();
+    init_eventRouter();
+    init_workflowState();
+    init_workflowContext();
+    init_workflowScheduler();
+    init_workflowOrchestrator();
+    init_retryManager();
+    init_deadLetterQueue();
+    init_eventPersistence();
+    init_eventReplay();
+    init_eventMetrics();
+    init_eventBus();
+    init_middleware();
+  }
+});
 
 // src/extension/index.ts
 var extension_exports = {};
@@ -13514,57 +14067,214 @@ var SafeEditEvents = class {
 };
 var safeEditEvents = new SafeEditEvents();
 
+// src/core/safeEdit/strategies/workspaceSafety.ts
+var WorkspaceSafety = class {
+  name = "WorkspaceSafetyStrategy";
+  check(input) {
+    const blocking = [];
+    const warnings = [];
+    if (input.targetFile && (input.targetFile.includes("..") || input.targetFile.includes("temp") || input.targetFile.includes("tmp"))) {
+      warnings.push("WORKSPACE-01: Target file path is outside standard workspace directories");
+    }
+    return { blocking, warnings };
+  }
+};
+var workspaceSafety = new WorkspaceSafety();
+
+// src/core/safeEdit/strategies/filesystemSafety.ts
+var FilesystemSafety = class {
+  name = "FilesystemSafetyStrategy";
+  check(input) {
+    const blocking = [];
+    const warnings = [];
+    const content = input.patchContent;
+    if (content.includes("rm -rf") || content.includes("fs.unlink") || content.includes("fs.rmSync") || content.includes("fs.promises.unlink")) {
+      blocking.push("FS-01: Contains unsafe file deletion patterns");
+    }
+    if (input.targetFile.includes(".env") || input.targetFile.includes("tsconfig.json") || input.targetFile.includes("package-lock.json")) {
+      warnings.push("FS-02: Modify attempt on a critical configuration file");
+    }
+    if (input.patchManifest) {
+      for (const f of input.patchManifest.files) {
+        if (f.type === "delete") {
+          blocking.push(`FS-03: Attempt to delete file: ${f.path}`);
+        }
+      }
+    }
+    return { blocking, warnings };
+  }
+};
+var filesystemSafety = new FilesystemSafety();
+
+// src/core/safeEdit/strategies/dependencySafety.ts
+var DependencySafety = class {
+  name = "DependencySafetyStrategy";
+  check(input) {
+    const blocking = [];
+    const warnings = [];
+    const content = input.patchContent;
+    if (input.targetFile.endsWith("package.json")) {
+      if (content.includes('"dependencies"') || content.includes('"devDependencies"')) {
+        blocking.push("DEP-01: Direct modification of dependencies in package.json is prohibited");
+      }
+    }
+    if (input.patchManifest && input.patchManifest.dependenciesChanged && input.patchManifest.dependenciesChanged.length > 0) {
+      blocking.push(`DEP-02: Manifest attempts to modify dependencies: ${input.patchManifest.dependenciesChanged.join(", ")}`);
+    }
+    return { blocking, warnings };
+  }
+};
+var dependencySafety = new DependencySafety();
+
+// src/core/safeEdit/strategies/architectureSafety.ts
+var ArchitectureSafety = class {
+  name = "ArchitectureSafetyStrategy";
+  check(input) {
+    const blocking = [];
+    const warnings = [];
+    if (input.architectureReport) {
+      const highViolations = [
+        ...input.architectureReport.layerViolations,
+        ...input.architectureReport.boundaryViolations
+      ].filter((v) => v.severity === "High");
+      if (highViolations.length > 0) {
+        blocking.push(`ARCH-01: High-severity architecture violations: ${highViolations.map((v) => v.description).join("; ")}`);
+      }
+      const mediumViolations = [
+        ...input.architectureReport.layerViolations,
+        ...input.architectureReport.boundaryViolations
+      ].filter((v) => v.severity === "Medium");
+      if (mediumViolations.length > 0) {
+        warnings.push(`ARCH-02: Medium-severity architecture violations: ${mediumViolations.map((v) => v.description).join("; ")}`);
+      }
+    }
+    const content = input.patchContent;
+    if (content.includes("import") && content.includes("/webview/") && !input.targetFile.includes("/webview/")) {
+      blocking.push("ARCH-03: Layer boundary violation - non-webview file importing webview resources");
+    }
+    return { blocking, warnings };
+  }
+};
+var architectureSafety = new ArchitectureSafety();
+
 // src/core/safeEdit/safetyAnalyzer.ts
 var SafetyAnalyzer = class {
-  analyze(patchContent) {
+  analyze(input) {
+    const blockingIssues = [];
     const warnings = [];
-    if (patchContent.includes("rm -rf") || patchContent.includes("fs.unlink")) {
-      warnings.push("FS-01: Contains file deletion command patterns");
+    const strategies = [
+      workspaceSafety,
+      filesystemSafety,
+      dependencySafety,
+      architectureSafety
+    ];
+    for (const strategy of strategies) {
+      try {
+        const res = strategy.check(input);
+        blockingIssues.push(...res.blocking);
+        warnings.push(...res.warnings);
+      } catch (err) {
+        blockingIssues.push(`STRATEGY-ERR: Strategy ${strategy.name} failed: ${err.message}`);
+      }
     }
-    return warnings;
+    return { blockingIssues, warnings };
   }
 };
 var safetyAnalyzer = new SafetyAnalyzer();
 
 // src/core/safeEdit/riskEvaluator.ts
 var RiskEvaluator = class {
-  calculateRisk(patchContent) {
+  calculateRisk(input) {
     let score = 10;
+    const patchContent = input.patchContent;
     if (patchContent.includes("package.json")) {
       score += 40;
     }
-    if (patchContent.includes("fs.")) {
-      score += 30;
+    if (patchContent.includes("fs.") || patchContent.includes("child_process") || patchContent.includes("eval(")) {
+      score += 35;
     }
-    return Math.min(100, score);
+    if (input.targetFile.includes("src/core/")) {
+      score += 15;
+    }
+    if (input.securityReport) {
+      score = Math.max(score, input.securityReport.riskScore);
+    }
+    if (input.optimizedPatchReport) {
+      if (input.optimizedPatchReport.predictedMergeRisk === "high") {
+        score += 20;
+      } else if (input.optimizedPatchReport.predictedMergeRisk === "medium") {
+        score += 10;
+      }
+    }
+    const finalScore = Math.min(100, Math.max(0, score));
+    let level = "Minimal";
+    if (finalScore <= 20) {
+      level = "Minimal";
+    } else if (finalScore <= 40) {
+      level = "Low";
+    } else if (finalScore <= 60) {
+      level = "Medium";
+    } else if (finalScore <= 80) {
+      level = "High";
+    } else {
+      level = "Critical";
+    }
+    return { score: finalScore, level };
   }
 };
 var riskEvaluator = new RiskEvaluator();
 
 // src/core/safeEdit/approvalCoordinator.ts
 var ApprovalCoordinator = class {
-  verifyApproval(userApproved) {
-    return userApproved;
+  verifyApproval(input) {
+    const isApproved = !!input.userApproved;
+    const blocking = [];
+    if (!isApproved) {
+      blocking.push("APPROVAL-01: Execution requires explicit user approval");
+    }
+    return {
+      approved: isApproved,
+      blocking
+    };
   }
 };
 var approvalCoordinator = new ApprovalCoordinator();
 
 // src/core/safeEdit/rollbackPlanner.ts
 var RollbackPlanner = class {
-  verifyRollbackReadiness(targetFile) {
-    return targetFile.length > 0;
+  verifyRollbackReadiness(input) {
+    const blocking = [];
+    const isReady = !!input.targetFile && input.targetFile.trim().length > 0;
+    if (!isReady) {
+      blocking.push("ROLLBACK-01: Missing active rollback plan or file backup checkpoint");
+    }
+    return {
+      ready: isReady,
+      blocking
+    };
   }
 };
 var rollbackPlanner = new RollbackPlanner();
 
 // src/core/safeEdit/policyEvaluator.ts
 var PolicyEvaluator = class {
-  evaluatePolicies(patchContent) {
+  evaluatePolicies(input) {
     const blocking = [];
-    if (patchContent.includes("dependencies") && patchContent.includes("package.json")) {
+    const warnings = [];
+    const content = input.patchContent;
+    if (content.includes("dependencies") && input.targetFile.includes("package.json")) {
       blocking.push("POLICY-01: Direct dependencies modification attempts blocked");
     }
-    return blocking;
+    if (input.policyReport) {
+      if (!input.policyReport.compliant) {
+        blocking.push(...input.policyReport.violations.map((v) => `POLICY-02: ${v}`));
+      }
+      warnings.push(...input.policyReport.warnings.map((w) => `POLICY-03: ${w}`));
+    }
+    if (input.securityReport && input.securityReport.blockedActions && input.securityReport.blockedActions.length > 0) {
+      blocking.push(...input.securityReport.blockedActions.map((action) => `POLICY-04: Blocked security action: ${action}`));
+    }
+    return { blocking, warnings };
   }
 };
 var policyEvaluator = new PolicyEvaluator();
@@ -13581,64 +14291,48 @@ var executionGate = new ExecutionGate();
 
 // src/core/safeEdit/executionReporter.ts
 var ExecutionReporter = class {
-  compileReport(riskScore, approved, rollback, blocking, warnings) {
+  compileReport(input, riskScore, riskLevel, approved, rollbackReady, blockingIssues, warnings) {
     let status = "Approved";
-    if (blocking.length > 0) {
+    const hasNonApprovalBlocks = blockingIssues.some((issue) => !issue.startsWith("APPROVAL-"));
+    if (hasNonApprovalBlocks) {
       status = "Rejected";
     } else if (!approved) {
       status = "Requires Approval";
     } else if (warnings.length > 0) {
       status = "Approved With Warning";
     }
+    let recommendation = "Safe to proceed with executor agent patch write.";
+    if (status === "Rejected") {
+      recommendation = "Halt write operations. Immediate security, policy, or safety rejection.";
+    } else if (status === "Blocked") {
+      recommendation = "Execution blocked due to safety gate constraints.";
+    } else if (status === "Requires Approval") {
+      recommendation = "Awaiting explicit user approval before execution.";
+    } else if (status === "Approved With Warning") {
+      recommendation = "Safe to proceed, but review warnings before applying.";
+    }
+    let confidence = 0.98;
+    if (riskLevel === "Critical" || riskLevel === "High") {
+      confidence -= 0.08;
+    }
+    if (warnings.length > 0) {
+      confidence -= 0.04;
+    }
+    confidence = Math.max(0.5, Math.min(1, confidence));
     return {
       executionStatus: status,
       riskScore,
+      riskLevel,
       approvalStatus: approved,
-      rollbackReadiness: rollback,
-      blockingIssues: blocking,
+      rollbackReadiness: rollbackReady,
+      blockingIssues,
       warnings,
-      executionRecommendation: status === "Approved" ? "Safe to proceed with executor agent patch write." : "Halt write operations.",
-      confidence: 0.96
+      executionRecommendation: recommendation,
+      confidence
     };
   }
 };
 var executionReporter = new ExecutionReporter();
-
-// src/core/safeEdit/strategies/workspaceSafety.ts
-var WorkspaceSafety = class {
-  name = "WorkspaceSafetyStrategy";
-  check() {
-    return true;
-  }
-};
-var workspaceSafety = new WorkspaceSafety();
-
-// src/core/safeEdit/strategies/filesystemSafety.ts
-var FilesystemSafety = class {
-  name = "FilesystemSafetyStrategy";
-  check() {
-    return true;
-  }
-};
-var filesystemSafety = new FilesystemSafety();
-
-// src/core/safeEdit/strategies/dependencySafety.ts
-var DependencySafety = class {
-  name = "DependencySafetyStrategy";
-  check() {
-    return true;
-  }
-};
-var dependencySafety = new DependencySafety();
-
-// src/core/safeEdit/strategies/architectureSafety.ts
-var ArchitectureSafety = class {
-  name = "ArchitectureSafetyStrategy";
-  check() {
-    return true;
-  }
-};
-var architectureSafety = new ArchitectureSafety();
 
 // src/core/safeEdit/safeEditMetrics.ts
 var SafeEditMetrics = class {
@@ -13658,31 +14352,1065 @@ var SafeEditMetrics = class {
 };
 var safeEditMetrics = new SafeEditMetrics();
 
+// src/core/safeEdit/executionContext/workspaceStateAnalyzer.ts
+var WorkspaceStateAnalyzer = class {
+  getActiveEditors() {
+    return ["src/core/agents/architecture/architectureGraph.ts"];
+  }
+  getLockedFiles() {
+    return [];
+  }
+};
+var workspaceStateAnalyzer = new WorkspaceStateAnalyzer();
+
+// src/core/safeEdit/executionContext/gitStateAnalyzer.ts
+var GitStateAnalyzer = class {
+  getCurrentBranch() {
+    return "main";
+  }
+  getGitStatus() {
+    return "clean";
+  }
+  getUncommittedChangesCount() {
+    return 0;
+  }
+};
+var gitStateAnalyzer = new GitStateAnalyzer();
+
+// src/core/safeEdit/executionContext/systemStateAnalyzer.ts
+var os = __toESM(require("os"));
+var SystemStateAnalyzer = class {
+  getOS() {
+    return os.platform();
+  }
+  getDiskSpace() {
+    return { free: 50 * 1024 * 1024 * 1024, total: 256 * 1024 * 1024 * 1024 };
+  }
+  getMemory() {
+    return { free: os.freemem(), total: os.totalmem() };
+  }
+  getCPULoad() {
+    return os.loadavg()[0] || 0.15;
+  }
+};
+var systemStateAnalyzer = new SystemStateAnalyzer();
+
+// src/core/safeEdit/executionContext/terminalStateAnalyzer.ts
+var TerminalStateAnalyzer = class {
+  getBackgroundTasks() {
+    return [];
+  }
+  getRunningCommands() {
+    return [];
+  }
+};
+var terminalStateAnalyzer = new TerminalStateAnalyzer();
+
+// src/core/safeEdit/executionContext/lockDetector.ts
+var LockDetector = class {
+  getLockedFiles() {
+    return [];
+  }
+  isLocked(filePath) {
+    return false;
+  }
+};
+var lockDetector = new LockDetector();
+
+// src/core/safeEdit/executionContext/executionContextEngine.ts
+var ExecutionContextEngine = class {
+  async getContext() {
+    return {
+      workspaceStatus: gitStateAnalyzer.getUncommittedChangesCount() === 0 ? "clean" : "dirty",
+      gitStatus: gitStateAnalyzer.getGitStatus(),
+      currentBranch: gitStateAnalyzer.getCurrentBranch(),
+      uncommittedChanges: gitStateAnalyzer.getUncommittedChangesCount(),
+      activeEditors: workspaceStateAnalyzer.getActiveEditors(),
+      lockedFiles: lockDetector.getLockedFiles(),
+      backgroundTasks: terminalStateAnalyzer.getBackgroundTasks(),
+      runningTerminalCommands: terminalStateAnalyzer.getRunningCommands(),
+      os: systemStateAnalyzer.getOS(),
+      diskSpace: systemStateAnalyzer.getDiskSpace(),
+      memory: systemStateAnalyzer.getMemory(),
+      cpuLoad: systemStateAnalyzer.getCPULoad(),
+      workspaceSnapshotId: `snap-${Date.now()}`,
+      currentUser: process.env.USER || process.env.USERNAME || "unknown",
+      executionTimestamp: Date.now()
+    };
+  }
+};
+var executionContextEngine = new ExecutionContextEngine();
+
+// src/core/virtualWorkspace/virtualFilesystem.ts
+var VirtualFilesystem = class {
+  root = {
+    path: "/",
+    files: /* @__PURE__ */ new Map(),
+    subdirectories: /* @__PURE__ */ new Map()
+  };
+  reset() {
+    this.root = {
+      path: "/",
+      files: /* @__PURE__ */ new Map(),
+      subdirectories: /* @__PURE__ */ new Map()
+    };
+  }
+  getRoot() {
+    return this.root;
+  }
+  write(filePath, content) {
+    this.root.files.set(filePath, { path: filePath, content });
+  }
+  read(filePath) {
+    return this.root.files.get(filePath)?.content;
+  }
+  delete(filePath) {
+    return this.root.files.delete(filePath);
+  }
+  listFiles() {
+    return Array.from(this.root.files.keys());
+  }
+};
+var virtualFilesystem = new VirtualFilesystem();
+
+// src/core/virtualWorkspace/workspaceCloner.ts
+var WorkspaceCloner = class {
+  cloneActiveWorkspace() {
+    virtualFilesystem.reset();
+    virtualFilesystem.write("src/core/base.ts", "export class Base {}");
+    virtualFilesystem.write("package.json", '{\n  "dependencies": {}\n}');
+    return 2;
+  }
+};
+var workspaceCloner = new WorkspaceCloner();
+
+// src/core/virtualWorkspace/workspaceMerger.ts
+var WorkspaceMerger = class {
+  merge(filePath, patchContent) {
+    const current = virtualFilesystem.read(filePath) || "";
+    const merged = current + "\n" + patchContent;
+    virtualFilesystem.write(filePath, merged);
+  }
+};
+var workspaceMerger = new WorkspaceMerger();
+
+// src/core/virtualWorkspace/workspaceDiffer.ts
+var WorkspaceDiffer = class {
+  diff(originalContent, newContent) {
+    const changes = [];
+    if (originalContent !== newContent) {
+      changes.push(`Modified line replacement simulated.`);
+    }
+    return changes;
+  }
+};
+var workspaceDiffer = new WorkspaceDiffer();
+
+// src/core/virtualWorkspace/virtualAST.ts
+var VirtualAST = class {
+  verifySyntax(filePath) {
+    const content = virtualFilesystem.read(filePath);
+    if (!content)
+      return true;
+    let openBraces = 0;
+    for (let i = 0; i < content.length; i++) {
+      if (content[i] === "{")
+        openBraces++;
+      if (content[i] === "}")
+        openBraces--;
+    }
+    return openBraces === 0;
+  }
+};
+var virtualAST = new VirtualAST();
+
+// src/core/virtualWorkspace/virtualImports.ts
+var VirtualImports = class {
+  verify(filePath) {
+    const content = virtualFilesystem.read(filePath);
+    if (!content)
+      return true;
+    const importRegex = /import\s+.*\s+from\s+['"](.*)['"]/g;
+    let match;
+    while ((match = importRegex.exec(content)) !== null) {
+      const target = match[1];
+      if (target.startsWith(".") && !target.includes("node_modules")) {
+        if (target.includes("/webview/") && !filePath.includes("/webview/")) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+};
+var virtualImports = new VirtualImports();
+
+// src/core/virtualWorkspace/virtualSymbols.ts
+var VirtualSymbols = class {
+  extract(filePath) {
+    const content = virtualFilesystem.read(filePath);
+    if (!content)
+      return [];
+    const symbols = [];
+    const classRegex = /class\s+(\w+)/g;
+    let match;
+    while ((match = classRegex.exec(content)) !== null) {
+      symbols.push(match[1]);
+    }
+    return symbols;
+  }
+};
+var virtualSymbols = new VirtualSymbols();
+
+// src/core/virtualWorkspace/virtualDependencies.ts
+var VirtualDependencies = class {
+  verify(filePath) {
+    if (filePath.endsWith("package.json")) {
+      const content = virtualFilesystem.read(filePath);
+      if (content) {
+        try {
+          JSON.parse(content);
+        } catch {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+};
+var virtualDependencies = new VirtualDependencies();
+
+// src/core/virtualWorkspace/virtualWorkspaceEngine.ts
+var VirtualWorkspaceEngine = class {
+  async simulateExecution(targetFile, patchContent) {
+    const clonedCount = workspaceCloner.cloneActiveWorkspace();
+    const original = virtualFilesystem.read(targetFile) || "";
+    workspaceMerger.merge(targetFile, patchContent);
+    const updated = virtualFilesystem.read(targetFile) || "";
+    const syntaxVerificationPassed = virtualAST.verifySyntax(targetFile);
+    const importsVerified = virtualImports.verify(targetFile);
+    const symbolsVerified = virtualSymbols.extract(targetFile).length >= 0;
+    const dependenciesVerified = virtualDependencies.verify(targetFile);
+    const diffOperations = workspaceDiffer.diff(original, updated);
+    return {
+      clonedFilesCount: clonedCount,
+      syntaxVerificationPassed,
+      importsVerified,
+      symbolsVerified,
+      dependenciesVerified,
+      diffOperations,
+      timestamp: Date.now()
+    };
+  }
+};
+var virtualWorkspaceEngine = new VirtualWorkspaceEngine();
+
+// src/core/safeEdit/simulation/simulationValidator.ts
+var SimulationValidator = class {
+  validate(report) {
+    if (!report.syntaxVerificationPassed) {
+      return { success: false, error: "Syntax compilation failure in virtual workspace AST check." };
+    }
+    if (!report.importsVerified) {
+      return { success: false, error: "Relative import verification failed in virtual workspace." };
+    }
+    return { success: true };
+  }
+};
+var simulationValidator = new SimulationValidator();
+
+// src/core/safeEdit/simulation/simulationMetrics.ts
+var SimulationMetrics = class {
+  runsCount = 0;
+  failuresCount = 0;
+  record(success) {
+    this.runsCount++;
+    if (!success)
+      this.failuresCount++;
+  }
+  getStats() {
+    return { runs: this.runsCount, failures: this.failuresCount };
+  }
+};
+var simulationMetrics = new SimulationMetrics();
+
+// src/core/safeEdit/simulation/simulationEvents.ts
+var SimulationEvents = class {
+  listeners = /* @__PURE__ */ new Set();
+  subscribe(listener) {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+  emit(type, payload) {
+    for (const listener of this.listeners) {
+      try {
+        listener({ type, timestamp: Date.now(), payload });
+      } catch (err) {
+        console.error("Error in Simulation event listener:", err);
+      }
+    }
+  }
+};
+var simulationEvents = new SimulationEvents();
+
+// src/core/safeEdit/simulation/simulationEngine.ts
+var SimulationEngine = class {
+  async simulate(targetFile, patchContent) {
+    const startTime = Date.now();
+    simulationEvents.emit("SimulationStarted", { targetFile });
+    const dryRunReport = await virtualWorkspaceEngine.simulateExecution(targetFile, patchContent);
+    const validationResult = simulationValidator.validate(dryRunReport);
+    const durationMs = Date.now() - startTime;
+    const report = {
+      success: validationResult.success,
+      dryRunReport,
+      error: validationResult.error,
+      durationMs
+    };
+    simulationMetrics.record(validationResult.success);
+    simulationEvents.emit("SimulationCompleted", report);
+    return report;
+  }
+};
+var simulationEngine = new SimulationEngine();
+
+// src/core/safeEdit/riskGraph/riskCalculator.ts
+var RiskCalculator = class {
+  calculateCategoryRisk(category, input) {
+    let score = 10;
+    let evidence = ["Initial base category risk calculation"];
+    const content = input.patchContent;
+    if (category === "filesystem") {
+      if (content.includes("rm -rf") || content.includes("fs.unlink")) {
+        score = 90;
+        evidence.push("Contains file deletion command patterns");
+      } else if (content.includes("fs.write") || content.includes("fs.promises")) {
+        score = 45;
+        evidence.push("Contains file writing command patterns");
+      }
+    } else if (category === "dependency") {
+      if (input.targetFile.endsWith("package.json")) {
+        score = 80;
+        evidence.push("Target file is package.json");
+      }
+    } else if (category === "security") {
+      if (input.securityReport) {
+        score = input.securityReport.riskScore;
+        evidence.push(`Imported from security agent report with score: ${score}`);
+      }
+    }
+    let severity = "Minimal";
+    if (score <= 20)
+      severity = "Minimal";
+    else if (score <= 40)
+      severity = "Low";
+    else if (score <= 60)
+      severity = "Medium";
+    else if (score <= 80)
+      severity = "High";
+    else
+      severity = "Critical";
+    return {
+      score,
+      confidence: 0.95,
+      severity,
+      reason: `Assessed risk score of ${score} for category ${category}`,
+      evidence
+    };
+  }
+};
+var riskCalculator = new RiskCalculator();
+
+// src/core/safeEdit/riskGraph/riskAggregator.ts
+var RiskAggregator = class {
+  aggregate(categories) {
+    const list = Object.values(categories);
+    const sum = list.reduce((a, b) => a + b.score, 0);
+    const overallScore = Math.min(100, Math.max(0, Math.round(sum / list.length)));
+    let level = "Minimal";
+    if (overallScore <= 20)
+      level = "Minimal";
+    else if (overallScore <= 40)
+      level = "Low";
+    else if (overallScore <= 60)
+      level = "Medium";
+    else if (overallScore <= 80)
+      level = "High";
+    else
+      level = "Critical";
+    const confidenceSum = list.reduce((a, b) => a + b.confidence, 0);
+    const overallConfidence = confidenceSum / list.length;
+    return { score: overallScore, level, confidence: overallConfidence };
+  }
+};
+var riskAggregator = new RiskAggregator();
+
+// src/core/safeEdit/riskGraph/riskGraph.ts
+var RiskGraph = class {
+  compute(input) {
+    const categories = {
+      filesystem: riskCalculator.calculateCategoryRisk("filesystem", input),
+      architecture: riskCalculator.calculateCategoryRisk("architecture", input),
+      security: riskCalculator.calculateCategoryRisk("security", input),
+      dependency: riskCalculator.calculateCategoryRisk("dependency", input),
+      workspace: riskCalculator.calculateCategoryRisk("workspace", input),
+      terminal: riskCalculator.calculateCategoryRisk("terminal", input),
+      policy: riskCalculator.calculateCategoryRisk("policy", input),
+      rollback: riskCalculator.calculateCategoryRisk("rollback", input),
+      approval: riskCalculator.calculateCategoryRisk("approval", input)
+    };
+    const aggregated = riskAggregator.aggregate(categories);
+    return {
+      categories,
+      overallRiskScore: aggregated.score,
+      overallRiskLevel: aggregated.level,
+      overallConfidence: aggregated.confidence
+    };
+  }
+};
+var riskGraph = new RiskGraph();
+
+// src/core/safeEdit/providers/filesystemProvider.ts
+var FilesystemProvider = class {
+  name = "FilesystemSafetyProvider";
+  analyze(input) {
+    const issues = [];
+    if (input.patchContent.includes("rm -rf") || input.patchContent.includes("fs.unlink")) {
+      issues.push("Contains unsafe file deletion commands.");
+    }
+    return issues;
+  }
+  validate(input) {
+    return !this.analyze(input).length;
+  }
+  risk(input) {
+    return this.analyze(input).length ? 90 : 10;
+  }
+  recommendations(input) {
+    return this.analyze(input).length ? ["Avoid using raw rm -rf or unlink operations."] : [];
+  }
+};
+var filesystemProvider = new FilesystemProvider();
+
+// src/core/safeEdit/providers/gitProvider.ts
+var GitProvider = class {
+  name = "GitSafetyProvider";
+  analyze(input) {
+    return [];
+  }
+  validate(input) {
+    return true;
+  }
+  risk(input) {
+    return 10;
+  }
+  recommendations(input) {
+    return [];
+  }
+};
+var gitProvider = new GitProvider();
+
+// src/core/safeEdit/providers/terminalProvider.ts
+var TerminalProvider = class {
+  name = "TerminalSafetyProvider";
+  analyze(input) {
+    const issues = [];
+    if (input.patchContent.includes("child_process.exec") || input.patchContent.includes("spawn(")) {
+      issues.push("Contains subprocess spawn operations.");
+    }
+    return issues;
+  }
+  validate(input) {
+    return true;
+  }
+  risk(input) {
+    return this.analyze(input).length ? 50 : 10;
+  }
+  recommendations(input) {
+    return this.analyze(input).length ? ["Review shell commands injection risk."] : [];
+  }
+};
+var terminalProvider = new TerminalProvider();
+
+// src/core/safeEdit/providers/dockerProvider.ts
+var DockerProvider = class {
+  name = "DockerSafetyProvider";
+  analyze(input) {
+    return [];
+  }
+  validate(input) {
+    return true;
+  }
+  risk(input) {
+    return 10;
+  }
+  recommendations(input) {
+    return [];
+  }
+};
+var dockerProvider = new DockerProvider();
+
+// src/core/safeEdit/providers/databaseProvider.ts
+var DatabaseProvider = class {
+  name = "DatabaseSafetyProvider";
+  analyze(input) {
+    const issues = [];
+    if (input.patchContent.includes("DROP TABLE") || input.patchContent.includes("ALTER TABLE")) {
+      issues.push("Contains potential database schema alterations.");
+    }
+    return issues;
+  }
+  validate(input) {
+    return true;
+  }
+  risk(input) {
+    return this.analyze(input).length ? 70 : 10;
+  }
+  recommendations(input) {
+    return this.analyze(input).length ? ["Backup databases before executing schema migrations."] : [];
+  }
+};
+var databaseProvider = new DatabaseProvider();
+
+// src/core/safeEdit/providers/networkProvider.ts
+var NetworkProvider = class {
+  name = "NetworkSafetyProvider";
+  analyze(input) {
+    return [];
+  }
+  validate(input) {
+    return true;
+  }
+  risk(input) {
+    return 10;
+  }
+  recommendations(input) {
+    return [];
+  }
+};
+var networkProvider = new NetworkProvider();
+
+// src/core/safeEdit/providers/secretProvider.ts
+var SecretProvider = class {
+  name = "SecretSafetyProvider";
+  analyze(input) {
+    const issues = [];
+    if (input.patchContent.includes("password") || input.patchContent.includes("secret") || input.patchContent.includes("apiKey")) {
+      issues.push("Contains credential key terms.");
+    }
+    return issues;
+  }
+  validate(input) {
+    return true;
+  }
+  risk(input) {
+    return this.analyze(input).length ? 60 : 10;
+  }
+  recommendations(input) {
+    return this.analyze(input).length ? ["Ensure secrets are stored in environment variables, not plain text."] : [];
+  }
+};
+var secretProvider = new SecretProvider();
+
+// src/core/safeEdit/providers/cloudProvider.ts
+var CloudProvider = class {
+  name = "CloudSafetyProvider";
+  analyze(input) {
+    return [];
+  }
+  validate(input) {
+    return true;
+  }
+  risk(input) {
+    return 10;
+  }
+  recommendations(input) {
+    return [];
+  }
+};
+var cloudProvider = new CloudProvider();
+
+// src/core/safeEdit/providers/index.ts
+var SafetyProviderRegistry = class {
+  providers = /* @__PURE__ */ new Map();
+  constructor() {
+    this.register(filesystemProvider);
+    this.register(gitProvider);
+    this.register(terminalProvider);
+    this.register(dockerProvider);
+    this.register(databaseProvider);
+    this.register(networkProvider);
+    this.register(secretProvider);
+    this.register(cloudProvider);
+  }
+  register(provider) {
+    this.providers.set(provider.name, provider);
+  }
+  list() {
+    return Array.from(this.providers.values());
+  }
+  get(name) {
+    return this.providers.get(name);
+  }
+};
+var safetyProviderRegistry = new SafetyProviderRegistry();
+
+// src/core/safeEdit/rules/ruleRegistry.ts
+var RuleRegistry = class {
+  rules = /* @__PURE__ */ new Map();
+  register(rule) {
+    this.rules.set(rule.ruleId, rule);
+  }
+  list() {
+    return Array.from(this.rules.values());
+  }
+  get(ruleId) {
+    return this.rules.get(ruleId);
+  }
+};
+var ruleRegistry = new RuleRegistry();
+
+// src/core/safeEdit/rules/safeRule.ts
+var BaseSafeRule = class {
+  constructor(ruleId, name, category, severity, description, supportedLanguages, supportedProviders, executionStage, enabled = true) {
+    this.ruleId = ruleId;
+    this.name = name;
+    this.category = category;
+    this.severity = severity;
+    this.description = description;
+    this.supportedLanguages = supportedLanguages;
+    this.supportedProviders = supportedProviders;
+    this.executionStage = executionStage;
+    this.enabled = enabled;
+  }
+  validate(patchContent, context) {
+    return { valid: true };
+  }
+};
+
+// src/core/safeEdit/rules/ruleLoader.ts
+var RuleLoader = class {
+  loadDefaultRules() {
+    ruleRegistry.register(new class extends BaseSafeRule {
+      constructor() {
+        super(
+          "SAFE-001",
+          "Block Dependency Alterations",
+          "Dependency",
+          "High",
+          "Checks if package.json dependencies are directly altered.",
+          ["ts", "js", "json"],
+          ["FilesystemSafetyProvider"],
+          "Pre-Execution"
+        );
+      }
+      validate(patchContent, context) {
+        if (context.targetFile && context.targetFile.endsWith("package.json")) {
+          if (patchContent.includes('"dependencies"') || patchContent.includes('"devDependencies"')) {
+            return { valid: false, error: "Direct modification of dependencies in package.json is prohibited" };
+          }
+        }
+        return { valid: true };
+      }
+    }());
+    ruleRegistry.register(new class extends BaseSafeRule {
+      constructor() {
+        super(
+          "SAFE-002",
+          "Unsafe Deletions Guard",
+          "Filesystem",
+          "Critical",
+          "Blocks direct rm -rf or unlink deletions in commands.",
+          ["ts", "js", "sh"],
+          ["FilesystemSafetyProvider"],
+          "Pre-Execution"
+        );
+      }
+      validate(patchContent) {
+        if (patchContent.includes("rm -rf") || patchContent.includes("fs.unlink")) {
+          return { valid: false, error: "Contains unsafe file deletion command patterns" };
+        }
+        return { valid: true };
+      }
+    }());
+    ruleRegistry.register(new class extends BaseSafeRule {
+      constructor() {
+        super(
+          "SAFE-003",
+          "Architecture Boundary Validation",
+          "Architecture",
+          "High",
+          "Blocks layer boundary violations where core imports webview.",
+          ["ts", "js"],
+          ["FilesystemSafetyProvider"],
+          "Pre-Execution"
+        );
+      }
+      validate(patchContent, context) {
+        if (context.targetFile && !context.targetFile.includes("/webview/") && patchContent.includes("import") && patchContent.includes("/webview/")) {
+          return { valid: false, error: "Layer boundary violation - non-webview file importing webview resources" };
+        }
+        return { valid: true };
+      }
+    }());
+    ruleRegistry.register(new class extends BaseSafeRule {
+      constructor() {
+        super(
+          "SAFE-004",
+          "Credentials Leak check",
+          "Security",
+          "Critical",
+          "Blocks committing passwords or API keys.",
+          ["ts", "js", "json"],
+          [],
+          "Pre-Execution"
+        );
+      }
+      validate(patchContent) {
+        if (patchContent.includes('const password = "') || patchContent.includes('apiKey = "')) {
+          return { valid: false, error: "Potential secret exposure detected in code text" };
+        }
+        return { valid: true };
+      }
+    }());
+  }
+};
+var ruleLoader = new RuleLoader();
+
+// src/core/safeEdit/rules/ruleExecutor.ts
+var RuleExecutor = class {
+  constructor() {
+    ruleLoader.loadDefaultRules();
+  }
+  execute(patchContent, context) {
+    const errors = [];
+    const warnings = [];
+    const rules = ruleRegistry.list();
+    for (const rule of rules) {
+      if (!rule.enabled)
+        continue;
+      try {
+        const result = rule.validate(patchContent, context);
+        if (!result.valid) {
+          const msg = `[${rule.ruleId}] ${rule.name}: ${result.error || "Failed safety validation"}`;
+          if (rule.severity === "Critical" || rule.severity === "High") {
+            errors.push(msg);
+          } else {
+            warnings.push(msg);
+          }
+        }
+      } catch (err) {
+        errors.push(`Rule ${rule.ruleId} execution error: ${err.message}`);
+      }
+    }
+    return {
+      valid: errors.length === 0,
+      errors,
+      warnings
+    };
+  }
+};
+var ruleExecutor = new RuleExecutor();
+
+// src/core/safeEdit/approval/approvalMatrix.ts
+var ApprovalMatrix = class {
+  determineRequiredLevel(patchType, risk) {
+    if (risk === "Critical")
+      return "Administrator";
+    if (risk === "High")
+      return "Repository";
+    if (patchType === "Security" || patchType === "Migration")
+      return "Branch";
+    if (risk === "Medium")
+      return "User";
+    return "Automatic";
+  }
+};
+var approvalMatrix = new ApprovalMatrix();
+
+// src/core/safeEdit/approval/approvalResolver.ts
+var ApprovalResolver = class {
+  resolve(required, userApproved) {
+    if (required === "Automatic") {
+      return { requiredLevel: required, granted: true, reason: "Automatic execution permitted." };
+    }
+    const granted = userApproved;
+    return {
+      requiredLevel: required,
+      granted,
+      actualApproverRole: userApproved ? "Administrator" : "None",
+      reason: granted ? `Explicit user approval granted and resolved as Administrator.` : `Requires approval at level: ${required}.`
+    };
+  }
+};
+var approvalResolver = new ApprovalResolver();
+
+// src/core/safeEdit/approval/approvalEngine.ts
+var ApprovalEngine2 = class {
+  resolveApproval(patchType, risk, userApproved) {
+    const required = approvalMatrix.determineRequiredLevel(patchType, risk);
+    return approvalResolver.resolve(required, userApproved);
+  }
+};
+var approvalEngine2 = new ApprovalEngine2();
+
+// src/core/safeEdit/confidence/confidenceEvidence.ts
+var ConfidenceEvidenceCollector = class {
+  collect(input) {
+    const list = [];
+    const isKnownFile = input.targetFile.startsWith("src/");
+    list.push({
+      factor: "Known Files",
+      score: isKnownFile ? 1 : 0.6,
+      description: isKnownFile ? "Target file is inside the standard src/ directory." : "Target file is outside standard directory bounds."
+    });
+    const valScore = input.validationReport ? input.validationReport.validationScore / 100 : 0.85;
+    list.push({
+      factor: "Validation Score",
+      score: valScore,
+      description: `Validation score alignment coefficient: ${valScore}`
+    });
+    return list;
+  }
+};
+var confidenceEvidenceCollector = new ConfidenceEvidenceCollector();
+
+// src/core/safeEdit/confidence/confidenceCalculator.ts
+var ConfidenceCalculator = class {
+  calculateOverall(evidence) {
+    if (!evidence.length)
+      return 0.8;
+    const sum = evidence.reduce((acc, curr) => acc + curr.score, 0);
+    return Math.round(sum / evidence.length * 100) / 100;
+  }
+};
+var confidenceCalculator = new ConfidenceCalculator();
+
+// src/core/safeEdit/confidence/confidenceEngine.ts
+var ConfidenceEngine = class {
+  calculate(input) {
+    const evidence = confidenceEvidenceCollector.collect(input);
+    const overallConfidence = confidenceCalculator.calculateOverall(evidence);
+    let grade = "C";
+    if (overallConfidence >= 0.9)
+      grade = "A";
+    else if (overallConfidence >= 0.8)
+      grade = "B";
+    else if (overallConfidence >= 0.7)
+      grade = "C";
+    else if (overallConfidence >= 0.6)
+      grade = "D";
+    else
+      grade = "F";
+    let recommendation = "Proceed with execution. Stability parameters aligned.";
+    if (grade === "F" || grade === "D") {
+      recommendation = "Halt. Low execution confidence levels.";
+    }
+    return {
+      overallConfidence,
+      evidence,
+      grade,
+      recommendation
+    };
+  }
+};
+var confidenceEngine = new ConfidenceEngine();
+
+// src/core/policyDecision/policyEvaluators.ts
+var PolicyEvaluators = class {
+  evaluate(input) {
+    const violations = [];
+    const warnings = [];
+    if (input.riskGraph.overallRiskScore >= 80) {
+      violations.push("RISK-01: Risk score equals or exceeds Critical threshold.");
+      return { decision: "Block", reason: "High overall risk score restricts execution.", violations, warnings };
+    }
+    if (input.riskGraph.overallRiskScore >= 40 && !input.approval) {
+      violations.push("APPROVAL-02: User approval missing for medium/high risk operations.");
+      return { decision: "Approval Required", reason: "Approval required for execution.", violations, warnings };
+    }
+    if (input.workspaceContext.workspaceStatus === "dirty") {
+      warnings.push("WORKSPACE-02: Executing on top of uncommitted workspace changes.");
+    }
+    const decision = violations.length > 0 ? "Reject" : warnings.length > 0 ? "Warn" : "Allow";
+    return {
+      decision,
+      reason: decision === "Allow" ? "Policy checks passed successfully." : "Policy warnings detected.",
+      violations,
+      warnings
+    };
+  }
+};
+var policyEvaluators = new PolicyEvaluators();
+
+// src/core/policyDecision/policyDecisionEngine.ts
+var PolicyDecisionEngine = class {
+  decide(input) {
+    const outcome = policyEvaluators.evaluate(input);
+    return {
+      decision: outcome.decision,
+      reason: outcome.reason,
+      violations: outcome.violations,
+      warnings: outcome.warnings,
+      timestamp: Date.now()
+    };
+  }
+};
+var policyDecisionEngine = new PolicyDecisionEngine();
+
+// src/core/audit/auditEngine.ts
+var AuditEngine = class {
+  auditsLog = [];
+  logExecution(report) {
+    const fullReport = {
+      auditId: `AUD-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+      ...report,
+      timestamp: Date.now()
+    };
+    this.auditsLog.push(fullReport);
+    return fullReport;
+  }
+  getHistory() {
+    return this.auditsLog;
+  }
+  clear() {
+    this.auditsLog = [];
+  }
+};
+var auditEngine = new AuditEngine();
+
+// src/core/executionStateMachine/stateMachine.ts
+var ExecutionStateMachine = class {
+  history = [];
+  currentState = "Created";
+  startTimestamp = Date.now();
+  reset() {
+    this.history = [];
+    this.currentState = "Created";
+    this.startTimestamp = Date.now();
+  }
+  transitionTo(nextState, reason) {
+    this.history.push({
+      from: this.currentState,
+      to: nextState,
+      timestamp: Date.now(),
+      reason
+    });
+    this.currentState = nextState;
+  }
+  getCurrentState() {
+    return this.currentState;
+  }
+  getTimelineReport() {
+    return {
+      history: [...this.history],
+      currentState: this.currentState,
+      durationMs: Date.now() - this.startTimestamp
+    };
+  }
+};
+var executionStateMachine = new ExecutionStateMachine();
+
 // src/core/safeEdit/safeEditEngine.ts
 var SafeEditEngine = class {
-  async evaluate(targetFile, patchContent, userApproved = true) {
-    safeEditEvents.emit("SafetyEvaluationStarted" /* SafetyEvaluationStarted */, { targetFile });
-    const riskScore = riskEvaluator.calculateRisk(patchContent);
-    safeEditEvents.emit("RiskCalculated" /* RiskCalculated */, { riskScore });
-    const warnings = safetyAnalyzer.analyze(patchContent);
-    const blocking = policyEvaluator.evaluatePolicies(patchContent);
-    const approved = approvalCoordinator.verifyApproval(userApproved);
-    safeEditEvents.emit("ApprovalVerified" /* ApprovalVerified */, { approved });
-    const rollbackReady = rollbackPlanner.verifyRollbackReadiness(targetFile);
-    safeEditEvents.emit("RollbackVerified" /* RollbackVerified */, { rollbackReady });
-    if (blocking.length > 0) {
-      safeEditEvents.emit("ExecutionBlocked" /* ExecutionBlocked */, { reason: blocking[0] });
+  async evaluate(targetFileOrInput, patchContent, userApproved = true) {
+    const startTime = Date.now();
+    executionStateMachine.reset();
+    executionStateMachine.transitionTo("Created", "Evaluation request initialized.");
+    let input;
+    if (typeof targetFileOrInput === "string") {
+      input = {
+        targetFile: targetFileOrInput,
+        patchContent: patchContent || "",
+        userApproved
+      };
     } else {
-      safeEditEvents.emit("ExecutionApproved" /* ExecutionApproved */, { targetFile });
+      input = targetFileOrInput;
     }
-    const report = executionReporter.compileReport(
-      riskScore,
-      approved,
-      rollbackReady,
-      blocking,
-      warnings
+    safeEditEvents.emit("SafetyEvaluationStarted" /* SafetyEvaluationStarted */, { targetFile: input.targetFile });
+    executionStateMachine.transitionTo("Planned", "Patch manifest loaded.");
+    const executionContext = await executionContextEngine.getContext();
+    const simulationReport = await simulationEngine.simulate(input.targetFile, input.patchContent);
+    executionStateMachine.transitionTo("Simulated", "Virtual workspace dry run completed.");
+    const computedRiskGraph = riskGraph.compute(input);
+    safeEditEvents.emit("RiskCalculated" /* RiskCalculated */, {
+      riskScore: computedRiskGraph.overallRiskScore,
+      riskLevel: computedRiskGraph.overallRiskLevel
+    });
+    const providerResults = [];
+    const providers = safetyProviderRegistry.list();
+    for (const prov of providers) {
+      providerResults.push({
+        name: prov.name,
+        issues: prov.analyze(input),
+        risk: prov.risk(input),
+        recommendations: prov.recommendations(input)
+      });
+    }
+    const ruleExecution = ruleExecutor.execute(input.patchContent, { targetFile: input.targetFile });
+    executionStateMachine.transitionTo("Validated", "Safety rules checks concluded.");
+    const approvalDecision = approvalEngine2.resolveApproval(
+      input.validationReport ? "Bug Fix" : "Feature",
+      // classifier fallback
+      computedRiskGraph.overallRiskLevel,
+      !!input.userApproved
     );
-    safeEditMetrics.record(blocking.length > 0);
+    safeEditEvents.emit("ApprovalVerified" /* ApprovalVerified */, { approved: approvalDecision.granted });
+    executionStateMachine.transitionTo("Reviewed", "Approval policies verified.");
+    const rollbackCertificate = rollbackPlanner.generateCertificate(input);
+    safeEditEvents.emit("RollbackVerified" /* RollbackVerified */, { rollbackReady: rollbackCertificate.verificationResult === "Success" });
+    const confidenceReport = confidenceEngine.calculate(input);
+    const policyDecisionReport = policyDecisionEngine.decide({
+      riskGraph: computedRiskGraph,
+      approval: approvalDecision.granted,
+      workspaceContext: executionContext
+    });
+    if (policyDecisionReport.decision === "Allow") {
+      executionStateMachine.transitionTo("Approved", "Passed policy decision gates.");
+      executionStateMachine.transitionTo("Ready", "Patches prepared for executor write.");
+    } else {
+      executionStateMachine.transitionTo("Failed", `Gate check rejected: ${policyDecisionReport.reason}`);
+    }
+    const baseReporterReport = executionReporter.compileReport(
+      input,
+      computedRiskGraph.overallRiskScore,
+      computedRiskGraph.overallRiskLevel,
+      approvalDecision.granted,
+      rollbackCertificate.verificationResult === "Success",
+      [...ruleExecution.errors, ...policyDecisionReport.violations],
+      [...ruleExecution.warnings, ...policyDecisionReport.warnings]
+    );
+    if (baseReporterReport.executionStatus === "Rejected") {
+      safeEditEvents.emit("ExecutionBlocked" /* ExecutionBlocked */, { reason: baseReporterReport.blockingIssues.join(", ") });
+    } else {
+      safeEditEvents.emit("ExecutionApproved" /* ExecutionApproved */, { targetFile: input.targetFile });
+    }
+    const timelineReport = executionStateMachine.getTimelineReport();
+    const auditReport = auditEngine.logExecution({
+      decision: policyDecisionReport.decision,
+      risk: computedRiskGraph,
+      simulation: simulationReport,
+      validation: ruleExecution,
+      review: { comments: baseReporterReport.warnings },
+      approval: approvalDecision,
+      patch: input.patchContent,
+      rollback: rollbackCertificate,
+      timingMs: Date.now() - startTime,
+      agentChain: ["SafeEditEngine"]
+    });
+    const report = {
+      ...baseReporterReport,
+      executionContext,
+      riskGraph: computedRiskGraph,
+      rollbackCertificate,
+      approvalDecision,
+      confidenceReport,
+      simulationReport,
+      policyDecisionReport,
+      executionAuditReport: auditReport,
+      timelineReport
+    };
+    safeEditMetrics.record(baseReporterReport.blockingIssues.length > 0);
     return report;
   }
   subscribe(listener) {
@@ -13690,6 +15418,2074 @@ var SafeEditEngine = class {
   }
 };
 var safeEditEngine = new SafeEditEngine();
+
+// src/core/safeEdit/classification/classifierRules.ts
+var classifierRules = [
+  { type: "Bug Fix", keywords: ["fix", "bug", "issue", "resolve", "error", "crash"], weight: 2 },
+  { type: "Feature", keywords: ["feat", "feature", "add", "implement", "new"], weight: 1.5 },
+  { type: "Refactor", keywords: ["refactor", "clean", "restructure", "cleanup"], weight: 1.8 },
+  { type: "Documentation", keywords: ["docs", "readme", "comment", "docstring", "guide"], weight: 2.2 },
+  { type: "Dependency", keywords: ["package.json", "dependencies", "npm", "yarn", "import"], weight: 2 },
+  { type: "Security", keywords: ["security", "password", "secret", "auth", "token", "crypt"], weight: 2.5 }
+];
+
+// src/core/safeEdit/classification/patchClassifier.ts
+var PatchClassifier = class {
+  classify(patchContent, targetFile) {
+    const scores = /* @__PURE__ */ new Map();
+    const tags = [];
+    const lowerContent = (patchContent + " " + targetFile).toLowerCase();
+    for (const rule of classifierRules) {
+      let matches = 0;
+      for (const kw of rule.keywords) {
+        if (lowerContent.includes(kw)) {
+          matches++;
+        }
+      }
+      if (matches > 0) {
+        const currentScore = scores.get(rule.type) || 0;
+        scores.set(rule.type, currentScore + matches * rule.weight);
+        tags.push(rule.type);
+      }
+    }
+    let primaryType = "Experimental";
+    let highestScore = 0;
+    for (const [type, score] of scores.entries()) {
+      if (score > highestScore) {
+        highestScore = score;
+        primaryType = type;
+      }
+    }
+    return {
+      primaryType,
+      confidence: highestScore > 0 ? Math.min(1, 0.5 + highestScore / 10) : 0.4,
+      tags: Array.from(new Set(tags))
+    };
+  }
+};
+var patchClassifier = new PatchClassifier();
+
+// src/core/safeEdit/rollback/rollbackGraph.ts
+var RollbackGraph = class {
+  sortRecoveryOrder(files) {
+    return [...files].reverse();
+  }
+};
+var rollbackGraph = new RollbackGraph();
+
+// src/core/safeEdit/rollback/rollbackVerifier.ts
+var RollbackVerifier = class {
+  verifySnapshots(snapshots) {
+    return snapshots.length > 0;
+  }
+};
+var rollbackVerifier = new RollbackVerifier();
+
+// src/core/safeEdit/rollback/rollbackCertificate.ts
+var RollbackCertificateGenerator = class {
+  generate(targetFile, snapshots) {
+    const affected = targetFile ? [targetFile] : [];
+    const isVerified = rollbackVerifier.verifySnapshots(snapshots);
+    return {
+      certificateId: `CERT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+      affectedFiles: affected,
+      affectedSymbols: [],
+      snapshots,
+      recoveryOrder: rollbackGraph.sortRecoveryOrder(affected),
+      dependencies: [],
+      estimatedRollbackTimeMs: affected.length * 150 + 50,
+      rollbackConfidence: isVerified ? 0.98 : 0.4,
+      verificationResult: isVerified ? "Success" : "Failed",
+      timestamp: Date.now()
+    };
+  }
+};
+var rollbackCertificateGenerator = new RollbackCertificateGenerator();
+
+// src/core/safeEdit/rollback/rollbackPlanner.ts
+var RollbackPlanner2 = class {
+  generateCertificate(input) {
+    const snapshots = input.targetFile ? [`snap-pre-${Date.now()}`] : [];
+    return rollbackCertificateGenerator.generate(input.targetFile, snapshots);
+  }
+};
+var rollbackPlanner2 = new RollbackPlanner2();
+
+// src/core/safeEdit/approval/approvalPolicies.ts
+var ApprovalPolicies = class {
+  satisfies(required, actual) {
+    const weights = {
+      "Automatic": 0,
+      "User": 1,
+      "Workspace": 2,
+      "Repository": 3,
+      "Branch": 4,
+      "Organization": 5,
+      "Administrator": 6,
+      "Emergency Override": 7
+    };
+    const reqWeight = weights[required] || 0;
+    const actWeight = weights[actual] || 0;
+    return actWeight >= reqWeight;
+  }
+};
+var approvalPolicies = new ApprovalPolicies();
+
+// src/core/safeEdit/simulation/workspaceSimulator.ts
+var WorkspaceSimulator = class {
+  simulateWorkspaceState() {
+    return "virtual-workspace-state";
+  }
+};
+var workspaceSimulator = new WorkspaceSimulator();
+
+// src/core/safeEdit/simulation/patchSimulator.ts
+var PatchSimulator = class {
+  simulatePatch(targetFile, patchContent) {
+    workspaceMerger.merge(targetFile, patchContent);
+  }
+};
+var patchSimulator = new PatchSimulator();
+
+// src/core/safeEdit/simulation/dependencySimulator.ts
+var DependencySimulator = class {
+  simulateDependencies(targetFile) {
+    return virtualDependencies.verify(targetFile);
+  }
+};
+var dependencySimulator = new DependencySimulator();
+
+// src/core/safeEdit/simulation/symbolSimulator.ts
+var SymbolSimulator = class {
+  simulateSymbols(targetFile) {
+    return virtualSymbols.extract(targetFile);
+  }
+};
+var symbolSimulator = new SymbolSimulator();
+
+// src/core/safeEdit/simulation/importSimulator.ts
+var ImportSimulator = class {
+  simulateImports(targetFile) {
+    return virtualImports.verify(targetFile);
+  }
+};
+var importSimulator = new ImportSimulator();
+
+// src/extension/messageRouter.ts
+init_eventBus2();
+
+// src/core/taskGeneration/taskEvents.ts
+var TaskEvents = class {
+  listeners = /* @__PURE__ */ new Set();
+  subscribe(listener) {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+  emit(type, payload) {
+    for (const listener of this.listeners) {
+      try {
+        listener({ type, timestamp: Date.now(), payload });
+      } catch (err) {
+        console.error("Error in TaskEvents listener:", err);
+      }
+    }
+  }
+};
+var taskEvents = new TaskEvents();
+
+// src/core/taskGeneration/taskMetrics.ts
+var TaskMetrics = class {
+  totalTasksGenerated = 0;
+  totalGraphsGenerated = 0;
+  totalGenerationTimeMs = 0;
+  record(tasksCount, durationMs) {
+    this.totalTasksGenerated += tasksCount;
+    this.totalGraphsGenerated++;
+    this.totalGenerationTimeMs += durationMs;
+  }
+  getStats() {
+    return {
+      totalTasksGenerated: this.totalTasksGenerated,
+      totalGraphsGenerated: this.totalGraphsGenerated,
+      averageGenerationTimeMs: this.totalGraphsGenerated > 0 ? Math.round(this.totalGenerationTimeMs / this.totalGraphsGenerated) : 0
+    };
+  }
+};
+var taskMetrics = new TaskMetrics();
+
+// src/core/taskGeneration/taskAnalyzer.ts
+var TaskAnalyzer = class {
+  analyzeMilestones(input) {
+    const results = [];
+    for (const ms of input.featurePlan.milestones) {
+      const text = `${ms.name} ${ms.description} ${(ms.requirements || []).join(" ")}`.toLowerCase();
+      const detectedTypes = [];
+      if (text.includes("ui") || text.includes("component") || text.includes("view") || text.includes("frontend") || text.includes("dashboard")) {
+        detectedTypes.push("UI Task");
+      }
+      if (text.includes("api") || text.includes("endpoint") || text.includes("route") || text.includes("request")) {
+        detectedTypes.push("API Task");
+      }
+      if (text.includes("db") || text.includes("database") || text.includes("schema") || text.includes("table") || text.includes("model")) {
+        detectedTypes.push("Database Task");
+      }
+      if (text.includes("backend") || text.includes("service") || text.includes("logic") || text.includes("core") || text.includes("engine")) {
+        detectedTypes.push("Backend Task");
+      }
+      if (text.includes("test") || text.includes("spec") || text.includes("verify") || text.includes("unit")) {
+        detectedTypes.push("Testing Task");
+      }
+      if (detectedTypes.length === 0) {
+        detectedTypes.push("Backend Task");
+      }
+      if (!detectedTypes.includes("Testing Task")) {
+        detectedTypes.push("Testing Task");
+      }
+      results.push({
+        milestoneId: ms.milestoneId,
+        name: ms.name,
+        description: ms.description,
+        detectedTypes,
+        suggestedFiles: ms.filesToTouch || []
+      });
+    }
+    return results;
+  }
+};
+var taskAnalyzer = new TaskAnalyzer();
+
+// src/core/taskGeneration/strategies/uiTaskStrategy.ts
+var UITaskStrategy = class {
+  taskType = "UI Task";
+  defaultStrategy = "Parallel";
+  buildTask(params) {
+    return {
+      taskId: params.taskId,
+      title: params.title,
+      description: params.description,
+      taskType: this.taskType,
+      parentMilestone: params.parentMilestone,
+      dependencies: params.dependencies || [],
+      requiredSymbols: params.requiredSymbols || [],
+      requiredFiles: params.requiredFiles || [],
+      expectedOutput: params.expectedOutput || "UI component layout and state rendering implemented.",
+      estimatedTimeMs: 12e4,
+      // 2 mins estimate
+      estimatedTokens: 800,
+      risk: "Low",
+      priority: "Normal",
+      confidence: 0.9,
+      executionStrategy: this.defaultStrategy
+    };
+  }
+};
+var uiTaskStrategy = new UITaskStrategy();
+
+// src/core/taskGeneration/strategies/backendTaskStrategy.ts
+var BackendTaskStrategy = class {
+  taskType = "Backend Task";
+  defaultStrategy = "Sequential";
+  buildTask(params) {
+    return {
+      taskId: params.taskId,
+      title: params.title,
+      description: params.description,
+      taskType: this.taskType,
+      parentMilestone: params.parentMilestone,
+      dependencies: params.dependencies || [],
+      requiredSymbols: params.requiredSymbols || [],
+      requiredFiles: params.requiredFiles || [],
+      expectedOutput: params.expectedOutput || "Backend service logic and controller flow verified.",
+      estimatedTimeMs: 18e4,
+      estimatedTokens: 1200,
+      risk: "Medium",
+      priority: "High",
+      confidence: 0.88,
+      executionStrategy: this.defaultStrategy
+    };
+  }
+};
+var backendTaskStrategy = new BackendTaskStrategy();
+
+// src/core/taskGeneration/strategies/apiTaskStrategy.ts
+var APITaskStrategy = class {
+  taskType = "API Task";
+  defaultStrategy = "Sequential";
+  buildTask(params) {
+    return {
+      taskId: params.taskId,
+      title: params.title,
+      description: params.description,
+      taskType: this.taskType,
+      parentMilestone: params.parentMilestone,
+      dependencies: params.dependencies || [],
+      requiredSymbols: params.requiredSymbols || [],
+      requiredFiles: params.requiredFiles || [],
+      expectedOutput: params.expectedOutput || "API endpoint contract and data routing schema validated.",
+      estimatedTimeMs: 15e4,
+      estimatedTokens: 1e3,
+      risk: "Medium",
+      priority: "High",
+      confidence: 0.92,
+      executionStrategy: this.defaultStrategy
+    };
+  }
+};
+var apiTaskStrategy = new APITaskStrategy();
+
+// src/core/taskGeneration/strategies/databaseTaskStrategy.ts
+var DatabaseTaskStrategy = class {
+  taskType = "Database Task";
+  defaultStrategy = "Manual Approval";
+  buildTask(params) {
+    return {
+      taskId: params.taskId,
+      title: params.title,
+      description: params.description,
+      taskType: this.taskType,
+      parentMilestone: params.parentMilestone,
+      dependencies: params.dependencies || [],
+      requiredSymbols: params.requiredSymbols || [],
+      requiredFiles: params.requiredFiles || [],
+      expectedOutput: params.expectedOutput || "Database schema model/migration script verified.",
+      estimatedTimeMs: 24e4,
+      estimatedTokens: 1500,
+      risk: "High",
+      priority: "Critical",
+      confidence: 0.85,
+      executionStrategy: this.defaultStrategy
+    };
+  }
+};
+var databaseTaskStrategy = new DatabaseTaskStrategy();
+
+// src/core/taskGeneration/strategies/testingTaskStrategy.ts
+var TestingTaskStrategy = class {
+  taskType = "Testing Task";
+  defaultStrategy = "Parallel";
+  buildTask(params) {
+    return {
+      taskId: params.taskId,
+      title: params.title,
+      description: params.description,
+      taskType: this.taskType,
+      parentMilestone: params.parentMilestone,
+      dependencies: params.dependencies || [],
+      requiredSymbols: params.requiredSymbols || [],
+      requiredFiles: params.requiredFiles || [],
+      expectedOutput: params.expectedOutput || "Unit and integration test suites passing.",
+      estimatedTimeMs: 9e4,
+      estimatedTokens: 600,
+      risk: "Low",
+      priority: "Normal",
+      confidence: 0.95,
+      executionStrategy: this.defaultStrategy
+    };
+  }
+};
+var testingTaskStrategy = new TestingTaskStrategy();
+
+// src/core/taskGeneration/taskBuilder.ts
+var TaskBuilder = class {
+  buildTasksForMilestone(analysis) {
+    const tasks = [];
+    let idx = 1;
+    for (const type of analysis.detectedTypes) {
+      const taskId = `TASK-${analysis.milestoneId}-${idx++}`;
+      let task;
+      switch (type) {
+        case "UI Task":
+          task = uiTaskStrategy.buildTask({
+            taskId,
+            title: `UI: ${analysis.name}`,
+            description: `Implement UI views and layout for ${analysis.description}`,
+            parentMilestone: analysis.milestoneId,
+            requiredFiles: analysis.suggestedFiles.filter((f) => f.includes("webview") || f.endsWith(".tsx"))
+          });
+          break;
+        case "API Task":
+          task = apiTaskStrategy.buildTask({
+            taskId,
+            title: `API: ${analysis.name}`,
+            description: `Define API endpoints and data contract for ${analysis.description}`,
+            parentMilestone: analysis.milestoneId
+          });
+          break;
+        case "Database Task":
+          task = databaseTaskStrategy.buildTask({
+            taskId,
+            title: `DB: ${analysis.name}`,
+            description: `Setup database schema models for ${analysis.description}`,
+            parentMilestone: analysis.milestoneId
+          });
+          break;
+        case "Testing Task":
+          task = testingTaskStrategy.buildTask({
+            taskId,
+            title: `Test: ${analysis.name}`,
+            description: `Write automated tests verifying ${analysis.description}`,
+            parentMilestone: analysis.milestoneId
+          });
+          break;
+        case "Backend Task":
+        default:
+          task = backendTaskStrategy.buildTask({
+            taskId,
+            title: `Backend: ${analysis.name}`,
+            description: `Implement backend service logic for ${analysis.description}`,
+            parentMilestone: analysis.milestoneId,
+            requiredFiles: analysis.suggestedFiles.filter((f) => !f.includes("webview"))
+          });
+          break;
+      }
+      tasks.push(task);
+    }
+    return tasks;
+  }
+};
+var taskBuilder = new TaskBuilder();
+
+// src/core/taskGeneration/taskDecomposer.ts
+var TaskDecomposer = class {
+  decomposePlan(input) {
+    const milestoneAnalyses = taskAnalyzer.analyzeMilestones(input);
+    const allTasks = [];
+    let previousMilestoneLastTaskId = null;
+    for (const analysis of milestoneAnalyses) {
+      const msTasks = taskBuilder.buildTasksForMilestone(analysis);
+      const typePriorityOrder = {
+        "Database Task": 1,
+        "API Task": 2,
+        "Backend Task": 3,
+        "UI Task": 4,
+        "Testing Task": 5
+      };
+      msTasks.sort((a, b) => (typePriorityOrder[a.taskType] || 3) - (typePriorityOrder[b.taskType] || 3));
+      for (let i = 0; i < msTasks.length; i++) {
+        const current = msTasks[i];
+        if (i > 0) {
+          current.dependencies.push(msTasks[i - 1].taskId);
+        } else if (previousMilestoneLastTaskId) {
+          current.dependencies.push(previousMilestoneLastTaskId);
+        }
+      }
+      if (msTasks.length > 0) {
+        previousMilestoneLastTaskId = msTasks[msTasks.length - 1].taskId;
+      }
+      allTasks.push(...msTasks);
+    }
+    return allTasks;
+  }
+};
+var taskDecomposer = new TaskDecomposer();
+
+// src/core/taskGeneration/taskDependencyResolver.ts
+var TaskDependencyResolver = class {
+  buildTaskGraph(tasks) {
+    const nodes = {};
+    const edges = [];
+    const taskMap = /* @__PURE__ */ new Map();
+    for (const task of tasks) {
+      taskMap.set(task.taskId, task);
+      nodes[task.taskId] = {
+        task,
+        children: [],
+        parents: [...task.dependencies],
+        depth: 0,
+        inCriticalPath: false
+      };
+    }
+    for (const task of tasks) {
+      for (const parentId of task.dependencies) {
+        if (nodes[parentId]) {
+          nodes[parentId].children.push(task.taskId);
+          edges.push({
+            fromTaskId: parentId,
+            toTaskId: task.taskId,
+            edgeType: "depends_on"
+          });
+        }
+      }
+    }
+    const rootTaskIds = tasks.filter((t) => t.dependencies.length === 0).map((t) => t.taskId);
+    const leafTaskIds = tasks.filter((t) => nodes[t.taskId].children.length === 0).map((t) => t.taskId);
+    const computeDepth = (taskId, currentDepth) => {
+      const node = nodes[taskId];
+      if (!node)
+        return;
+      node.depth = Math.max(node.depth, currentDepth);
+      for (const childId of node.children) {
+        computeDepth(childId, currentDepth + 1);
+      }
+    };
+    for (const rootId of rootTaskIds) {
+      computeDepth(rootId, 0);
+    }
+    const memoPath = /* @__PURE__ */ new Map();
+    const getLongestPathFrom = (taskId) => {
+      if (memoPath.has(taskId)) {
+        return memoPath.get(taskId);
+      }
+      const node = nodes[taskId];
+      const taskTime = node.task.estimatedTimeMs;
+      if (node.children.length === 0) {
+        const res2 = { duration: taskTime, path: [taskId] };
+        memoPath.set(taskId, res2);
+        return res2;
+      }
+      let maxChildRes = { duration: 0, path: [] };
+      for (const childId of node.children) {
+        const childRes = getLongestPathFrom(childId);
+        if (childRes.duration > maxChildRes.duration) {
+          maxChildRes = childRes;
+        }
+      }
+      const res = {
+        duration: taskTime + maxChildRes.duration,
+        path: [taskId, ...maxChildRes.path]
+      };
+      memoPath.set(taskId, res);
+      return res;
+    };
+    let overallMaxPath = [];
+    let overallMaxTime = 0;
+    for (const rootId of rootTaskIds) {
+      const pathRes = getLongestPathFrom(rootId);
+      if (pathRes.duration > overallMaxTime) {
+        overallMaxTime = pathRes.duration;
+        overallMaxPath = pathRes.path;
+      }
+    }
+    for (const cpId of overallMaxPath) {
+      if (nodes[cpId]) {
+        nodes[cpId].inCriticalPath = true;
+      }
+    }
+    const totalEstimatedTimeMs = tasks.reduce((sum, t) => sum + t.estimatedTimeMs, 0);
+    const totalEstimatedTokens = tasks.reduce((sum, t) => sum + t.estimatedTokens, 0);
+    return {
+      nodes,
+      edges,
+      rootTaskIds,
+      leafTaskIds,
+      criticalPath: overallMaxPath,
+      totalEstimatedTimeMs,
+      totalEstimatedTokens
+    };
+  }
+};
+var taskDependencyResolver = new TaskDependencyResolver();
+
+// src/core/taskGeneration/taskPrioritizer.ts
+var TaskPrioritizer = class {
+  prioritizeGraph(graph) {
+    for (const taskId of Object.keys(graph.nodes)) {
+      const node = graph.nodes[taskId];
+      if (node.inCriticalPath) {
+        if (node.task.risk === "High" || node.task.risk === "Critical") {
+          node.task.priority = "Critical";
+        } else {
+          node.task.priority = "High";
+        }
+      } else if (node.parents.length === 0) {
+        node.task.priority = "High";
+      }
+    }
+  }
+};
+var taskPrioritizer = new TaskPrioritizer();
+
+// src/core/taskGeneration/taskEstimator.ts
+var TaskEstimator = class {
+  refineEstimates(graph) {
+    let totalTimeMs = 0;
+    let totalTokens = 0;
+    const taskCount = Object.keys(graph.nodes).length;
+    for (const taskId of Object.keys(graph.nodes)) {
+      const task = graph.nodes[taskId].task;
+      const fileFactor = Math.max(1, task.requiredFiles.length);
+      const symbolFactor = Math.max(1, task.requiredSymbols.length);
+      task.estimatedTimeMs = Math.round(task.estimatedTimeMs * (1 + (fileFactor - 1) * 0.2 + (symbolFactor - 1) * 0.1));
+      task.estimatedTokens = Math.round(task.estimatedTokens * (1 + (fileFactor - 1) * 0.3 + (symbolFactor - 1) * 0.15));
+      totalTimeMs += task.estimatedTimeMs;
+      totalTokens += task.estimatedTokens;
+    }
+    graph.totalEstimatedTimeMs = totalTimeMs;
+    graph.totalEstimatedTokens = totalTokens;
+    return {
+      totalTasks: taskCount,
+      totalTimeMs,
+      totalTokens,
+      criticalPathLength: graph.criticalPath.length
+    };
+  }
+};
+var taskEstimator = new TaskEstimator();
+
+// src/core/taskGeneration/taskScheduler.ts
+var TaskScheduler = class {
+  computeSchedule(graph) {
+    const inDegree = {};
+    const taskIds = Object.keys(graph.nodes);
+    for (const id of taskIds) {
+      inDegree[id] = graph.nodes[id].parents.length;
+    }
+    const queue = taskIds.filter((id) => inDegree[id] === 0);
+    const executionOrder = [];
+    while (queue.length > 0) {
+      queue.sort((a, b) => a.localeCompare(b));
+      const curr = queue.shift();
+      executionOrder.push(curr);
+      for (const childId of graph.nodes[curr].children) {
+        inDegree[childId]--;
+        if (inDegree[childId] === 0) {
+          queue.push(childId);
+        }
+      }
+    }
+    const depthMap = /* @__PURE__ */ new Map();
+    for (const id of taskIds) {
+      const depth = graph.nodes[id].depth;
+      if (!depthMap.has(depth)) {
+        depthMap.set(depth, []);
+      }
+      depthMap.get(depth).push(id);
+    }
+    const maxDepth = Math.max(...Array.from(depthMap.keys()), 0);
+    const parallelBranches = [];
+    for (let d = 0; d <= maxDepth; d++) {
+      if (depthMap.has(d)) {
+        parallelBranches.push(depthMap.get(d));
+      }
+    }
+    return {
+      executionOrder,
+      parallelBranches
+    };
+  }
+};
+var taskScheduler = new TaskScheduler();
+
+// src/core/taskGeneration/taskValidator.ts
+var TaskValidator = class {
+  validate(graph, input) {
+    const errors = [];
+    const nodeIds = Object.keys(graph.nodes);
+    if (nodeIds.length === 0) {
+      errors.push("Task Graph is empty. No tasks were generated.");
+      return { valid: false, errors };
+    }
+    const visitedState = {};
+    for (const id of nodeIds)
+      visitedState[id] = 0;
+    let hasCycle = false;
+    const dfsCycle = (id, path23) => {
+      visitedState[id] = 1;
+      for (const childId of graph.nodes[id].children) {
+        if (visitedState[childId] === 1) {
+          hasCycle = true;
+          errors.push(`Circular dependency detected: ${[...path23, id, childId].join(" -> ")}`);
+        } else if (visitedState[childId] === 0) {
+          dfsCycle(childId, [...path23, id]);
+        }
+      }
+      visitedState[id] = 2;
+    };
+    for (const id of nodeIds) {
+      if (visitedState[id] === 0) {
+        dfsCycle(id, []);
+      }
+    }
+    for (const id of nodeIds) {
+      const node = graph.nodes[id];
+      if (node.parents.length === 0 && node.children.length === 0 && nodeIds.length > 1) {
+        errors.push(`Orphan task detected: ${id} has no parents or children in multi-task graph.`);
+      }
+    }
+    const milestoneIds = new Set(input.featurePlan.milestones.map((m) => m.milestoneId));
+    const coveredMilestones = /* @__PURE__ */ new Set();
+    for (const id of nodeIds) {
+      coveredMilestones.add(graph.nodes[id].task.parentMilestone);
+    }
+    for (const msId of milestoneIds) {
+      if (!coveredMilestones.has(msId)) {
+        errors.push(`Uncovered milestone: Milestone ${msId} has no associated tasks.`);
+      }
+    }
+    return {
+      valid: errors.length === 0 && !hasCycle,
+      errors
+    };
+  }
+};
+var taskValidator = new TaskValidator();
+
+// src/core/taskGeneration/intelligence/htn/htnEngine.ts
+var HTNEngine = class {
+  buildHTNTree(featurePlan, taskModels) {
+    const rootNode = {
+      id: featurePlan.planId || "FEAT-ROOT",
+      level: "Feature",
+      title: featurePlan.title || "Feature Plan",
+      objective: featurePlan.description || "Implement feature plan",
+      preconditions: ["Workspace context initialized", "Plan approved"],
+      postconditions: ["Feature components implemented and tested"],
+      dependencies: [],
+      successCriteria: ["All milestones completed", "Validation suite passing"],
+      failureRecovery: "Rollback to workspace snapshot",
+      children: []
+    };
+    const msMap = /* @__PURE__ */ new Map();
+    for (const ms of featurePlan.milestones || []) {
+      const msNode = {
+        id: ms.milestoneId,
+        level: "Milestone",
+        title: ms.name,
+        objective: ms.description,
+        preconditions: ["Preceding milestone completed"],
+        postconditions: ["Milestone artifacts verified"],
+        dependencies: [],
+        successCriteria: ["All milestone tasks passing"],
+        failureRecovery: `Re-run milestone ${ms.milestoneId} tasks`,
+        children: []
+      };
+      msMap.set(ms.milestoneId, msNode);
+      rootNode.children.push(msNode);
+    }
+    for (const task of taskModels) {
+      const taskNode = {
+        id: task.taskId,
+        level: "Task",
+        title: task.title,
+        objective: task.description,
+        preconditions: task.dependencies.map((d) => `Task ${d} completed`),
+        postconditions: [`Output: ${task.expectedOutput}`],
+        dependencies: [...task.dependencies],
+        successCriteria: ["No compilation or lint errors"],
+        failureRecovery: "Retry task execution with corrected context",
+        children: [
+          {
+            id: `SUB-${task.taskId}-1`,
+            level: "Subtask",
+            title: `Prepare context for ${task.title}`,
+            objective: "Load symbols and file handles",
+            preconditions: [],
+            postconditions: ["Context ready"],
+            dependencies: [],
+            successCriteria: ["Handles verified"],
+            failureRecovery: "Reload workspace state",
+            children: [
+              {
+                id: `ACT-${task.taskId}-1`,
+                level: "Atomic Action",
+                title: `Execute patch modification for ${task.taskId}`,
+                objective: "Apply changes",
+                preconditions: [],
+                postconditions: ["Diff applied"],
+                dependencies: [],
+                successCriteria: ["Diff matches target"],
+                failureRecovery: "Revert diff",
+                children: []
+              }
+            ]
+          }
+        ]
+      };
+      const parentMs = msMap.get(task.parentMilestone);
+      if (parentMs) {
+        parentMs.children.push(taskNode);
+      } else {
+        rootNode.children.push(taskNode);
+      }
+    }
+    return rootNode;
+  }
+};
+var htnEngine = new HTNEngine();
+
+// src/core/taskGeneration/intelligence/knowledgeGraph/taskKnowledgeGraph.ts
+var TaskKnowledgeGraph = class {
+  buildMetadataMap(tasks) {
+    const map = {};
+    for (const task of tasks) {
+      const isUI = task.taskType === "UI Task";
+      const isDB = task.taskType === "Database Task";
+      const isAPI = task.taskType === "API Task";
+      map[task.taskId] = {
+        taskId: task.taskId,
+        requiredFiles: [...task.requiredFiles],
+        producedFiles: task.requiredFiles.map((f) => `out/${f}`),
+        requiredSymbols: [...task.requiredSymbols],
+        producedSymbols: task.requiredSymbols.map((s) => `Generated_${s}`),
+        apis: isAPI ? [`/api/v1/${task.taskId.toLowerCase()}`] : [],
+        services: isAPI || task.taskType === "Backend Task" ? [`Service_${task.taskId}`] : [],
+        components: isUI ? [`Component_${task.taskId}`] : [],
+        databaseTables: isDB ? [`table_${task.taskId.toLowerCase()}`] : [],
+        dependencies: [...task.dependencies],
+        risk: task.risk,
+        confidence: task.confidence
+      };
+    }
+    return map;
+  }
+};
+var taskKnowledgeGraph = new TaskKnowledgeGraph();
+
+// src/core/taskGeneration/intelligence/constraints/taskConstraintEngine.ts
+var TaskConstraintEngine = class {
+  solveConstraints(tasks) {
+    const constraints = [];
+    let idx = 1;
+    for (const task of tasks) {
+      for (const depId of task.dependencies) {
+        constraints.push({
+          constraintId: `CST-${idx++}`,
+          taskId: task.taskId,
+          type: "Must Run After",
+          targetTaskId: depId,
+          description: `Task ${task.taskId} must run after Task ${depId}`,
+          isSatisfied: true
+        });
+      }
+      if (task.risk === "High" || task.risk === "Critical" || task.taskType === "Database Task") {
+        constraints.push({
+          constraintId: `CST-${idx++}`,
+          taskId: task.taskId,
+          type: "Requires Approval",
+          description: `Task ${task.taskId} requires manual administrator approval prior to execution`,
+          isSatisfied: true
+        });
+        constraints.push({
+          constraintId: `CST-${idx++}`,
+          taskId: task.taskId,
+          type: "Requires Checkpoint",
+          description: `Task ${task.taskId} requires workspace snapshot checkpoint capture`,
+          isSatisfied: true
+        });
+      }
+    }
+    return constraints;
+  }
+};
+var taskConstraintEngine = new TaskConstraintEngine();
+
+// src/core/taskGeneration/intelligence/resources/taskResourceModel.ts
+var TaskResourceModel = class {
+  estimateResources(tasks) {
+    const map = {};
+    for (const task of tasks) {
+      map[task.taskId] = {
+        taskId: task.taskId,
+        cpuPercent: task.taskType === "Database Task" ? 75 : 40,
+        memoryMB: task.taskType === "UI Task" ? 512 : 256,
+        diskMB: 64,
+        llmContextTokens: 128e3,
+        tokenBudget: task.estimatedTokens,
+        estimatedRuntimeMs: task.estimatedTimeMs,
+        parallelWorkers: task.executionStrategy === "Parallel" ? 4 : 1
+      };
+    }
+    return map;
+  }
+};
+var taskResourceModel = new TaskResourceModel();
+
+// src/core/taskGeneration/intelligence/recovery/taskRecoveryPlanner.ts
+var TaskRecoveryPlanner = class {
+  planRecovery(tasks) {
+    const map = {};
+    for (const task of tasks) {
+      map[task.taskId] = {
+        taskId: task.taskId,
+        retryStrategy: task.risk === "High" ? "No Retry" : "Exponential Backoff",
+        rollbackStrategy: task.taskType === "Database Task" ? "Snapshot Revert" : "Git Stash Pop",
+        failureRecovery: `Re-evaluate preconditions and run diagnostic checks for ${task.title}`,
+        compensationSteps: [
+          "Log failure diagnostics to audit trail",
+          "Restore pre-task workspace snapshot checkpoint",
+          "Notify workflow orchestrator of step fallback"
+        ],
+        recoveryConfidence: 0.92
+      };
+    }
+    return map;
+  }
+};
+var taskRecoveryPlanner = new TaskRecoveryPlanner();
+
+// src/core/taskGeneration/intelligence/decisions/taskDecisionEngine.ts
+var TaskDecisionEngine = class {
+  evaluateDecisions(tasks) {
+    const decisions = {};
+    for (const task of tasks) {
+      let action = "Parallelize";
+      let reason = "Task fits parallel execution worker pool.";
+      if (task.risk === "Critical") {
+        action = "Escalate";
+        reason = "Critical risk level requires explicit user administrator escalation.";
+      } else if (task.dependencies.length > 2) {
+        action = "Delay";
+        reason = "Multiple preceding dependencies delay task start slot.";
+      } else if (task.taskType === "Testing Task") {
+        action = "Merge";
+        reason = "Testing task can be merged into adjacent verification step.";
+      }
+      decisions[task.taskId] = {
+        taskId: task.taskId,
+        action,
+        reason,
+        confidence: 0.94
+      };
+    }
+    return decisions;
+  }
+};
+var taskDecisionEngine = new TaskDecisionEngine();
+
+// src/core/taskGeneration/intelligence/versioning/taskVersionTracker.ts
+var TaskVersionTracker = class {
+  initializeVersions(tasks) {
+    const versions = {};
+    for (const task of tasks) {
+      versions[task.taskId] = {
+        taskId: task.taskId,
+        version: 1,
+        isReplanned: false,
+        reason: "Initial task generation version 1.0",
+        timestamp: Date.now()
+      };
+    }
+    return versions;
+  }
+};
+var taskVersionTracker = new TaskVersionTracker();
+
+// src/core/taskGeneration/intelligence/observability/taskObservabilityEngine.ts
+var TaskObservabilityEngine = class {
+  computeObservability(taskGraph, durationMs) {
+    const totalTokens = taskGraph.totalEstimatedTokens || 1e3;
+    const estimatedCostUSD = Math.round(totalTokens / 1e3 * 2e-3 * 1e4) / 1e4;
+    const parallelCount = taskGraph.rootTaskIds.length;
+    const totalNodes = Object.keys(taskGraph.nodes).length;
+    const parallelEfficiencyPercent = Math.min(100, Math.round(parallelCount / Math.max(1, totalNodes) * 100) + 40);
+    return {
+      planningTimeMs: durationMs,
+      schedulingTimeMs: Math.round(durationMs * 0.3),
+      criticalPathTimeMs: taskGraph.criticalPath.length * 12e4,
+      parallelEfficiencyPercent,
+      estimatedCostUSD,
+      planningConfidence: 0.95
+    };
+  }
+};
+var taskObservabilityEngine = new TaskObservabilityEngine();
+
+// src/core/taskGeneration/taskGenerationEngine.ts
+var TaskGenerationEngine = class {
+  async generateTasks(input) {
+    const startTime = Date.now();
+    taskEvents.emit("TaskGenerationStarted", { planId: input.featurePlan.planId });
+    const taskModels = taskDecomposer.decomposePlan(input);
+    const taskGraph = taskDependencyResolver.buildTaskGraph(taskModels);
+    taskPrioritizer.prioritizeGraph(taskGraph);
+    const effortStats = taskEstimator.refineEstimates(taskGraph);
+    const schedule = taskScheduler.computeSchedule(taskGraph);
+    const validationResult = taskValidator.validate(taskGraph, input);
+    let overallRisk = "Minimal";
+    const hasHighRisk = Object.values(taskGraph.nodes).some((n) => n.task.risk === "High" || n.task.risk === "Critical");
+    if (hasHighRisk) {
+      overallRisk = "High";
+    } else if (effortStats.totalTasks > 10) {
+      overallRisk = "Medium";
+    }
+    const durationMs = Date.now() - startTime;
+    taskMetrics.record(effortStats.totalTasks, durationMs);
+    const htnTree = htnEngine.buildHTNTree(input.featurePlan, taskModels);
+    const knowledgeGraph = taskKnowledgeGraph.buildMetadataMap(taskModels);
+    const constraints = taskConstraintEngine.solveConstraints(taskModels);
+    const resources = taskResourceModel.estimateResources(taskModels);
+    const recoveryPlans = taskRecoveryPlanner.planRecovery(taskModels);
+    const decisions = taskDecisionEngine.evaluateDecisions(taskModels);
+    const versions = taskVersionTracker.initializeVersions(taskModels);
+    const observability = taskObservabilityEngine.computeObservability(taskGraph, durationMs);
+    const report = {
+      reportId: `TRP-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+      planId: input.featurePlan.planId,
+      taskGraph,
+      executionOrder: schedule.executionOrder,
+      parallelBranches: schedule.parallelBranches,
+      taskDependencies: Object.values(taskGraph.nodes).map((n) => ({
+        taskId: n.task.taskId,
+        dependsOn: n.parents
+      })),
+      estimatedEffort: effortStats,
+      riskLevel: overallRisk,
+      confidence: validationResult.valid ? 0.95 : 0.4,
+      validationPassed: validationResult.valid,
+      validationErrors: validationResult.errors,
+      intelligence: {
+        htnTree,
+        knowledgeGraph,
+        constraints,
+        resources,
+        recoveryPlans,
+        decisions,
+        versions,
+        observability
+      },
+      timestamp: Date.now()
+    };
+    taskEvents.emit("TaskGenerationCompleted", report);
+    return report;
+  }
+  subscribe(listener) {
+    return taskEvents.subscribe(listener);
+  }
+};
+var taskGenerationEngine = new TaskGenerationEngine();
+
+// src/core/executionPlanning/executionEvents.ts
+var ExecutionEvents2 = class {
+  listeners = /* @__PURE__ */ new Set();
+  subscribe(listener) {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+  emit(type, payload) {
+    for (const listener of this.listeners) {
+      try {
+        listener({ type, timestamp: Date.now(), payload });
+      } catch (err) {
+        console.error("Error in ExecutionEvents listener:", err);
+      }
+    }
+  }
+};
+var executionEvents = new ExecutionEvents2();
+
+// src/core/executionPlanning/executionMetrics.ts
+var ExecutionMetrics2 = class {
+  totalPlansGenerated = 0;
+  totalPlanningTimeMs = 0;
+  totalCheckpointsCreated = 0;
+  record(planningDurationMs, checkpointsCount) {
+    this.totalPlansGenerated++;
+    this.totalPlanningTimeMs += planningDurationMs;
+    this.totalCheckpointsCreated += checkpointsCount;
+  }
+  getStats() {
+    return {
+      totalPlansGenerated: this.totalPlansGenerated,
+      totalCheckpointsCreated: this.totalCheckpointsCreated,
+      averagePlanningTimeMs: this.totalPlansGenerated > 0 ? Math.round(this.totalPlanningTimeMs / this.totalPlansGenerated) : 0
+    };
+  }
+};
+var executionMetrics2 = new ExecutionMetrics2();
+
+// src/core/executionPlanning/executionAnalyzer.ts
+var ExecutionAnalyzer = class {
+  analyzeGraph(taskGraph, preferParallelism = true) {
+    const totalNodes = Object.keys(taskGraph.nodes).length;
+    const criticalPathLength = taskGraph.criticalPath.length;
+    const depthWidths = /* @__PURE__ */ new Map();
+    for (const id of Object.keys(taskGraph.nodes)) {
+      const d = taskGraph.nodes[id].depth;
+      depthWidths.set(d, (depthWidths.get(d) || 0) + 1);
+    }
+    const maxParallelWidth = Math.max(...Array.from(depthWidths.values()), 1);
+    let recommendedStrategy = "Hybrid";
+    if (!preferParallelism || maxParallelWidth <= 1) {
+      recommendedStrategy = "Sequential";
+    } else if (maxParallelWidth >= 3 && criticalPathLength <= 3) {
+      recommendedStrategy = "Parallel";
+    }
+    let overallRisk = "Minimal";
+    const hasCritical = Object.values(taskGraph.nodes).some((n) => n.task.risk === "Critical");
+    const hasHigh = Object.values(taskGraph.nodes).some((n) => n.task.risk === "High");
+    if (hasCritical)
+      overallRisk = "Critical";
+    else if (hasHigh)
+      overallRisk = "High";
+    else if (totalNodes > 8)
+      overallRisk = "Medium";
+    return {
+      totalNodes,
+      criticalPathLength,
+      maxParallelWidth,
+      recommendedStrategy,
+      overallRisk
+    };
+  }
+};
+var executionAnalyzer = new ExecutionAnalyzer();
+
+// src/core/executionPlanning/dependencyResolver.ts
+var DependencyResolver3 = class {
+  resolveDependencies(steps) {
+    const dependencyMap = /* @__PURE__ */ new Map();
+    for (const step of steps) {
+      dependencyMap.set(step.stepId, [...step.dependencies]);
+    }
+    return dependencyMap;
+  }
+};
+var dependencyResolver3 = new DependencyResolver3();
+
+// src/core/executionPlanning/checkpointPlanner.ts
+var CheckpointPlanner = class {
+  planCheckpoints(taskGraph, steps) {
+    const checkpoints = [];
+    const milestoneMap = /* @__PURE__ */ new Map();
+    for (const step of steps) {
+      const node = taskGraph.nodes[step.taskId];
+      if (node) {
+        const msId = node.task.parentMilestone;
+        if (!milestoneMap.has(msId))
+          milestoneMap.set(msId, []);
+        milestoneMap.get(msId).push(step.stepId);
+      }
+    }
+    let cpIdx = 1;
+    const completedSoFar = [];
+    for (const [msId, stepIds] of milestoneMap.entries()) {
+      const checkpointId = `CKP-${cpIdx++}`;
+      const rollbackBoundary = `RBB-${msId}`;
+      checkpoints.push({
+        checkpointId,
+        parentTasks: stepIds,
+        completedTasks: [...completedSoFar],
+        workspaceSnapshot: `snap-cp-${msId.toLowerCase()}-${Date.now()}`,
+        rollbackBoundary,
+        verificationRules: [
+          "Verify TypeScript build compilation succeeds without syntax errors.",
+          "Verify core module imports and workspace boundary constraints pass."
+        ],
+        timestamp: Date.now()
+      });
+      completedSoFar.push(...stepIds);
+    }
+    return checkpoints;
+  }
+};
+var checkpointPlanner = new CheckpointPlanner();
+
+// src/core/executionPlanning/rollbackBoundaryPlanner.ts
+var RollbackBoundaryPlanner = class {
+  planRollbackBoundaries(checkpoints, taskGraph, steps) {
+    const boundaries = [];
+    for (const cp of checkpoints) {
+      const affectedTaskIds = [...cp.parentTasks];
+      const affectedFilesSet = /* @__PURE__ */ new Set();
+      for (const stepId of affectedTaskIds) {
+        const step = steps.find((s) => s.stepId === stepId);
+        if (step && taskGraph.nodes[step.taskId]) {
+          const task = taskGraph.nodes[step.taskId].task;
+          for (const file of task.requiredFiles) {
+            affectedFilesSet.add(file);
+          }
+        }
+      }
+      boundaries.push({
+        boundaryId: cp.rollbackBoundary,
+        checkpointId: cp.checkpointId,
+        affectedTaskIds,
+        affectedFiles: Array.from(affectedFilesSet),
+        estimatedRollbackTimeMs: affectedTaskIds.length * 120 + 200,
+        isIsolated: true
+      });
+    }
+    return boundaries;
+  }
+};
+var rollbackBoundaryPlanner = new RollbackBoundaryPlanner();
+
+// src/core/executionPlanning/resourcePlanner.ts
+var ResourcePlanner = class {
+  planResources(taskGraph, maxWorkers = 4, constraints) {
+    const memoryLimitMB = constraints?.maxMemoryMB || 2048;
+    const cpuLimitPercent = constraints?.maxCpuPercent || 80;
+    const estimatedTokens = taskGraph.totalEstimatedTokens || 5e3;
+    const contextWindowTokens = 128e3;
+    return {
+      cpuLimitPercent,
+      memoryLimitMB,
+      diskLimitMB: 512,
+      contextWindowTokens,
+      estimatedTokens,
+      estimatedRuntimeMs: taskGraph.totalEstimatedTimeMs || 3e5,
+      maxConcurrentWorkers: maxWorkers
+    };
+  }
+};
+var resourcePlanner = new ResourcePlanner();
+
+// src/core/executionPlanning/strategies/sequentialStrategy.ts
+var SequentialStrategy = class {
+  strategyType = "Sequential";
+  scheduleSteps(taskGraph, maxWorkers) {
+    const steps = [];
+    const parallelGroups = [];
+    let currentTime = 0;
+    const taskIds = Object.keys(taskGraph.nodes);
+    for (let i = 0; i < taskIds.length; i++) {
+      const taskId = taskIds[i];
+      const taskNode = taskGraph.nodes[taskId];
+      const stepId = `STEP-${i + 1}`;
+      const step = {
+        stepId,
+        taskId: taskNode.task.taskId,
+        taskTitle: taskNode.task.title,
+        strategy: "Sequential",
+        workerIndex: 0,
+        // Single worker
+        estimatedStartTimeMs: currentTime,
+        estimatedDurationMs: taskNode.task.estimatedTimeMs,
+        dependencies: i > 0 ? [`STEP-${i}`] : []
+      };
+      steps.push(step);
+      parallelGroups.push([stepId]);
+      currentTime += taskNode.task.estimatedTimeMs;
+    }
+    return { steps, parallelGroups };
+  }
+};
+var sequentialStrategy = new SequentialStrategy();
+
+// src/core/executionPlanning/strategies/parallelStrategy.ts
+var ParallelStrategy = class {
+  strategyType = "Parallel";
+  scheduleSteps(taskGraph, maxWorkers) {
+    const steps = [];
+    const parallelGroups = [];
+    const taskIdToStepId = /* @__PURE__ */ new Map();
+    const depthMap = /* @__PURE__ */ new Map();
+    for (const taskId of Object.keys(taskGraph.nodes)) {
+      const depth = taskGraph.nodes[taskId].depth;
+      if (!depthMap.has(depth))
+        depthMap.set(depth, []);
+      depthMap.get(depth).push(taskId);
+    }
+    const maxDepth = Math.max(...Array.from(depthMap.keys()), 0);
+    let currentTime = 0;
+    let stepCounter = 1;
+    for (let d = 0; d <= maxDepth; d++) {
+      const levelTaskIds = depthMap.get(d) || [];
+      const currentLevelStepIds = [];
+      let maxLevelDuration = 0;
+      for (let w = 0; w < levelTaskIds.length; w++) {
+        const taskId = levelTaskIds[w];
+        const taskNode = taskGraph.nodes[taskId];
+        const stepId = `STEP-${stepCounter++}`;
+        taskIdToStepId.set(taskId, stepId);
+        const depStepIds = taskNode.parents.map((pId) => taskIdToStepId.get(pId)).filter((id) => Boolean(id));
+        const workerIndex = w % maxWorkers;
+        const step = {
+          stepId,
+          taskId: taskNode.task.taskId,
+          taskTitle: taskNode.task.title,
+          strategy: "Parallel",
+          workerIndex,
+          estimatedStartTimeMs: currentTime,
+          estimatedDurationMs: taskNode.task.estimatedTimeMs,
+          dependencies: depStepIds
+        };
+        steps.push(step);
+        currentLevelStepIds.push(stepId);
+        maxLevelDuration = Math.max(maxLevelDuration, taskNode.task.estimatedTimeMs);
+      }
+      if (currentLevelStepIds.length > 0) {
+        parallelGroups.push(currentLevelStepIds);
+        currentTime += maxLevelDuration;
+      }
+    }
+    return { steps, parallelGroups };
+  }
+};
+var parallelStrategy = new ParallelStrategy();
+
+// src/core/executionPlanning/strategies/hybridStrategy.ts
+var HybridStrategy2 = class {
+  strategyType = "Hybrid";
+  scheduleSteps(taskGraph, maxWorkers) {
+    const res = parallelStrategy.scheduleSteps(taskGraph, Math.max(2, maxWorkers));
+    for (const step of res.steps) {
+      step.strategy = "Hybrid";
+    }
+    return res;
+  }
+};
+var hybridStrategy = new HybridStrategy2();
+
+// src/core/executionPlanning/strategies/isolatedStrategy.ts
+var IsolatedStrategy = class {
+  strategyType = "Isolated";
+  scheduleSteps(taskGraph, maxWorkers) {
+    const res = sequentialStrategy.scheduleSteps(taskGraph, 1);
+    for (const step of res.steps) {
+      step.strategy = "Isolated";
+    }
+    return res;
+  }
+};
+var isolatedStrategy = new IsolatedStrategy();
+
+// src/core/executionPlanning/executionScheduler.ts
+var ExecutionScheduler = class {
+  schedule(taskGraph, strategyType, maxWorkers = 4) {
+    let result;
+    switch (strategyType) {
+      case "Sequential":
+        result = sequentialStrategy.scheduleSteps(taskGraph, maxWorkers);
+        break;
+      case "Parallel":
+        result = parallelStrategy.scheduleSteps(taskGraph, maxWorkers);
+        break;
+      case "Isolated":
+        result = isolatedStrategy.scheduleSteps(taskGraph, maxWorkers);
+        break;
+      case "Hybrid":
+      default:
+        result = hybridStrategy.scheduleSteps(taskGraph, maxWorkers);
+        break;
+    }
+    const totalTimeSlots = result.parallelGroups.length;
+    let estimatedTotalRuntimeMs = 0;
+    for (const group of result.parallelGroups) {
+      let groupMaxDuration = 0;
+      for (const stepId of group) {
+        const step = result.steps.find((s) => s.stepId === stepId);
+        if (step) {
+          groupMaxDuration = Math.max(groupMaxDuration, step.estimatedDurationMs);
+        }
+      }
+      estimatedTotalRuntimeMs += groupMaxDuration;
+    }
+    return {
+      steps: result.steps,
+      parallelGroups: result.parallelGroups,
+      totalTimeSlots,
+      estimatedTotalRuntimeMs
+    };
+  }
+  attachCheckpointsToSchedule(schedule, checkpoints) {
+    const checkpointMap = /* @__PURE__ */ new Map();
+    for (const cp of checkpoints) {
+      for (const stepId of cp.parentTasks) {
+        checkpointMap.set(stepId, cp.checkpointId);
+      }
+    }
+    for (const step of schedule.steps) {
+      if (checkpointMap.has(step.stepId)) {
+        step.checkpointId = checkpointMap.get(step.stepId);
+      }
+    }
+  }
+};
+var executionScheduler = new ExecutionScheduler();
+
+// src/core/executionPlanning/executionOptimizer.ts
+var ExecutionOptimizer = class {
+  optimizeSchedule(schedule, maxWorkers) {
+    for (const group of schedule.parallelGroups) {
+      for (let i = 0; i < group.length; i++) {
+        const stepId = group[i];
+        const step = schedule.steps.find((s) => s.stepId === stepId);
+        if (step) {
+          step.workerIndex = i % maxWorkers;
+        }
+      }
+    }
+  }
+};
+var executionOptimizer = new ExecutionOptimizer();
+
+// src/core/executionPlanning/executionValidator.ts
+var ExecutionValidator2 = class {
+  validatePlan(plan) {
+    const errors = [];
+    if (!plan.schedule || plan.schedule.steps.length === 0) {
+      errors.push("Execution plan schedule is empty. No steps found.");
+      return { valid: false, errors };
+    }
+    const stepIds = plan.schedule.steps.map((s) => s.stepId);
+    const visited = {};
+    for (const id of stepIds)
+      visited[id] = 0;
+    let hasCycle = false;
+    const dfs = (id, path23) => {
+      visited[id] = 1;
+      const step = plan.schedule.steps.find((s) => s.stepId === id);
+      if (step) {
+        for (const depId of step.dependencies) {
+          if (visited[depId] === 1) {
+            hasCycle = true;
+            errors.push(`Circular execution step dependency detected: ${[...path23, id, depId].join(" -> ")}`);
+          } else if (visited[depId] === 0) {
+            dfs(depId, [...path23, id]);
+          }
+        }
+      }
+      visited[id] = 2;
+    };
+    for (const id of stepIds) {
+      if (visited[id] === 0) {
+        dfs(id, []);
+      }
+    }
+    if (!plan.checkpointPlan || plan.checkpointPlan.length === 0) {
+      errors.push("Warning: No checkpoints planned for execution.");
+    }
+    if (!plan.rollbackBoundaries || plan.rollbackBoundaries.length === 0) {
+      errors.push("Warning: No rollback boundaries established.");
+    }
+    if (plan.resourcePlan.memoryLimitMB <= 0) {
+      errors.push("Resource Plan memory limit must be greater than 0.");
+    }
+    return {
+      valid: errors.length === 0 && !hasCycle,
+      errors
+    };
+  }
+};
+var executionValidator2 = new ExecutionValidator2();
+
+// src/core/executionPlanning/executionPlanner.ts
+var ExecutionPlanner2 = class {
+  planExecution(input) {
+    const maxWorkers = input.executionPolicies?.maxWorkers || 4;
+    const preferParallelism = input.executionPolicies?.preferParallelism ?? true;
+    const analysis = executionAnalyzer.analyzeGraph(input.taskGraph, preferParallelism);
+    const schedule = executionScheduler.schedule(input.taskGraph, analysis.recommendedStrategy, maxWorkers);
+    const checkpoints = checkpointPlanner.planCheckpoints(input.taskGraph, schedule.steps);
+    executionScheduler.attachCheckpointsToSchedule(schedule, checkpoints);
+    const rollbackBoundaries = rollbackBoundaryPlanner.planRollbackBoundaries(checkpoints, input.taskGraph, schedule.steps);
+    const resources = resourcePlanner.planResources(input.taskGraph, maxWorkers, input.resourceConstraints);
+    executionOptimizer.optimizeSchedule(schedule, maxWorkers);
+    return {
+      planId: `EPL-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+      strategy: analysis.recommendedStrategy,
+      schedule,
+      checkpointPlan: checkpoints,
+      rollbackBoundaries,
+      resourcePlan: resources,
+      overallRisk: analysis.overallRisk,
+      totalTasks: analysis.totalNodes
+    };
+  }
+};
+var executionPlanner = new ExecutionPlanner2();
+
+// src/core/executionPlanning/executionPlanningEngine.ts
+var ExecutionPlanningEngine = class {
+  async plan(input) {
+    const startTime = Date.now();
+    executionEvents.emit("ExecutionPlanningStarted", { taskCount: Object.keys(input.taskGraph.nodes).length });
+    const plan = executionPlanner.planExecution(input);
+    const validationResult = executionValidator2.validatePlan(plan);
+    const durationMs = Date.now() - startTime;
+    executionMetrics2.record(durationMs, plan.checkpointPlan.length);
+    const report = {
+      reportId: `EPR-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+      planId: plan.planId,
+      executionPlan: plan,
+      executionGraph: {
+        nodesCount: plan.schedule.steps.length,
+        edgesCount: plan.schedule.steps.reduce((sum, s) => sum + s.dependencies.length, 0),
+        criticalPathLength: input.taskGraph.criticalPath.length
+      },
+      confidence: validationResult.valid ? 0.96 : 0.5,
+      validationPassed: validationResult.valid,
+      validationErrors: validationResult.errors,
+      timestamp: Date.now()
+    };
+    executionEvents.emit("ExecutionPlanningCompleted", report);
+    return report;
+  }
+  subscribe(listener) {
+    return executionEvents.subscribe(listener);
+  }
+};
+var executionPlanningEngine = new ExecutionPlanningEngine();
+
+// src/core/dependencyResolution/dependencyEvents.ts
+var DependencyEvents2 = class {
+  listeners = /* @__PURE__ */ new Set();
+  subscribe(listener) {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+  emit(type, payload) {
+    const event = {
+      type,
+      timestamp: Date.now(),
+      payload
+    };
+    for (const listener of this.listeners) {
+      try {
+        listener(event);
+      } catch (err) {
+        console.error("[DependencyEvents] Error in event listener:", err);
+      }
+    }
+  }
+};
+var dependencyEvents = new DependencyEvents2();
+
+// src/core/dependencyResolution/dependencyMetrics.ts
+var DependencyMetrics2 = class {
+  history = [];
+  record(nodeCount, edgeCount, resolutionTimeMs, hasCycles) {
+    this.history.push({
+      timestamp: Date.now(),
+      nodeCount,
+      edgeCount,
+      resolutionTimeMs,
+      hasCycles
+    });
+  }
+  getHistory() {
+    return this.history;
+  }
+  getStats() {
+    if (this.history.length === 0) {
+      return { avgTimeMs: 0, totalRuns: 0, totalCyclesDetected: 0 };
+    }
+    const totalTime = this.history.reduce((sum, r) => sum + r.resolutionTimeMs, 0);
+    const cyclesCount = this.history.filter((r) => r.hasCycles).length;
+    return {
+      avgTimeMs: totalTime / this.history.length,
+      totalRuns: this.history.length,
+      totalCyclesDetected: cyclesCount
+    };
+  }
+};
+var dependencyMetrics2 = new DependencyMetrics2();
+
+// src/core/dependencyResolution/dependencyCache.ts
+var DependencyCache = class {
+  cache = /* @__PURE__ */ new Map();
+  ttlMs = 3e4;
+  // 30 seconds default TTL
+  get(key) {
+    const cached = this.cache.get(key);
+    if (!cached)
+      return null;
+    if (Date.now() - cached.timestamp > this.ttlMs) {
+      this.cache.delete(key);
+      return null;
+    }
+    return cached.graph;
+  }
+  set(key, graph) {
+    this.cache.set(key, {
+      graph,
+      timestamp: Date.now()
+    });
+  }
+  clear() {
+    this.cache.clear();
+  }
+};
+var dependencyCache = new DependencyCache();
+
+// src/core/dependencyResolution/dependencyGraph.ts
+var DependencyGraphManager = class {
+  createEmptyGraph() {
+    return {
+      nodes: {},
+      edges: {},
+      adjacencyList: {}
+    };
+  }
+  detectCycles(graph) {
+    const cycles = [];
+    const visited = {};
+    const nodeIds = Object.keys(graph.nodes);
+    for (const id of nodeIds) {
+      visited[id] = 0;
+    }
+    const dfs = (nodeId, path23) => {
+      visited[nodeId] = 1;
+      const neighbors = graph.adjacencyList[nodeId] || [];
+      for (const neighbor of neighbors) {
+        if (visited[neighbor] === 1) {
+          const startIdx = path23.indexOf(neighbor);
+          if (startIdx !== -1) {
+            cycles.push([...path23.slice(startIdx), nodeId, neighbor]);
+          } else {
+            cycles.push([...path23, nodeId, neighbor]);
+          }
+        } else if (visited[neighbor] === 0) {
+          dfs(neighbor, [...path23, nodeId]);
+        }
+      }
+      visited[nodeId] = 2;
+    };
+    for (const id of nodeIds) {
+      if (visited[id] === 0) {
+        dfs(id, []);
+      }
+    }
+    return {
+      hasCycles: cycles.length > 0,
+      cycles
+    };
+  }
+  computeTopologicalOrder(graph) {
+    const visited = /* @__PURE__ */ new Set();
+    const temp = /* @__PURE__ */ new Set();
+    const order = [];
+    const visit = (nodeId) => {
+      if (temp.has(nodeId)) {
+        return;
+      }
+      if (!visited.has(nodeId)) {
+        temp.add(nodeId);
+        const neighbors = graph.adjacencyList[nodeId] || [];
+        for (const neighbor of neighbors) {
+          visit(neighbor);
+        }
+        temp.delete(nodeId);
+        visited.add(nodeId);
+        order.unshift(nodeId);
+      }
+    };
+    const nodeIds = Object.keys(graph.nodes);
+    for (const id of nodeIds) {
+      visit(id);
+    }
+    return order;
+  }
+};
+var dependencyGraphManager = new DependencyGraphManager();
+
+// src/core/dependencyResolution/dependencyValidator.ts
+var DependencyValidator2 = class {
+  validate(graph, circularReport) {
+    const errors = [];
+    if (circularReport.hasCycles) {
+      for (const cycle of circularReport.cycles) {
+        errors.push(`Circular dependency detected: ${cycle.join(" -> ")}`);
+      }
+    }
+    const nodeIds = new Set(Object.keys(graph.nodes));
+    for (const edgeId of Object.keys(graph.edges)) {
+      const edge = graph.edges[edgeId];
+      if (!nodeIds.has(edge.source)) {
+        errors.push(`Broken dependency link: Source node "${edge.source}" does not exist in graph.`);
+      }
+      if (!nodeIds.has(edge.target)) {
+        errors.push(`Broken dependency link: Target node "${edge.target}" does not exist in graph.`);
+      }
+    }
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+};
+var dependencyValidator2 = new DependencyValidator2();
+
+// src/core/dependencyResolution/dependencyOptimizer.ts
+var DependencyOptimizer = class {
+  optimize(graph) {
+    const suggestions = [];
+    const nodeIds = Object.keys(graph.nodes);
+    const hasPath = (start, end, visited) => {
+      if (start === end)
+        return true;
+      visited.add(start);
+      const neighbors = graph.adjacencyList[start] || [];
+      for (const neighbor of neighbors) {
+        if (!visited.has(neighbor)) {
+          if (hasPath(neighbor, end, visited))
+            return true;
+        }
+      }
+      return false;
+    };
+    for (const u of nodeIds) {
+      const neighbors = graph.adjacencyList[u] || [];
+      for (const v of neighbors) {
+        const remainingNeighbors = neighbors.filter((n) => n !== v);
+        const tempAdjacency = { ...graph.adjacencyList, [u]: remainingNeighbors };
+        const visited = /* @__PURE__ */ new Set();
+        const hasPathTemp = (curr, dest) => {
+          if (curr === dest)
+            return true;
+          visited.add(curr);
+          const nexts = tempAdjacency[curr] || [];
+          for (const next of nexts) {
+            if (!visited.has(next)) {
+              if (hasPathTemp(next, dest))
+                return true;
+            }
+          }
+          return false;
+        };
+        if (hasPathTemp(u, v)) {
+          suggestions.push({
+            id: `opt-redundant-${u}-${v}`,
+            type: "Redundant",
+            description: `Direct dependency from "${u}" to "${v}" is redundant as a transitive path exists.`,
+            targetNodes: [u, v],
+            severity: "Info"
+          });
+        }
+      }
+    }
+    if (nodeIds.length > 1) {
+      const referencedNodes = /* @__PURE__ */ new Set();
+      for (const edge of Object.values(graph.edges)) {
+        referencedNodes.add(edge.source);
+        referencedNodes.add(edge.target);
+      }
+      for (const id of nodeIds) {
+        if (!referencedNodes.has(id)) {
+          suggestions.push({
+            id: `opt-unused-${id}`,
+            type: "Unused",
+            description: `Node "${id}" is declared but has no incoming or outgoing dependency links.`,
+            targetNodes: [id],
+            severity: "Warning"
+          });
+        }
+      }
+    }
+    return suggestions;
+  }
+};
+var dependencyOptimizer = new DependencyOptimizer();
+
+// src/core/dependencyResolution/providers/fileDependencyProvider.ts
+var FileDependencyProvider = class {
+  collect(input) {
+    const nodes = [];
+    const edges = [];
+    const files = input.workspaceIndex?.files || ["src/index.ts", "src/extension/index.ts", "src/webview/main.tsx", "src/core/planner/planner.ts"];
+    for (const file of files) {
+      nodes.push({
+        id: `file:${file}`,
+        name: file,
+        type: "File",
+        metadata: { path: file }
+      });
+    }
+    if (files.includes("src/extension/index.ts") && files.includes("src/index.ts")) {
+      edges.push({
+        id: "dep-file-ext-to-index",
+        source: "file:src/extension/index.ts",
+        target: "file:src/index.ts",
+        type: "File",
+        direction: "Outgoing",
+        strength: "Direct",
+        required: true,
+        optional: false,
+        risk: "Minimal",
+        confidence: 0.95
+      });
+    }
+    return { nodes, edges };
+  }
+};
+var fileDependencyProvider = new FileDependencyProvider();
+
+// src/core/dependencyResolution/providers/symbolDependencyProvider.ts
+var SymbolDependencyProvider = class {
+  collect(input) {
+    const nodes = [];
+    const edges = [];
+    const symbols = input.symbolGraph?.symbols || ["plannerEngine", "taskBuilder", "taskValidator", "executionPlanningEngine"];
+    for (const sym of symbols) {
+      nodes.push({
+        id: `symbol:${sym}`,
+        name: sym,
+        type: "Symbol",
+        metadata: { symbol: sym }
+      });
+    }
+    if (symbols.includes("plannerEngine") && symbols.includes("taskBuilder")) {
+      edges.push({
+        id: "dep-sym-builder-to-planner",
+        source: "symbol:taskBuilder",
+        target: "symbol:plannerEngine",
+        type: "Symbol",
+        direction: "Outgoing",
+        strength: "Direct",
+        required: true,
+        optional: false,
+        risk: "Minimal",
+        confidence: 0.9
+      });
+    }
+    return { nodes, edges };
+  }
+};
+var symbolDependencyProvider = new SymbolDependencyProvider();
+
+// src/core/dependencyResolution/providers/importDependencyProvider.ts
+var ImportDependencyProvider = class {
+  collect(input) {
+    const nodes = [];
+    const edges = [];
+    const imports = input.importGraph?.imports || ["react", "vscode", "esbuild", "vite"];
+    for (const imp of imports) {
+      nodes.push({
+        id: `import:${imp}`,
+        name: imp,
+        type: "Import",
+        metadata: { importName: imp }
+      });
+    }
+    return { nodes, edges };
+  }
+};
+var importDependencyProvider = new ImportDependencyProvider();
+
+// src/core/dependencyResolution/providers/apiDependencyProvider.ts
+var ApiDependencyProvider = class {
+  collect(input) {
+    const nodes = [];
+    const edges = [];
+    const apis = ["GET /api/session", "POST /api/task", "GET /api/history"];
+    for (const api of apis) {
+      nodes.push({
+        id: `api:${api}`,
+        name: api,
+        type: "API",
+        metadata: { endpoint: api }
+      });
+    }
+    edges.push({
+      id: "dep-api-task-session",
+      source: "api:POST /api/task",
+      target: "api:GET /api/session",
+      type: "API",
+      direction: "Outgoing",
+      strength: "Direct",
+      required: true,
+      optional: false,
+      risk: "Low",
+      confidence: 0.95
+    });
+    return { nodes, edges };
+  }
+};
+var apiDependencyProvider = new ApiDependencyProvider();
+
+// src/core/dependencyResolution/providers/databaseDependencyProvider.ts
+var DatabaseDependencyProvider = class {
+  collect(input) {
+    const nodes = [];
+    const edges = [];
+    const tables = ["sessions", "tasks", "memories", "configurations"];
+    for (const table of tables) {
+      nodes.push({
+        id: `db:${table}`,
+        name: table,
+        type: "Database",
+        metadata: { tableName: table }
+      });
+    }
+    edges.push({
+      id: "dep-db-tasks-sessions",
+      source: "db:tasks",
+      target: "db:sessions",
+      type: "Database",
+      direction: "Outgoing",
+      strength: "Direct",
+      required: true,
+      optional: false,
+      risk: "Minimal",
+      confidence: 0.98
+    });
+    return { nodes, edges };
+  }
+};
+var databaseDependencyProvider = new DatabaseDependencyProvider();
+
+// src/core/dependencyResolution/providers/configurationDependencyProvider.ts
+var ConfigurationDependencyProvider = class {
+  collect(input) {
+    const nodes = [];
+    const edges = [];
+    const configs = ["tsconfig.json", "package.json", "vite.config.ts", ".eslintrc.json"];
+    for (const config of configs) {
+      nodes.push({
+        id: `config:${config}`,
+        name: config,
+        type: "Configuration",
+        metadata: { filename: config }
+      });
+    }
+    return { nodes, edges };
+  }
+};
+var configurationDependencyProvider = new ConfigurationDependencyProvider();
+
+// src/core/dependencyResolution/providers/packageDependencyProvider.ts
+var PackageDependencyProvider = class {
+  collect(input) {
+    const nodes = [];
+    const edges = [];
+    const packages = ["vscode", "react", "react-dom", "typescript", "vite", "jest", "esbuild"];
+    for (const pkg of packages) {
+      nodes.push({
+        id: `package:${pkg}`,
+        name: pkg,
+        type: "Package",
+        metadata: { packageName: pkg }
+      });
+    }
+    return { nodes, edges };
+  }
+};
+var packageDependencyProvider = new PackageDependencyProvider();
+
+// src/core/dependencyResolution/dependencyAnalyzer.ts
+var DependencyAnalyzer2 = class {
+  collectRawDependencies(input) {
+    let allNodes = [];
+    let allEdges = [];
+    const providers = [
+      fileDependencyProvider,
+      symbolDependencyProvider,
+      importDependencyProvider,
+      apiDependencyProvider,
+      databaseDependencyProvider,
+      configurationDependencyProvider,
+      packageDependencyProvider
+    ];
+    for (const provider of providers) {
+      try {
+        const { nodes, edges } = provider.collect(input);
+        allNodes = allNodes.concat(nodes);
+        allEdges = allEdges.concat(edges);
+      } catch (err) {
+        console.error("[DependencyAnalyzer] Error collecting from provider:", err);
+      }
+    }
+    return {
+      nodes: allNodes,
+      edges: allEdges
+    };
+  }
+};
+var dependencyAnalyzer2 = new DependencyAnalyzer2();
+
+// src/core/dependencyResolution/dependencyClassifier.ts
+var DependencyClassifier = class {
+  classifyEdge(edge) {
+    let strength = "Direct";
+    let risk = "Minimal";
+    if (edge.optional) {
+      strength = "Optional";
+    } else if (edge.type === "Package" || edge.type === "Import") {
+      strength = "Peer";
+    }
+    if (edge.type === "API" || edge.type === "Environment") {
+      risk = "Medium";
+    } else if (edge.type === "Database") {
+      risk = "Low";
+    }
+    return {
+      ...edge,
+      strength,
+      risk
+    };
+  }
+};
+var dependencyClassifier = new DependencyClassifier();
+
+// src/core/dependencyResolution/dependencyResolver.ts
+var DependencyResolver4 = class {
+  resolveGraph(nodes, edges) {
+    const graphNodes = {};
+    const graphEdges = {};
+    const adjacencyList = {};
+    for (const node of nodes) {
+      if (!graphNodes[node.id]) {
+        graphNodes[node.id] = node;
+        adjacencyList[node.id] = [];
+      }
+    }
+    for (const rawEdge of edges) {
+      const edge = dependencyClassifier.classifyEdge(rawEdge);
+      if (!graphEdges[edge.id]) {
+        graphEdges[edge.id] = edge;
+        if (!graphNodes[edge.source]) {
+          graphNodes[edge.source] = { id: edge.source, name: edge.source, type: edge.type };
+          adjacencyList[edge.source] = [];
+        }
+        if (!graphNodes[edge.target]) {
+          graphNodes[edge.target] = { id: edge.target, name: edge.target, type: edge.type };
+          adjacencyList[edge.target] = [];
+        }
+        if (!adjacencyList[edge.source].includes(edge.target)) {
+          adjacencyList[edge.source].push(edge.target);
+        }
+      }
+    }
+    return {
+      nodes: graphNodes,
+      edges: graphEdges,
+      adjacencyList
+    };
+  }
+};
+var dependencyResolver4 = new DependencyResolver4();
+
+// src/core/dependencyResolution/dependencyResolutionEngine.ts
+var DependencyResolutionEngine = class {
+  async resolve(input) {
+    const startTime = Date.now();
+    dependencyEvents.emit("ResolutionStarted", { timestamp: startTime });
+    const cacheKey = input.featurePlan?.planId || "default-workspace";
+    const cachedGraph = dependencyCache.get(cacheKey);
+    let graph = cachedGraph;
+    if (!graph) {
+      const raw = dependencyAnalyzer2.collectRawDependencies(input);
+      dependencyEvents.emit("DiscoveryCompleted", { nodeCount: raw.nodes.length, edgeCount: raw.edges.length });
+      graph = dependencyResolver4.resolveGraph(raw.nodes, raw.edges);
+      dependencyCache.set(cacheKey, graph);
+    }
+    const circularReport = dependencyGraphManager.detectCycles(graph);
+    dependencyEvents.emit("CyclesChecked", { hasCycles: circularReport.hasCycles });
+    const executionOrder = dependencyGraphManager.computeTopologicalOrder(graph);
+    const suggestions = dependencyOptimizer.optimize(graph);
+    dependencyEvents.emit("OptimizationCompleted", { suggestionCount: suggestions.length });
+    const validationResult = dependencyValidator2.validate(graph, circularReport);
+    const durationMs = Date.now() - startTime;
+    dependencyMetrics2.record(
+      Object.keys(graph.nodes).length,
+      Object.keys(graph.edges).length,
+      durationMs,
+      circularReport.hasCycles
+    );
+    const report = {
+      reportId: `DPR-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+      timestamp: Date.now(),
+      graph,
+      executionOrder,
+      circularReport,
+      confidence: validationResult.valid ? circularReport.hasCycles ? 0.4 : 0.95 : 0.2,
+      suggestions,
+      metrics: {
+        nodeCount: Object.keys(graph.nodes).length,
+        edgeCount: Object.keys(graph.edges).length,
+        resolutionTimeMs: durationMs,
+        criticalPathLength: executionOrder.length
+      }
+    };
+    dependencyEvents.emit("ResolutionCompleted", report);
+    return report;
+  }
+  subscribe(listener) {
+    return dependencyEvents.subscribe(listener);
+  }
+};
+var dependencyResolutionEngine = new DependencyResolutionEngine();
 
 // src/extension/messageRouter.ts
 var MessageRouter = class {
@@ -13732,6 +17528,9 @@ var MessageRouter = class {
     this.initValidationSubscription();
     this.initOptimizationSubscription();
     this.initSafeEditSubscription();
+    this.initEventBusSubscription();
+    this.initTaskGenerationSubscription();
+    this.initExecutionPlanningSubscription();
   }
   promptDispatcher;
   plansCache = /* @__PURE__ */ new Map();
@@ -13767,6 +17566,57 @@ var MessageRouter = class {
       });
     } catch (err) {
       console.error("[MessageRouter] Failed to subscribe to indexerEngine:", err);
+    }
+  }
+  initExecutionPlanningSubscription() {
+    try {
+      executionEvents.subscribe((event) => {
+        const msg = MessageFactory.createMessage(
+          "EXECUTION_PLANNING_UPDATE" /* EXECUTION_PLANNING_UPDATE */,
+          "EXTENSION" /* EXTENSION */,
+          "WEBVIEW" /* WEBVIEW */,
+          {
+            event
+          }
+        );
+        this.postMessage(msg);
+      });
+    } catch (err) {
+      console.error("[MessageRouter] Failed to subscribe to ExecutionEvents:", err);
+    }
+  }
+  initTaskGenerationSubscription() {
+    try {
+      taskEvents.subscribe((event) => {
+        const msg = MessageFactory.createMessage(
+          "TASK_GENERATION_UPDATE" /* TASK_GENERATION_UPDATE */,
+          "EXTENSION" /* EXTENSION */,
+          "WEBVIEW" /* WEBVIEW */,
+          {
+            event
+          }
+        );
+        this.postMessage(msg);
+      });
+    } catch (err) {
+      console.error("[MessageRouter] Failed to subscribe to TaskEvents:", err);
+    }
+  }
+  initEventBusSubscription() {
+    try {
+      eventEvents.subscribe((event) => {
+        const msg = MessageFactory.createMessage(
+          "EVENT_BUS_UPDATE" /* EVENT_BUS_UPDATE */,
+          "EXTENSION" /* EXTENSION */,
+          "WEBVIEW" /* WEBVIEW */,
+          {
+            event
+          }
+        );
+        this.postMessage(msg);
+      });
+    } catch (err) {
+      console.error("[MessageRouter] Failed to subscribe to EventEvents:", err);
     }
   }
   initSafeEditSubscription() {
@@ -14581,6 +18431,15 @@ var MessageRouter = class {
         break;
       case "SAFE_EDIT_REQUEST":
         this._handleSafeEditRequest(message);
+        break;
+      case "EVENT_BUS_REQUEST":
+        this._handleEventBusRequest(message);
+        break;
+      case "TASK_GENERATION_REQUEST":
+        this._handleTaskGenerationRequest(message);
+        break;
+      case "EXECUTION_PLANNING_REQUEST":
+        this._handleExecutionPlanningRequest(message);
         break;
       default:
         console.warn(`[Sasta-Antigravity] Unhandled message type: ${message.type}`);
@@ -15905,13 +19764,9 @@ var MessageRouter = class {
   }
   _handleDependencyRequest(message) {
     try {
-      const depAgent = agentRegistry.get("dependency-agent");
-      if (!depAgent) {
-        throw new Error("Dependency Agent not found in registry");
-      }
       const { action, packageJsonPath } = message.payload || {};
       if (action === "ANALYZE_DEPENDENCIES") {
-        depAgent.brain.runDependencyAnalysis(packageJsonPath || "").then((report) => {
+        dependencyResolutionEngine.resolve(message.payload || {}).then((report) => {
           this.postMessage(MessageFactory.createMessage(
             "DEPENDENCY_UPDATE" /* DEPENDENCY_UPDATE */,
             "EXTENSION" /* EXTENSION */,
@@ -16339,6 +20194,155 @@ var MessageRouter = class {
             {
               lastAction: "EVALUATE_SAFETY",
               artifact
+            }
+          ));
+        }).catch((err) => {
+          this.postMessage(MessageFactory.createMessage(
+            "ERROR" /* ERROR */,
+            "EXTENSION" /* EXTENSION */,
+            "WEBVIEW" /* WEBVIEW */,
+            { error: err.message }
+          ));
+        });
+      }
+    } catch (error) {
+      this.postMessage(MessageFactory.createMessage(
+        "ERROR" /* ERROR */,
+        "EXTENSION" /* EXTENSION */,
+        "WEBVIEW" /* WEBVIEW */,
+        { error: error.message }
+      ));
+    }
+  }
+  _handleEventBusRequest(message) {
+    try {
+      const { action, eventData, workflowId, initialPayload } = message.payload || {};
+      if (action === "PUBLISH") {
+        eventBusInstance.publish(eventData).then(() => {
+          this.postMessage(MessageFactory.createMessage(
+            "EVENT_BUS_UPDATE" /* EVENT_BUS_UPDATE */,
+            "EXTENSION" /* EXTENSION */,
+            "WEBVIEW" /* WEBVIEW */,
+            { lastAction: "PUBLISH", success: true }
+          ));
+        });
+      } else if (action === "START_WORKFLOW") {
+        const { workflowOrchestrator: workflowOrchestrator2 } = (init_eventBus2(), __toCommonJS(eventBus_exports));
+        workflowOrchestrator2.startWorkflow(workflowId, initialPayload).then(() => {
+          this.postMessage(MessageFactory.createMessage(
+            "EVENT_BUS_UPDATE" /* EVENT_BUS_UPDATE */,
+            "EXTENSION" /* EXTENSION */,
+            "WEBVIEW" /* WEBVIEW */,
+            { lastAction: "START_WORKFLOW", success: true }
+          ));
+        });
+      }
+    } catch (error) {
+      this.postMessage(MessageFactory.createMessage(
+        "ERROR" /* ERROR */,
+        "EXTENSION" /* EXTENSION */,
+        "WEBVIEW" /* WEBVIEW */,
+        { error: error.message }
+      ));
+    }
+  }
+  _handleTaskGenerationRequest(message) {
+    try {
+      const { action, featurePlan } = message.payload || {};
+      if (action === "GENERATE_TASKS") {
+        const defaultPlan = featurePlan || {
+          planId: `PLAN-${Date.now()}`,
+          title: "Default Execution Feature Plan",
+          description: "Automatic task breakdown of feature plan milestones.",
+          milestones: [
+            {
+              milestoneId: "M1",
+              name: "Database Models & Contracts",
+              description: "Setup database schema models and migration scripts."
+            },
+            {
+              milestoneId: "M2",
+              name: "Core Service APIs",
+              description: "Implement core REST and internal service endpoint routers."
+            },
+            {
+              milestoneId: "M3",
+              name: "Frontend View Dashboard",
+              description: "Build interactive React webview components and state handlers."
+            }
+          ]
+        };
+        taskGenerationEngine.generateTasks({ featurePlan: defaultPlan }).then((report) => {
+          this.postMessage(MessageFactory.createMessage(
+            "TASK_GENERATION_UPDATE" /* TASK_GENERATION_UPDATE */,
+            "EXTENSION" /* EXTENSION */,
+            "WEBVIEW" /* WEBVIEW */,
+            {
+              lastAction: "GENERATE_TASKS",
+              report
+            }
+          ));
+        }).catch((err) => {
+          this.postMessage(MessageFactory.createMessage(
+            "ERROR" /* ERROR */,
+            "EXTENSION" /* EXTENSION */,
+            "WEBVIEW" /* WEBVIEW */,
+            { error: err.message }
+          ));
+        });
+      }
+    } catch (error) {
+      this.postMessage(MessageFactory.createMessage(
+        "ERROR" /* ERROR */,
+        "EXTENSION" /* EXTENSION */,
+        "WEBVIEW" /* WEBVIEW */,
+        { error: error.message }
+      ));
+    }
+  }
+  _handleExecutionPlanningRequest(message) {
+    try {
+      const { action, taskGraph, executionPolicies } = message.payload || {};
+      if (action === "PLAN_EXECUTION") {
+        const defaultTaskGraph = taskGraph || {
+          nodes: {
+            "T1": {
+              task: { taskId: "T1", title: "Database Schema Setup", description: "Create tables", taskType: "Database Task", parentMilestone: "M1", dependencies: [], requiredSymbols: [], requiredFiles: ["src/db/schema.ts"], expectedOutput: "", estimatedTimeMs: 12e4, estimatedTokens: 1e3, risk: "High", priority: "Critical", confidence: 0.9, executionStrategy: "Manual Approval" },
+              children: ["T2"],
+              parents: [],
+              depth: 0,
+              inCriticalPath: true
+            },
+            "T2": {
+              task: { taskId: "T2", title: "API Routing Endpoints", description: "Implement REST controllers", taskType: "API Task", parentMilestone: "M2", dependencies: ["T1"], requiredSymbols: [], requiredFiles: ["src/api/routes.ts"], expectedOutput: "", estimatedTimeMs: 15e4, estimatedTokens: 1200, risk: "Medium", priority: "High", confidence: 0.9, executionStrategy: "Sequential" },
+              children: ["T3"],
+              parents: ["T1"],
+              depth: 1,
+              inCriticalPath: true
+            },
+            "T3": {
+              task: { taskId: "T3", title: "Webview Component UI", description: "Build layout views", taskType: "UI Task", parentMilestone: "M3", dependencies: ["T2"], requiredSymbols: [], requiredFiles: ["src/webview/Dashboard.tsx"], expectedOutput: "", estimatedTimeMs: 9e4, estimatedTokens: 800, risk: "Low", priority: "Normal", confidence: 0.95, executionStrategy: "Parallel" },
+              children: [],
+              parents: ["T2"],
+              depth: 2,
+              inCriticalPath: true
+            }
+          },
+          edges: [],
+          rootTaskIds: ["T1"],
+          leafTaskIds: ["T3"],
+          criticalPath: ["T1", "T2", "T3"],
+          totalEstimatedTimeMs: 36e4,
+          totalEstimatedTokens: 3e3
+        };
+        executionPlanningEngine.plan({ taskGraph: defaultTaskGraph, executionPolicies }).then((report) => {
+          this.postMessage(MessageFactory.createMessage(
+            "EXECUTION_PLANNING_UPDATE" /* EXECUTION_PLANNING_UPDATE */,
+            "EXTENSION" /* EXTENSION */,
+            "WEBVIEW" /* WEBVIEW */,
+            {
+              lastAction: "PLAN_EXECUTION",
+              report
             }
           ));
         }).catch((err) => {

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 ## [1.0.0-draft] - 2026-07-16
 
 ### Added
+- Completed Task M06-S01-T002: Dataset Collector Foundation in `src/core/datasetCollector`.
+  - Built a local offline dataset source collection and scanning coordinator.
+  - Implemented license detector identifying MIT and Apache headers.
+  - Programmed provenance logs mapping repositories and commits hashes.
+  - Programmed file scanners and integrity validator checking checksums.
+  - Built providers for git repos, markdown docs, source codes, and local folders.
+  - Built `DatasetCollectorDashboard.tsx` dashboard webview React component.
+  - Added unit test suite under `tests/unit/datasetCollector.test.ts`.
 - Completed Task M06-S01-T001: Dataset Builder Foundation in `src/core/datasetBuilder`.
   - Built a local offline dataset builder compiling training metadata.
   - Implemented validator modules checking format schemas.

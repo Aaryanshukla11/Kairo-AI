@@ -3529,6 +3529,50 @@ Establishes a provider-independent dataset builder. Prepares training and fine-t
 - Verified indexers sort path lists alphabetically.
 - Verified validators reject empty files and throw warnings on raw extensions.
 
+---
+
+# Implementation Report: M06-S01-T002 (Dataset Collector Foundation)
+
+## 1. Objective
+Implement the Dataset Collector responsible for discovering, collecting, validating, and organizing training data from approved local and remote sources. The collector preserves provenance tracking metadata and license detections for every sample.
+
+## 2. Changes Implemented
+
+### Core Logic
+- Created `src/core/datasetCollector/` containing:
+  - `datasetCollector.ts` - Central facade routing collect operations.
+  - `collectorEngine.ts` - Core engine running collector steps (Source Discovery -> Validation -> Scanner -> Metadata Extraction -> License Detection -> Provenance Generation -> Integrity Validation -> Manifest Creation -> Publishing).
+  - `sourceDiscovery.ts` - Discoverer verifying target paths.
+  - `collectionManager.ts` - Collection store saving files.
+  - `repositoryScanner.ts` - Scanner compiling repo files list.
+  - `fileScanner.ts` - Scanner extracting files and invoking license checkers.
+  - `metadataCollector.ts` - Metadata parser compiling languages and licenses distribution counts.
+  - `provenanceTracker.ts` - Provenance logger registering commits hashes, branches, paths, and licenses.
+  - `licenseDetector.ts` - License detector identifying MIT, Apache-2.0, or GPL headers.
+  - `integrityValidator.ts` - Validator verifying readable files content and checksum matches.
+  - `collectorMetrics.ts` - Telemetry logger counting collected files.
+  - `collectorEvents.ts` - Event dispatcher.
+  - `collectorTypes.ts` - Standard definitions.
+  - `collectorManifest.ts` - Manifest compiler.
+- Created providers under `src/core/datasetCollector/providers/`:
+  - `localFolderProvider.ts`, `gitRepositoryProvider.ts`, `githubArchiveProvider.ts`, `markdownProvider.ts`, `jsonProvider.ts`, `documentationProvider.ts`, `sourceCodeProvider.ts`, `index.ts`.
+
+### UI & React
+- Created `src/webview/components/runtime/DatasetCollectorDashboard.tsx` displaying active sources, collected files count, language breakdown, progress, license distributions, and manifest previews.
+
+### Tests
+- Created `tests/unit/datasetCollector.test.ts` verifying licensing regex (MIT/Apache), integrity validation checks, metadata distribution metrics, and collector pipelines.
+
+## 3. Impact Assessment
+Establishes a provider-independent dataset collector. Allows scraping code workspace repositories offline while preserving file origin licenses and provenance chains.
+
+## 4. Validation Results
+- Verified license detector matches MIT and Apache headers.
+- Verified integrity validator rejects files with missing checksums or contents.
+- Verified metadata collector maps distribution keys.
+- Verified scanner spawns files into the collection manager database.
+
+
 
 
 

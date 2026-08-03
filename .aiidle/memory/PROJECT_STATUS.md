@@ -112,9 +112,10 @@
   - Completed Task M05-S01-T007: Multi-Model Router Foundation (capability matching, resource analysis, scoring, fallback manager, Model Router Dashboard UI, unit tests).
   - Completed Task M05-S01-T008: Runtime Optimizer Foundation (resource monitor, load balancer, thread pool optimizer, memory optimizer, context optimizer, Runtime Optimizer Dashboard UI, unit tests).
   - Completed Task M06-S01-T001: Dataset Builder Foundation (assemblers, indexers, manifest compilation, version manager, Dataset Builder Dashboard UI, unit tests).
+  - Completed Task M06-S01-T002: Dataset Collector Foundation (scanners, metadata scraper, licenses detector, provenance tracker, Dataset Collector Dashboard UI, unit tests).
 * **Modules In Progress**: None
 * **Pending Modules**: Core functionality components (Planner, Executor, Terminal, Chat)
 * **Build Status**: Build configurations finalized (clean, compile, watch, build using esbuild and vite)
 * **Test Status**: Test configurations finalized (Mocha sandbox integration test host runner)
 * **Last Successful Run**: N/A
-* **Last Updated**: 2026-08-03T12:15:00+05:30
+* **Last Updated**: 2026-08-03T12:35:00+05:30

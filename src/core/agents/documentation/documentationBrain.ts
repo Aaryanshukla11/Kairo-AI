@@ -11,7 +11,7 @@ export class DocumentationBrain {
 
   public async runDocumentationWorkflow(gitChanges: string[]): Promise<DocReport> {
     const folders = vscode.workspace.workspaceFolders;
-    documentationValidator.validateWorkspace(folders);
+    documentationValidator.validateWorkspace(folders as any);
 
     this.events.emit(DocEventType.DocumentationStarted, { gitChanges });
 

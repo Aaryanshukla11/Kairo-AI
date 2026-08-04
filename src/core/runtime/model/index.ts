@@ -1,4 +1,5 @@
 export * from './runtimeTypes';
+export { RuntimeEvent } from './runtimeTypes';
 export * from './runtimeEvents';
 export * from './runtimeValidator';
 export * from './tokenizer';

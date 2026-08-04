@@ -1,20 +1,29 @@
 # Project Status
 
-## Milestone M06: Dataset & Training Pipeline
-- **Sprint M06-S01**: Dataset Processing
-- **Active Task**: M06-S01-T010 - Experiment Tracker Foundation (Completed)
+## Milestone M07: Training & Execution Engine
+- **Sprint M07-S01**: Execution Pipeline
+- **Active Task**: M07-S01-T009 & M07-S01-T010 - Fine-Tuning & Model Export (Completed)
 
 ### System Architecture Progress
 - **Core Engine Modules**:
   - `src/core/datasetCollector`: local folder / git scanner, license detector, manifests (M06-S01-T002).
   - `src/core/datasetCleaning`: space collapsing, NFC Unicode, repairing truncated JSON files (M06-S01-T003).
   - `src/core/datasetDeduplication`: exact cryptographic hash, token AST structural, MinHash shingle Jaccard (M06-S01-T004).
-  - `src/core/datasetVersioning`: immutable manifests and snapshots, parent-child lineages graphs (M06-S01-T005).
-  - `src/core/tokenizerTraining`: subword vocabulary trainers (BPE, WordPiece, SentencePiece, Unigram), benchmarks (M06-S01-T006).
-  - `src/core/evaluation`: evaluation harness, executors, score aggregators, metrics comparators (M06-S01-T007).
+  - `src/core/datasetVersioning`: immutable snapshots registries, lineage graphs (M06-S01-T005).
+  - `src/core/tokenizerTraining`: subword trainers (BPE, WordPiece, SentencePiece, Unigram), benchmarks (M06-S01-T006).
+  - `src/core/evaluation`: evaluation harness, executors, aggregators, comparators (M06-S01-T007).
   - `src/core/trainingConfiguration`: hyperparameter templates managers, optimizer/scheduler compatibility (M06-S01-T008).
   - `src/core/checkpointManager`: model checkpoint snapshot builders, validation state, compressed storage (M06-S01-T009).
-  - `src/core/experimentTracker`: Fully implemented experiment builds, validation audits (artifacts existence, configuration presence, seed ranges), remote registry upload, history timelines, metrics trackers, events publisher, manifest checksums, artifact file registers, seed replay reproducibility checkers, comparators (loss, accuracy, throughput, GPU use deltas), and reports compilation.
+  - `src/core/experimentTracker`: experiment tracker, artifacts register, seed replay checker, metrics comparator (M06-S01-T010).
+  - `src/core/trainingEngine`: framework independent adapters (JAX, PyTorch, TF) with speed and ETA calculations (M07-S01-T001).
+  - `src/core/distributedTraining`: distributed training coordinator nodes manager, synchronization barriers, communications routing (M07-S01-T002).
+  - `src/core/gradientEngine`: gradient engine coordinating parameter layer calculations, value/norm clipping policies checks (M07-S01-T003).
+  - `src/core/optimizerRuntime`: Framework-agnostic Optimizer Runtime managing optimizer state steps progression, learning rate decay scheduling, weight decay policy enforcement, updates norm monitoring, manifests, and logs (M07-S01-T004).
+  - `src/core/mixedPrecision`: Framework-agnostic Mixed Precision Engine coordinating precision strategies, loss scaling, hardware compatibility validation, and overflow/underflow monitoring (M07-S01-T006).
+  - `src/core/validationLoop`: Framework-agnostic Validation Loop coordinating validation scheduling (Epoch End, Fixed Interval, Checkpoint, Manual), executing evaluation passes using adapters, tracking metrics (loss, accuracy, perplexity), comparing checkpoint scores against baseline, auditing overfitting, and generating manifests (M07-S01-T007).
+  - `src/core/earlyStopping`: Framework-agnostic Early Stopping Engine monitoring training progress, checking patience windows and plateau lengths, updating training status (continue, pause, stop, checkpoint, review), and compiling manifests (M07-S01-T008).
+  - `src/core/fineTuning`: Framework-agnostic Fine-Tuning Engine coordinating post-pretraining model adaptations (Full Fine-Tuning, LoRA, QLoRA, Continued Pretraining, Instruction Tuning), managing parameter freezing patterns, calculating trainable weight split percentages, and logging step progress timeline metrics (M07-S01-T009).
+  - `src/core/modelExport`: Framework-agnostic Model Export Pipeline validating, packaging, converting (GGUF, SafeTensors, ONNX, PyTorch, HuggingFace), and exporting models under the Unified Model Artifact (UMA) schema (M07-S01-T010).
 - **Webview UI**:
   - `src/webview/components/runtime/DatasetCollectorDashboard.tsx`: React dashboard.
   - `src/webview/components/runtime/DatasetCleaningDashboard.tsx`: React dashboard.
@@ -24,7 +33,16 @@
   - `src/webview/components/runtime/EvaluationDashboard.tsx`: React dashboard.
   - `src/webview/components/runtime/TrainingConfigurationDashboard.tsx`: React dashboard.
   - `src/webview/components/runtime/CheckpointDashboard.tsx`: React dashboard.
-  - `src/webview/components/runtime/ExperimentDashboard.tsx`: React dashboard component displaying logged experiments, rankings leaderboard, parameter delta comparison, replay status checklists, timeline events, and artifact file list.
+  - `src/webview/components/runtime/ExperimentDashboard.tsx`: React dashboard.
+  - `src/webview/components/runtime/TrainingDashboard.tsx`: React dashboard.
+  - `src/webview/components/runtime/DistributedTrainingDashboard.tsx`: React dashboard.
+  - `src/webview/components/runtime/GradientDashboard.tsx`: React dashboard.
+  - `src/webview/components/runtime/OptimizerDashboard.tsx`: React dashboard.
+  - `src/webview/components/runtime/MixedPrecisionDashboard.tsx`: React dashboard.
+  - `src/webview/components/runtime/ValidationDashboard.tsx`: React dashboard.
+  - `src/webview/components/runtime/EarlyStoppingDashboard.tsx`: React dashboard.
+  - `src/webview/components/runtime/FineTuningDashboard.tsx`: React dashboard displaying base models, active adapters (LoRA/QLoRA), trainable parameter splits, training epochs, loss lines, VRAM usage peaks, and step progress.
+  - `src/webview/components/runtime/ExportDashboard.tsx`: React dashboard displaying export queues, package file sizes, format compatibility matrices, SHA-256 checksums, and history conversions logs.
 - **Test Suite**:
   - `tests/unit/datasetCollector.test.ts`: Complete unit tests.
   - `tests/unit/datasetCleaning.test.ts`: Complete unit tests.
@@ -34,4 +52,12 @@
   - `tests/unit/evaluationHarness.test.ts`: Complete unit tests.
   - `tests/unit/trainingConfiguration.test.ts`: Complete unit tests.
   - `tests/unit/checkpointManager.test.ts`: Complete unit tests.
-  - `tests/unit/experimentTracker.test.ts`: Complete unit test coverage for builders, metric template resolvers, validation checks (configs, datasets, tokenizer, seed check limits), artifacts registries lists, seed replay environment compatibility, loss/perplexity deltas comparator, and pipeline execution runs.
+  - `tests/unit/experimentTracker.test.ts`: Complete unit tests.
+  - `tests/unit/trainingEngine.test.ts`: Complete unit tests.
+  - `tests/unit/distributedTraining.test.ts`: Complete unit tests.
+  - `tests/unit/gradientEngine.test.ts`: Complete unit tests.
+  - `tests/unit/optimizerRuntime.test.ts`: Complete unit tests.
+  - `tests/unit/mixedPrecision.test.ts`: Complete unit tests.
+  - `tests/unit/validationLoop.test.ts`: Complete unit tests.
+  - `tests/unit/earlyStopping.test.ts`: Complete unit tests.
+  - `tests/unit/fineTuningAndExport.test.ts`: Complete unit tests verifying base model checks compatibility setup, calculates LoRA adapters trainable parameters parameters, runs supervised steps loop simulator, packages checkpoint directories into tarball layouts, calculates compatibility matrices for GGUF/ONNX/Safetensors, validates SHA-256 checksums integrity validations, and exports Unified Model Artifacts (UMA) to registry.

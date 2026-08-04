@@ -2,7 +2,7 @@ import { SafeEditReport, SafeEditInput } from './safeEditTypes';
 
 export class ExecutionReporter {
   public compileReport(
-    input: SafeEditInput,
+    _input: SafeEditInput,
     riskScore: number,
     riskLevel: 'Minimal' | 'Low' | 'Medium' | 'High' | 'Critical',
     approved: boolean,
@@ -26,7 +26,7 @@ export class ExecutionReporter {
     let recommendation = 'Safe to proceed with executor agent patch write.';
     if (status === 'Rejected') {
       recommendation = 'Halt write operations. Immediate security, policy, or safety rejection.';
-    } else if (status === 'Blocked') {
+    } else if ((status as string) === 'Blocked') {
       recommendation = 'Execution blocked due to safety gate constraints.';
     } else if (status === 'Requires Approval') {
       recommendation = 'Awaiting explicit user approval before execution.';

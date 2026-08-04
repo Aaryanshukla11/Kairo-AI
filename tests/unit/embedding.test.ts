@@ -13,7 +13,7 @@ describe('Embedding Engine Tests', () => {
     if (!fs.existsSync(tempWorkspace)) {
       fs.mkdirSync(tempWorkspace);
     }
-    engine = new EmbeddingEngine(tempWorkspace);
+    engine = new EmbeddingEngine();
   });
 
   after(() => {

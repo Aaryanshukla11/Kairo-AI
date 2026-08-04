@@ -46,7 +46,7 @@ describe('AST Generation Engine Tests', () => {
 
   describe('AST Normalization & Optimizations checks', () => {
     it('should populate start and end node locations index ranges', () => {
-      const root = {
+      const root: any = {
         type: 'Program',
         children: [
           { type: 'ImportDeclaration', name: 'A', value: 'B' }

@@ -11,6 +11,7 @@ export * from './outputAssembler';
 export * from './generationSession';
 export * from './generationMetrics';
 export * from './generationCoordinator';
+export { GenerationCoordinator, generationCoordinator } from './generationCoordinator';
 export * from './generationEngine';
 export * from './ast';
 export * from './multiFile';

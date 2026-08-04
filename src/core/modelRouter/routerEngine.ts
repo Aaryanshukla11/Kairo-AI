@@ -4,7 +4,7 @@ import { resourceAnalyzer } from './resourceAnalyzer';
 import { performanceAnalyzer } from './performanceAnalyzer';
 import { modelScorer } from './modelScorer';
 import { fallbackManager } from './fallbackManager';
-import { routingDecision } from './routingDecision';
+import { RoutingDecision } from './routingDecision';
 import { routingEvents } from './routingEvents';
 import { routingHistory } from './routingHistory';
 import { routingMetrics } from './routingMetrics';

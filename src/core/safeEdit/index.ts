@@ -3,7 +3,7 @@ export * from './safeEditEvents';
 export * from './safetyAnalyzer';
 export * from './riskEvaluator';
 export * from './approvalCoordinator';
-export * from './rollbackPlanner';
+export { RollbackPlanner, rollbackPlanner } from './rollbackPlanner';
 export * from './policyEvaluator';
 export * from './executionGate';
 export * from './executionReporter';

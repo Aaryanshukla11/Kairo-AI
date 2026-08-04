@@ -14,7 +14,7 @@ export class RetrieverService {
 
     const root = folders[0].uri.fsPath;
     if (!this.activeEngine) {
-      this.activeEngine = new RetrieverEngine(root);
+      this.activeEngine = new RetrieverEngine();
     }
     return this.activeEngine;
   }

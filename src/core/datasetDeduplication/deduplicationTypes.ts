@@ -1,4 +1,5 @@
 import { CleanedSample } from '../datasetCleaning/cleaningTypes';
+export { CleanedSample };
 import { ProvenanceModel } from '../datasetCollector/collectorTypes';
 
 export interface Fingerprint {

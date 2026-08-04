@@ -8,24 +8,24 @@ import { plannerEngine } from '../core/planner';
 import { approvalEngine } from '../core/approval';
 import { timelineService } from '../core/timeline';
 import { workspaceService } from '../core/workspace';
-import { executorService, ExecutorEventType, ExecutorEvent } from '../core/executor';
+import { executorService, ExecutorEvent } from '../core/executor';
 import { graphEngine } from '../core/executionGraph';
-import { terminalService, TerminalEventType, TerminalEvent } from '../core/terminal';
-import { gitService, GitEventType, GitEvent } from '../core/git';
-import { patchService, PatchEventType, PatchEvent } from '../core/patch';
-import { rollbackService, RollbackEventType, RollbackEvent } from '../core/rollback';
-import { checkpointService, CheckpointEventType, CheckpointEvent } from '../core/checkpoint';
-import { diagnosticsService, DiagnosticEventType, DiagnosticEvent } from '../core/diagnostics';
-import { permissionService, PermissionEventType, PermissionEvent } from '../core/permission';
-import { contextService, ContextEventType, ContextEvent } from '../core/context';
-import { IndexerEngine, IndexEventType, IndexEvent } from '../core/indexer';
-import { embeddingService, EmbeddingEventType, EmbeddingEvent } from '../core/embedding';
-import { vectorStoreService, VectorStoreEventType, VectorStoreEvent } from '../core/vectorStore';
-import { retrieverService, RetrieverEventType, RetrieverEvent } from '../core/retriever';
-import { promptAssemblyService, PromptAssemblyEventType, PromptAssemblyEvent } from '../core/promptAssembly';
-import { runtimeService, RuntimeEventType, RuntimeEvent } from '../core/runtime/model';
-import { toolService, ToolCallingEventType, ToolCallingEvent } from '../core/toolCalling';
-import { agentRuntimeInstance, agentRegistry, AgentEventType, AgentEvent, MemoryAgent, TestingAgent, SecurityAgent, DocumentationAgent, RefactoringAgent, DebugAgent, PerformanceAgent, DependencyAgent, ArchitectureAgent } from '../core/agents';
+import { terminalService, TerminalEvent } from '../core/terminal';
+import { gitService, GitEvent } from '../core/git';
+import { patchService, PatchEvent } from '../core/patch';
+import { rollbackService, RollbackEvent } from '../core/rollback';
+import { checkpointService, CheckpointEvent } from '../core/checkpoint';
+import { diagnosticsService, DiagnosticEvent } from '../core/diagnostics';
+import { permissionService, PermissionEvent } from '../core/permission';
+import { contextService, ContextEvent } from '../core/context';
+import { IndexerEngine, IndexEvent } from '../core/indexer';
+import { embeddingService, EmbeddingEvent } from '../core/embedding';
+import { vectorStoreService, VectorStoreEvent } from '../core/vectorStore';
+import { retrieverService, RetrieverEvent } from '../core/retriever';
+import { promptAssemblyService, PromptAssemblyEvent } from '../core/promptAssembly';
+import { runtimeService, RuntimeEvent } from '../core/runtime/model';
+import { toolService, ToolCallingEvent } from '../core/toolCalling';
+import { agentRuntimeInstance, agentRegistry, AgentEvent, MemoryAgent, TestingAgent, SecurityAgent, DocumentationAgent, RefactoringAgent, DebugAgent, PerformanceAgent, DependencyAgent, ArchitectureAgent } from '../core/agents';
 import { generationEngine, astEngine, multiFileEngine, incrementalEngine, conventionEngine, namingEngine, importEngine, symbolEngine } from '../core/codeGeneration';
 import { reviewEngine } from '../core/review';
 import { validationEngine } from '../core/validation';
@@ -35,10 +35,10 @@ import { eventEvents, eventBusInstance } from '../core/eventBus';
 import { taskGenerationEngine, taskEvents } from '../core/taskGeneration';
 import { executionPlanningEngine, executionEvents } from '../core/executionPlanning';
 import { dependencyResolutionEngine } from '../core/dependencyResolution';
-import { milestoneOrchestrationEngine, milestoneEvents } from '../core/milestoneOrchestration';
-import { workflowCoordinator, workflowEvents } from '../core/workflowCoordinator';
-import { replanningEngine, replanningEvents } from '../core/replanning';
-import { recoveryEngine, recoveryEvents } from '../core/recovery';
+import { milestoneOrchestrationEngine } from '../core/milestoneOrchestration';
+import { workflowCoordinator } from '../core/workflowCoordinator';
+import { replanningEngine } from '../core/replanning';
+import { recoveryEngine } from '../core/recovery';
 
 export class MessageRouter {
   private promptDispatcher: PromptDispatcher;
@@ -1244,7 +1244,7 @@ export class MessageRouter {
     }, 400);
   }
 
-  private _handleWorkspaceRequest(message: BridgeMessage): void {
+  private _handleWorkspaceRequest(_message: BridgeMessage): void {
     try {
       const summary = workspaceService.getWorkspaceSummary();
       const responseMsg = MessageFactory.createMessage(
@@ -1265,17 +1265,17 @@ export class MessageRouter {
     }
   }
 
-  private _handleInit(message: BridgeMessage): void {
+  private _handleInit(_message: BridgeMessage): void {
     this.postMessage({ type: 'READY' });
   }
 
-  private _handleReady(message: BridgeMessage): void {}
+  private _handleReady(_message: BridgeMessage): void {}
 
   private _handlePing(message: BridgeMessage): void {
     this.postMessage({ type: 'PONG', payload: message.payload });
   }
 
-  private _handlePong(message: BridgeMessage): void {}
+  private _handlePong(_message: BridgeMessage): void {}
 
   private _handleError(message: BridgeMessage): void {
     console.error(`[Sasta-Antigravity] Webview Error:`, message.payload);
@@ -2448,7 +2448,7 @@ export class MessageRouter {
 
   private _handleDependencyRequest(message: BridgeMessage): void {
     try {
-      const { action, packageJsonPath } = message.payload || {};
+      const { action, packageJsonPath: _packageJsonPath } = message.payload || {};
 
       if (action === 'ANALYZE_DEPENDENCIES') {
         dependencyResolutionEngine.resolve(message.payload || {}).then((report) => {
@@ -3064,6 +3064,7 @@ export class MessageRouter {
             { error: err.message }
           ));
         });
+      }
     } catch (error: any) {
       this.postMessage(MessageFactory.createMessage(
         MessageType.ERROR,
@@ -3097,6 +3098,7 @@ export class MessageRouter {
             { error: err.message }
           ));
         });
+      }
     } catch (error: any) {
       this.postMessage(MessageFactory.createMessage(
         MessageType.ERROR,

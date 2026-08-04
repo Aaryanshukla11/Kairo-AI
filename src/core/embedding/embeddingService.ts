@@ -14,7 +14,7 @@ export class EmbeddingService {
 
     const root = folders[0].uri.fsPath;
     if (!this.activeEngine) {
-      this.activeEngine = new EmbeddingEngine(root);
+      this.activeEngine = new EmbeddingEngine();
     }
     return this.activeEngine;
   }

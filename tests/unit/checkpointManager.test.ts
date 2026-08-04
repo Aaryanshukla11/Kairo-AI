@@ -6,6 +6,7 @@ import { checkpointStorage } from '../../src/core/checkpointManager/checkpointSt
 import { checkpointComparator } from '../../src/core/checkpointManager/checkpointComparator';
 import { checkpointRetention } from '../../src/core/checkpointManager/checkpointRetention';
 import { checkpointRecovery } from '../../src/core/checkpointManager/checkpointRecovery';
+import { checkpointRegistry } from '../../src/core/checkpointManager/checkpointRegistry';
 
 describe('Checkpoint Manager Unit Tests', () => {
   beforeEach(() => {

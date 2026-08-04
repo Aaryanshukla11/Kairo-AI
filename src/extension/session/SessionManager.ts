@@ -20,7 +20,7 @@ export class SessionManager {
     const session = this.registry.getSession(id);
     if (!session) return undefined;
 
-    const updated = SessionFactory.updateSession(session, { status: SessionState.CLOSED } as any);
+    const updated = SessionFactory.updateSession(session, { status: SessionState.COMPLETED } as any);
     this.registry.updateSession(updated);
     this.emitEvent(SessionEventType.SESSION_CLOSED, updated);
     return updated;
@@ -58,7 +58,7 @@ export class SessionManager {
     return this.registry.getCurrentSession();
   }
 
-  private emitEvent(eventType: SessionEventType, payload: any): void {
+  private emitEvent(_eventType: SessionEventType, _payload: any): void {
     // To be wired to the extension MessageRouter for IPC broadcast to Webview
     // Example: MessageRouter.broadcast(MessageFactory.createMessage('SESSION_EVENT', ...))
   }

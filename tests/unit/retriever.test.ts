@@ -14,7 +14,7 @@ describe('Hybrid Retriever Engine Tests', () => {
     if (!fs.existsSync(tempWorkspace)) {
       fs.mkdirSync(tempWorkspace);
     }
-    engine = new RetrieverEngine(tempWorkspace);
+    engine = new RetrieverEngine();
 
     mockIndex = {
       id: 'mock-idx',

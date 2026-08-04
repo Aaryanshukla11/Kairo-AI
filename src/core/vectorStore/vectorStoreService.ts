@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { VectorStoreEngine } from './vectorStoreEngine';
-import { VectorRecord, SimilarityResult, SimilarityMetric, VectorStoreStats } from './vectorStoreTypes';
+import { VectorRecord, SimilarityResult, SimilarityMetric } from './vectorStoreTypes';
 import { VectorStoreProvider } from './providers';
+import { VectorStoreStats } from './vectorStoreRegistry';
 
 export class VectorStoreService {
   private activeEngine: VectorStoreEngine | null = null;

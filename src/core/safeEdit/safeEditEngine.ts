@@ -1,8 +1,4 @@
-import { safetyAnalyzer } from './safetyAnalyzer';
-import { riskEvaluator } from './riskEvaluator';
-import { approvalCoordinator } from './approvalCoordinator';
 import { rollbackPlanner } from './rollbackPlanner';
-import { policyEvaluator } from './policyEvaluator';
 import { executionReporter } from './executionReporter';
 import { safeEditEvents } from './safeEditEvents';
 import { safeEditMetrics } from './safeEditMetrics';
@@ -143,7 +139,7 @@ export class SafeEditEngine {
       ...baseReporterReport,
       executionContext,
       riskGraph: computedRiskGraph,
-      rollbackCertificate,
+      rollbackCertificate: rollbackCertificate as any,
       approvalDecision,
       confidenceReport,
       simulationReport,

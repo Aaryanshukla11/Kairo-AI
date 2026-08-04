@@ -1,19 +1,22 @@
 # Current Task
 
-- **Current Milestone**: M06: Dataset & Training Pipeline
-- **Current Sprint**: M06-S01: Dataset Processing
-- **Task ID**: M06-S01-T010
-- **Task Name**: Experiment Tracker Foundation
+- **Current Milestone**: M07: Training & Execution Engine
+- **Current Sprint**: M07-S01: Execution Pipeline
+- **Task ID**: M07-S01-T009 & M07-S01-T010
+- **Task Name**: Fine-Tuning Engine & Model Export Pipeline Foundations
 - **Status**: Completed
-- **Started**: 2026-08-03T20:34:00+05:30
-- **Completed**: 2026-08-03T20:39:00+05:30
-- **Dependencies**: M06-S01-T009
+- **Started**: 2026-08-04T00:58:55+05:30
+- **Completed**: 2026-08-04T01:35:00+05:30
+- **Dependencies**: M07-S01-T008
 - **Acceptance Criteria**:
-  - [x] Experiment tracking works (`experimentBuilder.ts`, `experimentEngine.ts`)
-  - [x] Artifact tracking works (`experimentArtifacts.ts`)
-  - [x] Replay works (`experimentReplay.ts`)
-  - [x] Comparison works (`experimentComparator.ts`)
-  - [x] Dashboard works (`ExperimentDashboard.tsx`)
-  - [x] Tests pass (`tests/unit/experimentTracker.test.ts`)
+  - [x] Fine-Tuning session management works (`fineTuningSession.ts`)
+  - [x] Trainable parameters statistics works (`parameterManager.ts`)
+  - [x] Adapters freezing patterns works (`freezingManager.ts`)
+  - [x] LoRA/QLoRA configuration models validation works (`loraManager.ts`, `qloraManager.ts`)
+  - [x] Exporters (GGUF, SafeTensors, ONNX, HuggingFace, PyTorch) works (`providers/`)
+  - [x] Unified Model Artifact (UMA) packing works (`artifactBuilder.ts`)
+  - [x] Format compatibility matrix analyzer works (`compatibilityAnalyzer.ts`)
+  - [x] Dashboards work (`FineTuningDashboard.tsx`, `ExportDashboard.tsx`)
+  - [x] Tests pass (`tests/unit/fineTuningAndExport.test.ts`)
   - [x] Build succeeds
-- **Next Milestone**: Milestone M06 Sprint M06-S01 fully completed. All processing engine modules integrated and tested.
+- **Next Milestone**: Milestone M07 Phase 8 completed successfully. Do NOT implement Phase 9.

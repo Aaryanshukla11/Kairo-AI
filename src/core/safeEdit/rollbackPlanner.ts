@@ -16,6 +16,13 @@ export class RollbackPlanner {
       blocking
     };
   }
+
+  public generateCertificate(input: SafeEditInput): { verificationResult: 'Success' | 'Failed' } {
+    const res = this.verifyRollbackReadiness(input);
+    return {
+      verificationResult: res.ready ? 'Success' : 'Failed'
+    };
+  }
 }
 
 export const rollbackPlanner = new RollbackPlanner();

@@ -11,7 +11,7 @@ export class RouterPolicy {
         return [ModelCapability.CodeGeneration, ModelCapability.CodeCompletion];
       case RouterTaskType.Review:
       case RouterTaskType.Debugging:
-        return [ModelCapability.Review, ModelCapability.ToolCalling];
+        return [ModelCapability.CodeReview, ModelCapability.ToolCalling];
       case RouterTaskType.Chat:
       default:
         return [ModelCapability.Chat];

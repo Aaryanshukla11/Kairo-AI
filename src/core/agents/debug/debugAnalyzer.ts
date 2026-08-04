@@ -42,7 +42,7 @@ export class DebugAnalyzer {
     ];
 
     if (logAudit.hasCritical) {
-      suggestNextActions.unshift('Restart application host runtime to clear cached thread parameters.');
+      suggestedNextActions.unshift('Restart application host runtime to clear cached thread parameters.');
     }
 
     const report: DebugReport = {

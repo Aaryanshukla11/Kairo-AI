@@ -1,4 +1,5 @@
 import { CollectedFileItem, ProvenanceModel } from '../datasetCollector/collectorTypes';
+export { CollectedFileItem, ProvenanceModel };
 
 export interface CleanedSample {
   filePath: string;

@@ -13,7 +13,7 @@ export class TestingBrain {
 
   public async runTestingWorkflow(executionReport: any, framework: string = 'simulated'): Promise<TestingReport> {
     const folders = vscode.workspace.workspaceFolders;
-    testingValidator.validateRequest(executionReport, folders);
+    testingValidator.validateRequest(executionReport, folders as any);
     testingValidator.validateFramework(framework);
 
     this.events.emit(TestingEventType.TestingStarted, { executionId: executionReport.executionId });

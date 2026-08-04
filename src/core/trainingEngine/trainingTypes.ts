@@ -14,51 +14,62 @@ export type TrainingState =
 export interface TrainingMetricsModel {
   epoch: number;
   batch: number;
-  totalBatches: number;
   trainingLoss: number;
-  validationLoss: number;
+  validationLoss?: number;
   learningRate: number;
-  tokensPerSec: number;
   gpuUsagePercent: number;
   ramUsageMB: number;
   vramUsageMB: number;
-  elapsedTimeSec: number;
-  etaSeconds: number;
+  tokensPerSec: number;
+  elapsedSec: number;
+  estimatedRemainingSec: number;
 }
 
 export interface TrainingSessionModel {
   sessionId: string;
+  state: TrainingState;
   datasetVersion: string;
   tokenizerVersion: string;
-  configVersion: string;
-  parentCheckpointId?: string;
-  experimentId?: string;
-  currentState: TrainingState;
+  configurationVersion: string;
   currentEpoch: number;
   currentStep: number;
-  metricsHistory: TrainingMetricsModel[];
-  createdAt: number;
-  updatedAt: number;
+  totalEpochs: number;
+  totalSteps: number;
+  checkpointId?: string;
+  experimentId?: string;
+  startTime: number;
+  endTime?: number;
+  metrics: TrainingMetricsModel[];
 }
 
 export interface TrainingReportModel {
   sessionId: string;
   status: TrainingState;
-  totalEpochs: number;
-  totalSteps: number;
-  finalTrainingLoss: number;
-  finalValidationLoss: number;
+  finalEpoch: number;
+  finalStep: number;
+  averageLoss: number;
+  finalValidationLoss?: number;
+  elapsedTimeSec: number;
   checkpointsSaved: string[];
-  durationSeconds: number;
+}
+
+export interface TrainingManifestModel {
+  manifestId: string;
+  sessionId: string;
+  checksum: string;
+  createdAt: number;
 }
 
 export enum TrainingEventType {
-  StateChanged = 'StateChanged',
+  TrainingStarted = 'TrainingStarted',
   EpochStarted = 'EpochStarted',
-  EpochCompleted = 'EpochCompleted',
-  BatchCompleted = 'BatchCompleted',
+  BatchExecuted = 'BatchExecuted',
+  EpochEnded = 'EpochEnded',
+  ValidationExecuted = 'ValidationExecuted',
   CheckpointSaved = 'CheckpointSaved',
-  ErrorEncountered = 'ErrorEncountered'
+  ExperimentUpdated = 'ExperimentUpdated',
+  TrainingEnded = 'TrainingEnded',
+  TrainingStateChanged = 'TrainingStateChanged'
 }
 
 export interface TrainingEvent {

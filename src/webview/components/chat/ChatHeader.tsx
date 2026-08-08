@@ -61,7 +61,7 @@ export function ChatHeader({ currentView, setCurrentView }: ChatHeaderProps): Re
       {/* Title section on the left */}
       <div style={styles.titleContainer}>
         <h1 style={styles.title} title={folderName}>
-          {folderName}
+          Agent
         </h1>
       </div>
 

@@ -1,20 +1,32 @@
 import * as vscode from 'vscode';
 import { PermissionEngine } from './permissionEngine';
 import { PermissionRequest, PermissionResponse, PermissionAction, PermissionRiskLevel, PermissionPolicy } from './permissionTypes';
+import { ILazyWorkspaceService, WorkspaceLifecycleState, workspaceLifecycleManager } from '../workspace/workspaceLifecycleManager';
 
-export class PermissionService {
+export class PermissionService implements ILazyWorkspaceService {
+  public state: WorkspaceLifecycleState = 'NOT_INITIALIZED';
   private activeEngine: PermissionEngine | null = null;
+  private pendingSubscriptions: any[] = [];
 
-  private getEngine(): PermissionEngine {
-    const folders = vscode.workspace.workspaceFolders;
-    if (!folders || folders.length === 0) {
-      throw new Error('Workspace Permission Service: No workspace folder is open');
-    }
+  constructor() {
+    workspaceLifecycleManager.registerService(this);
+  }
 
-    const root = folders[0].uri.fsPath;
-    if (!this.activeEngine) {
-      this.activeEngine = new PermissionEngine(root);
+  public initialize(rootPath: string): void {
+    this.activeEngine = new PermissionEngine(rootPath);
+    this.state = 'READY';
+    for (const listener of this.pendingSubscriptions) {
+      this.activeEngine.subscribe(listener);
     }
+    this.pendingSubscriptions = [];
+  }
+
+  public reset(): void {
+    this.activeEngine = null;
+    this.state = 'WAITING_FOR_WORKSPACE';
+  }
+
+  private getEngine(): PermissionEngine | null {
     return this.activeEngine;
   }
 
@@ -22,7 +34,14 @@ export class PermissionService {
    * Subscribes to active permissions events.
    */
   public subscribe(listener: any): () => void {
-    return this.getEngine().subscribe(listener);
+    const engine = this.getEngine();
+    if (!engine) {
+      this.pendingSubscriptions.push(listener);
+      return () => {
+        this.pendingSubscriptions = this.pendingSubscriptions.filter(l => l !== listener);
+      };
+    }
+    return engine.subscribe(listener);
   }
 
   // --- Wrapper APIs ---
@@ -35,28 +54,60 @@ export class PermissionService {
     requestedBy: string,
     operationId?: string
   ): { request?: PermissionRequest; response?: PermissionResponse } {
-    return this.getEngine().requestPermission(action, resource, riskLevel, reason, requestedBy, operationId);
+    const engine = this.getEngine();
+    if (!engine) {
+      const response: PermissionResponse = {
+        requestId: 'none',
+        timestamp: Date.now(),
+        action,
+        resource,
+        approved: true, // Default to true if no workspace context exists
+        riskLevel
+      };
+      return { response };
+    }
+    return engine.requestPermission(action, resource, riskLevel, reason, requestedBy, operationId);
   }
 
   public grantPermission(id: string, approved: boolean, policy?: PermissionPolicy): PermissionResponse {
-    return this.getEngine().grantPermission(id, approved, policy);
+    const engine = this.getEngine();
+    if (!engine) {
+      return {
+        requestId: id,
+        timestamp: Date.now(),
+        action: 'READ' as any,
+        resource: '',
+        approved,
+        riskLevel: 'LOW'
+      };
+    }
+    return engine.grantPermission(id, approved, policy);
   }
 
   public getHistory(): PermissionRequest[] {
-    return this.getEngine().getHistory();
+    const engine = this.getEngine();
+    if (!engine) return [];
+    return engine.getHistory();
   }
 
   public getRules(): any[] {
-    return this.getEngine().getRules();
+    const engine = this.getEngine();
+    if (!engine) return [];
+    return engine.getRules();
   }
 
   public clearSessionRules(): void {
-    this.getEngine().clearSessionRules();
+    const engine = this.getEngine();
+    if (!engine) return;
+    engine.clearSessionRules();
   }
 
   public expireRequests(): void {
-    this.getEngine().expireRequests();
+    const engine = this.getEngine();
+    if (!engine) return;
+    engine.expireRequests();
   }
 }
 
 export const permissionService = new PermissionService();
+export default permissionService;

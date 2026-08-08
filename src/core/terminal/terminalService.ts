@@ -1,20 +1,32 @@
 import * as vscode from 'vscode';
 import { TerminalEngine } from './terminalEngine';
 import { CommandInfo, TerminalEventListener } from './terminalTypes';
+import { ILazyWorkspaceService, WorkspaceLifecycleState, workspaceLifecycleManager } from '../workspace/workspaceLifecycleManager';
 
-export class TerminalService {
+export class TerminalService implements ILazyWorkspaceService {
+  public state: WorkspaceLifecycleState = 'NOT_INITIALIZED';
   private activeEngine: TerminalEngine | null = null;
+  private pendingSubscriptions: TerminalEventListener[] = [];
 
-  private getEngine(): TerminalEngine {
-    const folders = vscode.workspace.workspaceFolders;
-    if (!folders || folders.length === 0) {
-      throw new Error('Workspace Terminal Service: No workspace folder is open');
-    }
+  constructor() {
+    workspaceLifecycleManager.registerService(this);
+  }
 
-    const root = folders[0].uri.fsPath;
-    if (!this.activeEngine) {
-      this.activeEngine = new TerminalEngine(root);
+  public initialize(rootPath: string): void {
+    this.activeEngine = new TerminalEngine(rootPath);
+    this.state = 'READY';
+    for (const listener of this.pendingSubscriptions) {
+      this.activeEngine.subscribe(listener);
     }
+    this.pendingSubscriptions = [];
+  }
+
+  public reset(): void {
+    this.activeEngine = null;
+    this.state = 'WAITING_FOR_WORKSPACE';
+  }
+
+  private getEngine(): TerminalEngine | null {
     return this.activeEngine;
   }
 
@@ -22,14 +34,30 @@ export class TerminalService {
    * Subscribes to terminal execution events.
    */
   public subscribe(listener: TerminalEventListener): () => void {
-    return this.getEngine().subscribe(listener);
+    const engine = this.getEngine();
+    if (!engine) {
+      this.pendingSubscriptions.push(listener);
+      return () => {
+        this.pendingSubscriptions = this.pendingSubscriptions.filter(l => l !== listener);
+      };
+    }
+    return engine.subscribe(listener);
   }
 
   /**
    * Executes a command string sequentially through the workspace terminal queue.
    */
   public executeCommand(commandStr: string, workingDirectory?: string, environment?: Record<string, string>): CommandInfo {
-    return this.getEngine().executeCommand(commandStr, workingDirectory, environment);
+    const engine = this.getEngine();
+    if (!engine) {
+      return {
+        commandId: 'none',
+        command: commandStr,
+        status: 'Failed',
+        timestamp: Date.now()
+      };
+    }
+    return engine.executeCommand(commandStr, workingDirectory, environment);
   }
 
   /**
@@ -57,3 +85,4 @@ export class TerminalService {
 }
 
 export const terminalService = new TerminalService();
+export default terminalService;

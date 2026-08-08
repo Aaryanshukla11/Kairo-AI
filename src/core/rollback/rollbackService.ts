@@ -4,20 +4,32 @@ import { RollbackInfo, RollbackEventListener, RollbackPreviewData } from './roll
 import { patchService } from '../patch/patchService';
 import { rollbackRegistry } from './rollbackRegistry';
 import { rollbackHistory } from './rollbackHistory';
+import { ILazyWorkspaceService, WorkspaceLifecycleState, workspaceLifecycleManager } from '../workspace/workspaceLifecycleManager';
 
-export class RollbackService {
+export class RollbackService implements ILazyWorkspaceService {
+  public state: WorkspaceLifecycleState = 'NOT_INITIALIZED';
   private activeEngine: RollbackEngine | null = null;
+  private pendingSubscriptions: RollbackEventListener[] = [];
 
-  private getEngine(): RollbackEngine {
-    const folders = vscode.workspace.workspaceFolders;
-    if (!folders || folders.length === 0) {
-      throw new Error('Workspace Rollback Service: No workspace folder is open');
-    }
+  constructor() {
+    workspaceLifecycleManager.registerService(this);
+  }
 
-    const root = folders[0].uri.fsPath;
-    if (!this.activeEngine) {
-      this.activeEngine = new RollbackEngine(root);
+  public initialize(rootPath: string): void {
+    this.activeEngine = new RollbackEngine(rootPath);
+    this.state = 'READY';
+    for (const listener of this.pendingSubscriptions) {
+      this.activeEngine.subscribe(listener);
     }
+    this.pendingSubscriptions = [];
+  }
+
+  public reset(): void {
+    this.activeEngine = null;
+    this.state = 'WAITING_FOR_WORKSPACE';
+  }
+
+  private getEngine(): RollbackEngine | null {
     return this.activeEngine;
   }
 
@@ -25,7 +37,14 @@ export class RollbackService {
    * Subscribes to active rollback transaction event updates.
    */
   public subscribe(listener: RollbackEventListener): () => void {
-    return this.getEngine().subscribe(listener);
+    const engine = this.getEngine();
+    if (!engine) {
+      this.pendingSubscriptions.push(listener);
+      return () => {
+        this.pendingSubscriptions = this.pendingSubscriptions.filter(l => l !== listener);
+      };
+    }
+    return engine.subscribe(listener);
   }
 
   // --- Wrapper APIs ---
@@ -33,11 +52,17 @@ export class RollbackService {
   public createRollback(patchId: string): RollbackInfo {
     const patch = patchService.getPatch(patchId);
     if (!patch) throw new Error(`Patch not found to configure rollback: ${patchId}`);
-    return this.getEngine().createRollback(patch);
+    const engine = this.getEngine();
+    if (!engine) {
+      throw new Error('Workspace Rollback Service: No workspace folder is open');
+    }
+    return engine.createRollback(patch);
   }
 
   public executeRollback(rollbackId: string): void {
-    this.getEngine().executeRollback(rollbackId, patchService);
+    const engine = this.getEngine();
+    if (!engine) return;
+    engine.executeRollback(rollbackId, patchService);
   }
 
   public getPreview(rollbackId: string): RollbackPreviewData {
@@ -45,7 +70,11 @@ export class RollbackService {
     if (!rollback) throw new Error(`Rollback not found: ${rollbackId}`);
     const patch = patchService.getPatch(rollback.patchId);
     if (!patch) throw new Error(`Patch associated with rollback not found: ${rollback.patchId}`);
-    return this.getEngine().getPreview(rollbackId, patch);
+    const engine = this.getEngine();
+    if (!engine) {
+      throw new Error('Workspace Rollback Service: No workspace folder is open');
+    }
+    return engine.getPreview(rollbackId, patch);
   }
 
   public getRollback(rollbackId: string): RollbackInfo | undefined {
@@ -62,3 +91,4 @@ export class RollbackService {
 }
 
 export const rollbackService = new RollbackService();
+export default rollbackService;

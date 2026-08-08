@@ -3,6 +3,7 @@ import { indexBuilder } from './indexBuilder';
 import { symbolIndexer } from './symbolIndexer';
 import { dependencyIndexer } from './dependencyIndexer';
 import { detectLanguage } from './languageDetector';
+import { IndexRegistry } from './indexRegistry';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -49,6 +50,7 @@ export class IndexerEngine {
     );
 
     this.currentIndex = index;
+    IndexRegistry.setIndex(this.workspaceRoot, index);
     this.emit(IndexEventType.IndexCompleted, { index });
     return index;
   }
@@ -90,6 +92,7 @@ export class IndexerEngine {
     }
 
     this.currentIndex.updatedAt = Date.now();
+    IndexRegistry.setIndex(this.workspaceRoot, this.currentIndex);
     this.emit(IndexEventType.IndexUpdated, { index: this.currentIndex });
   }
 

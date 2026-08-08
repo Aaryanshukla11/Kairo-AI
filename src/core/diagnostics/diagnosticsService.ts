@@ -1,20 +1,32 @@
 import * as vscode from 'vscode';
 import { DiagnosticsEngine } from './diagnosticsEngine';
 import { Diagnostic, DiagnosticSeverity, DiagnosticCategory, DiagnosticStatus } from './diagnosticsTypes';
+import { ILazyWorkspaceService, WorkspaceLifecycleState, workspaceLifecycleManager } from '../workspace/workspaceLifecycleManager';
 
-export class DiagnosticsService {
+export class DiagnosticsService implements ILazyWorkspaceService {
+  public state: WorkspaceLifecycleState = 'NOT_INITIALIZED';
   private activeEngine: DiagnosticsEngine | null = null;
+  private pendingSubscriptions: any[] = [];
 
-  private getEngine(): DiagnosticsEngine {
-    const folders = vscode.workspace.workspaceFolders;
-    if (!folders || folders.length === 0) {
-      throw new Error('Workspace Diagnostics Service: No workspace folder is open');
-    }
+  constructor() {
+    workspaceLifecycleManager.registerService(this);
+  }
 
-    const root = folders[0].uri.fsPath;
-    if (!this.activeEngine) {
-      this.activeEngine = new DiagnosticsEngine(root);
+  public initialize(rootPath: string): void {
+    this.activeEngine = new DiagnosticsEngine(rootPath);
+    this.state = 'READY';
+    for (const listener of this.pendingSubscriptions) {
+      this.activeEngine.subscribe(listener);
     }
+    this.pendingSubscriptions = [];
+  }
+
+  public reset(): void {
+    this.activeEngine = null;
+    this.state = 'WAITING_FOR_WORKSPACE';
+  }
+
+  private getEngine(): DiagnosticsEngine | null {
     return this.activeEngine;
   }
 
@@ -22,7 +34,14 @@ export class DiagnosticsService {
    * Subscribes to active diagnostics updates.
    */
   public subscribe(listener: any): () => void {
-    return this.getEngine().subscribe(listener);
+    const engine = this.getEngine();
+    if (!engine) {
+      this.pendingSubscriptions.push(listener);
+      return () => {
+        this.pendingSubscriptions = this.pendingSubscriptions.filter(l => l !== listener);
+      };
+    }
+    return engine.subscribe(listener);
   }
 
   // --- Wrapper APIs ---
@@ -36,24 +55,46 @@ export class DiagnosticsService {
     stackTrace?: string,
     operationId?: string
   ): Diagnostic {
-    return this.getEngine().report(sourceModule, severity, category, message, details, stackTrace, operationId);
+    const engine = this.getEngine();
+    if (!engine) {
+      const fallback: Diagnostic = {
+        id: `diag-${Date.now()}`,
+        timestamp: Date.now(),
+        sourceModule,
+        severity,
+        category,
+        message,
+        status: DiagnosticStatus.Open
+      };
+      return fallback;
+    }
+    return engine.report(sourceModule, severity, category, message, details, stackTrace, operationId);
   }
 
   public updateStatus(id: string, status: DiagnosticStatus): void {
-    this.getEngine().updateStatus(id, status);
+    const engine = this.getEngine();
+    if (!engine) return;
+    engine.updateStatus(id, status);
   }
 
   public getFilteredHistory(filters: any): Diagnostic[] {
-    return this.getEngine().getFilteredHistory(filters);
+    const engine = this.getEngine();
+    if (!engine) return [];
+    return engine.getFilteredHistory(filters);
   }
 
   public getHistory(): Diagnostic[] {
-    return this.getEngine().getHistory();
+    const engine = this.getEngine();
+    if (!engine) return [];
+    return engine.getHistory();
   }
 
   public exportJson(): string {
-    return this.getEngine().exportJson();
+    const engine = this.getEngine();
+    if (!engine) return '[]';
+    return engine.exportJson();
   }
 }
 
 export const diagnosticsService = new DiagnosticsService();
+export default diagnosticsService;

@@ -2,20 +2,20 @@ import { ModelConfig, ModelState } from './runtimeTypes';
 
 export const DEFAULT_MODELS: ModelConfig[] = [
   {
-    modelId: 'qwen-2.5-7b-coder',
-    name: 'Qwen 2.5 7B Coder (GGUF Mock)',
-    provider: 'MockProvider',
+    modelId: 'qwen2.5-coder:7b',
+    name: 'Qwen 2.5 Coder 7B',
+    provider: 'Ollama',
     contextWindow: 32768,
     parametersCount: '7B',
     fileSizeGb: 4.5
   },
   {
-    modelId: 'llama-3-8b-instruct',
-    name: 'Llama 3 8B Instruct (GGUF Mock)',
-    provider: 'MockProvider',
+    modelId: 'nomic-embed-text',
+    name: 'Nomic Embed Text',
+    provider: 'Ollama',
     contextWindow: 8192,
-    parametersCount: '8B',
-    fileSizeGb: 4.9
+    parametersCount: '137M',
+    fileSizeGb: 0.28
   }
 ];
 

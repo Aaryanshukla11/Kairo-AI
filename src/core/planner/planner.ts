@@ -16,12 +16,23 @@ export class ExecutionPlanner {
 
     const intent = parsePromptIntoIntent(prompt);
     const planId = `plan-${Date.now()}`;
+
+    // Derive estimated files from matching generation template mapping count
+    let estimatedFiles = 1;
+    const desc = prompt.toLowerCase();
+    if (desc.includes('calculator')) {
+      estimatedFiles = 4;
+    } else if (desc.includes('todo') || desc.includes('react')) {
+      estimatedFiles = 4;
+    } else if (desc.includes('express') || desc.includes('api')) {
+      estimatedFiles = 4;
+    }
     
     const builder = new PlanBuilder(planId)
       .setTitle(intent.title)
       .setSummary(intent.summary)
       .setRiskLevel(intent.requiresFiles ? RiskLevel.Medium : RiskLevel.Low)
-      .setEstimatedFiles(intent.requiresFiles ? 3 : 0);
+      .setEstimatedFiles(estimatedFiles);
 
     // Deterministic mock steps
     builder.addTask({

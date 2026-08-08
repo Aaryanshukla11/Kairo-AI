@@ -56,3 +56,60 @@ export interface ArchEvent {
 }
 
 export type ArchEventListener = (event: ArchEvent) => void;
+
+export type ArchitectureAgentStage =
+  | 'ARCHITECTURE_GENERATION_STARTED'
+  | 'LAYER_DESIGN'
+  | 'MODULE_DESIGN'
+  | 'DEPENDENCY_ANALYSIS'
+  | 'ARCHITECTURE_VALIDATION'
+  | 'BLUEPRINT_GENERATED'
+  | 'BLUEPRINT_RETURNED';
+
+export interface IArchitectureAgentLog {
+  readonly stage: ArchitectureAgentStage;
+  readonly timestamp: number;
+  readonly status: 'SUCCESS' | 'WARNING' | 'FAILED';
+  readonly message: string;
+  readonly details: Record<string, any>;
+}
+
+export interface ILayerDefinition {
+  readonly name: string;
+  readonly responsibility: string;
+  readonly allowedDependencies: readonly string[];
+}
+
+export interface IModuleDefinition {
+  readonly name: string;
+  readonly layer: string;
+  readonly capabilities: readonly string[];
+  readonly dependencies: readonly string[];
+}
+
+export interface IDependencyGraph {
+  readonly nodes: readonly { id: string; name: string; layer: string }[];
+  readonly edges: readonly { from: string; to: string }[];
+  readonly hasCircularDependencies: boolean;
+}
+
+export interface IArchitectureBlueprint {
+  readonly requestId: string;
+  readonly sessionId: string;
+  readonly selectedArchitecturePattern: string;
+  readonly layerDiagram: readonly ILayerDefinition[];
+  readonly moduleDiagram: readonly IModuleDefinition[];
+  readonly packageLayout: readonly string[];
+  readonly folderLayout: Record<string, any>;
+  readonly dependencyGraph: IDependencyGraph;
+  readonly communicationRules: readonly string[];
+  readonly sharedLibraries: readonly string[];
+  readonly designPrinciples: readonly string[];
+  readonly validationStatus: 'PASSED' | 'FAILED';
+  readonly validationErrors?: readonly string[];
+  readonly metadata: {
+    readonly timestamp: number;
+    readonly version: string;
+  };
+}
+

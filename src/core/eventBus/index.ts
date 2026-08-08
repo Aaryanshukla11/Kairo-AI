@@ -16,3 +16,5 @@ export * from './eventReplay';
 export * from './eventMetrics';
 export * from './eventBus';
 export * from './middleware';
+export * from './runtime/kairoEventBusTypes';
+export * from './runtime/kairoEventBus';

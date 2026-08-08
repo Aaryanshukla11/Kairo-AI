@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AppContext, AppContextType, initialAppContext } from '../context/AppContext';
+import { ModelProvider } from '../context/ModelContext';
 
 interface AppProviderProps {
   children: React.ReactNode;
@@ -16,7 +17,9 @@ export function AppProvider({ children }: AppProviderProps): React.JSX.Element {
 
   return (
     <AppContext.Provider value={contextValue}>
-      {children}
+      <ModelProvider>
+        {children}
+      </ModelProvider>
     </AppContext.Provider>
   );
 }

@@ -47,8 +47,8 @@ describe('Multi-Model Router Tests', () => {
 
   describe('Fallback Managers', () => {
     it('should resolve fallback next best candidates', () => {
-      const selected = fallbackManager.resolveFallback('qwen-2.5-7b-coder', ['qwen-2.5-7b-coder', 'llama-3-8b-instruct'], FallbackStrategy.NextBestModel);
-      assert.strictEqual(selected, 'llama-3-8b-instruct');
+      const selected = fallbackManager.resolveFallback('qwen2.5-coder:7b', ['qwen2.5-coder:7b', 'nomic-embed-text'], FallbackStrategy.NextBestModel);
+      assert.strictEqual(selected, 'nomic-embed-text');
     });
   });
 
@@ -61,7 +61,7 @@ describe('Multi-Model Router Tests', () => {
         priority: 'normal'
       });
 
-      assert.strictEqual(decision.selectedModelId, 'qwen-2.5-7b-coder');
+      assert.strictEqual(decision.selectedModelId, 'qwen2.5-coder:7b');
       assert.ok(decision.confidence > 0.5);
       assert.ok(decision.alternatives.length > 0);
     });

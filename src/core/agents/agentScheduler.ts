@@ -35,6 +35,7 @@ export class AgentScheduler {
    * Dispatches task payload, updates state, and logs timing metrics.
    */
   public async dispatchTask(agent: BaseAgent, task: AgentTask): Promise<any> {
+    console.log(`[TRACE] [AgentRuntime] ENTER: dispatchTask. Agent ID: ${agent.id}, Task ID: ${task.id}`);
     const start = Date.now();
     const metric = this.getOrCreateMetric(agent.id);
     metric.tasksAssigned++;
@@ -45,11 +46,13 @@ export class AgentScheduler {
       metric.tasksCompleted++;
       metric.totalLatencyMs += Date.now() - start;
       metric.messagesSent++;
+      console.log(`[TRACE] [AgentRuntime] EXIT: dispatchTask completed. Agent ID: ${agent.id}, Task ID: ${task.id}`);
       return res;
     } catch (err: any) {
       metric.tasksFailed++;
       metric.totalLatencyMs += Date.now() - start;
       metric.messagesSent++;
+      console.log(`[TRACE] [AgentRuntime] EXIT: dispatchTask failed. Agent ID: ${agent.id}, Task ID: ${task.id}, Error: ${err.message}`);
       throw err;
     }
   }

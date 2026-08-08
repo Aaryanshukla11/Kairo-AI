@@ -32,7 +32,7 @@ describe('Inference Pipeline Tests', () => {
       const mockReq = {
         requestId: 'r2',
         sessionId: 's2',
-        modelId: 'qwen-2.5-7b-coder',
+        modelId: 'qwen2.5-coder:7b',
         prompt: 'Search list algorithm'
       };
 
@@ -55,7 +55,7 @@ describe('Inference Pipeline Tests', () => {
       const invalidReq = {
         requestId: 'r3',
         sessionId: 's3',
-        modelId: 'qwen-2.5-7b-coder',
+        modelId: 'qwen2.5-coder:7b',
         prompt: ''
       };
 

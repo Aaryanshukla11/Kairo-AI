@@ -5,7 +5,6 @@ export interface ParsedIntent {
 }
 
 export function parsePromptIntoIntent(prompt: string): ParsedIntent {
-  // Simple deterministic mock parser for foundation testing
   const normalized = prompt.toLowerCase();
   
   let title = "Execute General Task";
@@ -23,6 +22,12 @@ export function parsePromptIntoIntent(prompt: string): ParsedIntent {
   } else if (normalized.includes('api') || normalized.includes('backend')) {
     title = "Implement Backend API";
     summary = "Create API routes and necessary data validation logic.";
+    requiresFiles = true;
+  } else if (normalized.includes('clone') || normalized.includes('create') || normalized.includes('build') || normalized.includes('generate') || normalized.includes('make') || normalized.includes('app')) {
+    const cleaned = prompt.replace(/^(create|build|generate|make)\s+/i, '');
+    const capitalized = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+    title = `Scaffold ${capitalized}`;
+    summary = `Scaffold application files and write full code structures for "${prompt}".`;
     requiresFiles = true;
   }
 

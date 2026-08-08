@@ -15,3 +15,10 @@ export * from './inferenceEngine';
 export * from './inferenceCoordinator';
 export * from './inferencePipeline';
 export * from './providers';
+export * from './types';
+export * from './registry';
+export * from './factory';
+export * from './localInferenceService';
+export * from './providers/ollamaAdapter';
+
+

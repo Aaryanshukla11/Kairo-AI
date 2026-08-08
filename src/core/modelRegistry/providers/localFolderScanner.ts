@@ -16,8 +16,8 @@ export class LocalFolderScanner {
     // We mock scanning the directory and matching extensions
     if (dirPath.includes('models') || dirPath.includes('Kairo-AI') || dirPath.length > 0) {
       // Simulate discovering standard local model files
-      const mockGgufPath = path.join(dirPath, 'qwen-2.5-7b-coder.gguf');
-      const mockLlamaPath = path.join(dirPath, 'llama-3-8b-instruct.gguf');
+      const mockGgufPath = path.join(dirPath, 'qwen2.5-coder-7b.gguf');
+      const mockLlamaPath = path.join(dirPath, 'nomic-embed-text.gguf');
       
       models.push(this.gguf.scanFile(mockGgufPath));
       models.push(this.gguf.scanFile(mockLlamaPath));

@@ -18,6 +18,13 @@ export * from './debug';
 export * from './performance';
 export * from './dependency';
 export * from './architecture';
+export * from './requirement';
+export * from './projectIntelligence';
+export * from './engineeringDecision';
+export * from './workspace';
+export * from './projectManifest';
+export * from './generatorSDK';
+export * from './agentManager';
 
 
 

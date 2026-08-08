@@ -10,7 +10,7 @@ describe('Model Registry Tests', () => {
   describe('Capability Detection', () => {
     it('should correctly detect capabilities for a code model', () => {
       const mockModel: any = {
-        modelId: 'qwen-2.5-7b-coder',
+        modelId: 'qwen2.5-coder:7b',
         displayName: 'Qwen 2.5 7B Coder (Mock)',
         provider: 'gguf',
         contextLength: 32768,
@@ -50,7 +50,7 @@ describe('Model Registry Tests', () => {
   describe('Compatibility Analysis', () => {
     it('should pass compatibility when RAM is sufficient', () => {
       const mockModel: any = {
-        modelId: 'qwen-2.5-7b-coder',
+        modelId: 'qwen2.5-coder:7b',
         displayName: 'Qwen 2.5 7B Coder (Mock)',
         memoryRequirementGb: 8,
         format: 'gguf',

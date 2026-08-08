@@ -1,0 +1,273 @@
+<mxfile host="Electron" modified="2026-08-05T07:10:00Z" agent="Mozilla/5.0" version="20.0.0" type="device">
+  <diagram id="KairoAIStory" name="How Kairo-AI Works">
+    <mxGraphModel dx="2000" dy="2000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3300" pageHeight="2339" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="main_title" value="Kairo-AI End-to-End Code Generation Journey" style="text;html=1;fontSize=36;fontStyle=1;align=center;fontColor=#1A237E;" vertex="1" parent="1">
+          <mxGeometry x="50" y="40" width="3200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ROW 1 (Left to Right) -->
+
+        <!-- 1. USER -->
+        <mxCell id="step1" value="1. USER" style="swimlane;startSize=35;fillColor=#FFF3E0;strokeColor=#E65100;fontStyle=1;rounded=1;glass=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="100" y="150" width="500" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="step1_1" value="Writes Prompt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#E65100;fontSize=12;fontStyle=1;" vertex="1" parent="step1">
+          <mxGeometry x="50" y="60" width="400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step1_2" value="Specifies Preferences" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#E65100;fontSize=12;fontStyle=1;" vertex="1" parent="step1">
+          <mxGeometry x="50" y="150" width="400" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- 2. KAIRO-AI APPLICATION -->
+        <mxCell id="step2" value="2. KAIRO-AI APPLICATION" style="swimlane;startSize=35;fillColor=#F3E5F5;strokeColor=#4A148C;fontStyle=1;rounded=1;glass=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="750" y="150" width="500" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="step2_1" value="VS Code Extension" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4A148C;fontSize=12;fontStyle=1;" vertex="1" parent="step2">
+          <mxGeometry x="50" y="60" width="400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step2_2" value="Desktop IDE Panel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4A148C;fontSize=12;fontStyle=1;" vertex="1" parent="step2">
+          <mxGeometry x="50" y="130" width="400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step2_3" value="Terminal CLI Runner" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#4A148C;fontSize=12;fontStyle=1;" vertex="1" parent="step2">
+          <mxGeometry x="50" y="200" width="400" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- 3. UNDERSTAND USER REQUEST -->
+        <mxCell id="step3" value="3. UNDERSTAND USER REQUEST" style="swimlane;startSize=35;fillColor=#E1F5FE;strokeColor=#0288D1;fontStyle=1;rounded=1;glass=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="150" width="750" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="step3_1" value="Reads Natural Language Prompt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0288D1;fontSize=11;fontStyle=1;" vertex="1" parent="step3">
+          <mxGeometry x="40" y="60" width="310" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step3_2" value="Extracts Key Requirements" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0288D1;fontSize=11;fontStyle=1;" vertex="1" parent="step3">
+          <mxGeometry x="400" y="60" width="310" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step3_3" value="Detects Project Classification Category" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0288D1;fontSize=11;fontStyle=1;" vertex="1" parent="step3">
+          <mxGeometry x="40" y="150" width="310" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step3_4" value="Compiles Immutable Requirements Object" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0288D1;fontSize=11;fontStyle=1;" vertex="1" parent="step3">
+          <mxGeometry x="400" y="150" width="310" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- 4. THINK & PLAN -->
+        <mxCell id="step4" value="4. THINK &amp; PLAN" style="swimlane;startSize=35;fillColor=#E8F5E9;strokeColor=#2E7D32;fontStyle=1;rounded=1;glass=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="2300" y="150" width="750" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="step4_1" value="Analyzes Complex Scaling Requirements" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2E7D32;fontSize=11;fontStyle=1;" vertex="1" parent="step4">
+          <mxGeometry x="40" y="60" width="310" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step4_2" value="Decides Engineering Stack" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2E7D32;fontSize=11;fontStyle=1;" vertex="1" parent="step4">
+          <mxGeometry x="400" y="60" width="310" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step4_3" value="Designs System Architecture Blueprint" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2E7D32;fontSize=11;fontStyle=1;" vertex="1" parent="step4">
+          <mxGeometry x="40" y="150" width="310" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step4_4" value="Brakes Project into Tasks DAG Graph" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2E7D32;fontSize=11;fontStyle=1;" vertex="1" parent="step4">
+          <mxGeometry x="400" y="150" width="310" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ROW 2 (Right to Left) -->
+
+        <!-- 5. SEARCH KNOWLEDGE -->
+        <mxCell id="step5" value="5. SEARCH KNOWLEDGE" style="swimlane;startSize=35;fillColor=#FFFDE7;strokeColor=#F57F17;fontStyle=1;rounded=1;glass=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="2300" y="600" width="750" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="step5_1" value="Retrieves Programming Documentation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#F57F17;fontSize=11;fontStyle=1;" vertex="1" parent="step5">
+          <mxGeometry x="40" y="60" width="310" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step5_2" value="Scans Local Git Repositories" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#F57F17;fontSize=11;fontStyle=1;" vertex="1" parent="step5">
+          <mxGeometry x="400" y="60" width="310" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step5_3" value="Injects System Context Engine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#F57F17;fontSize=11;fontStyle=1;" vertex="1" parent="step5">
+          <mxGeometry x="40" y="150" width="310" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step5_4" value="Finds Previous Similar Project Solutions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#F57F17;fontSize=11;fontStyle=1;" vertex="1" parent="step5">
+          <mxGeometry x="400" y="150" width="310" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- 6. CHOOSE BEST AI MODEL -->
+        <mxCell id="step6" value="6. CHOOSE BEST AI MODEL" style="swimlane;startSize=35;fillColor=#E0F7FA;strokeColor=#006064;fontStyle=1;rounded=1;glass=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="600" width="750" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="step6_1" value="Selects Code Generation Model" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#006064;fontSize=11;fontStyle=1;" vertex="1" parent="step6">
+          <mxGeometry x="40" y="60" width="310" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step6_2" value="Selects Planning &amp; Reasoning Model" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#006064;fontSize=11;fontStyle=1;" vertex="1" parent="step6">
+          <mxGeometry x="400" y="60" width="310" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step6_3" value="Selects UI &amp; Mockups Vision Model" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#006064;fontSize=11;fontStyle=1;" vertex="1" parent="step6">
+          <mxGeometry x="40" y="150" width="310" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step6_4" value="Employs Vector Embedding Models" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#006064;fontSize=11;fontStyle=1;" vertex="1" parent="step6">
+          <mxGeometry x="400" y="150" width="310" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- 7. GENERATE SOFTWARE -->
+        <mxCell id="step7" value="7. GENERATE SOFTWARE" style="swimlane;startSize=35;fillColor=#FCE4EC;strokeColor=#880E4F;fontStyle=1;rounded=1;glass=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="750" y="600" width="500" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="step7_1" value="Frontend Code (HTML/CSS/JS)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#880E4F;fontSize=11;fontStyle=1;" vertex="1" parent="step7">
+          <mxGeometry x="50" y="55" width="400" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="step7_2" value="Backend Logic API Framework" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#880E4F;fontSize=11;fontStyle=1;" vertex="1" parent="step7">
+          <mxGeometry x="50" y="105" width="400" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="step7_3" value="Database Schema Models migrations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#880E4F;fontSize=11;fontStyle=1;" vertex="1" parent="step7">
+          <mxGeometry x="50" y="155" width="400" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="step7_4" value="Authentication &amp; Tokens Securing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#880E4F;fontSize=11;fontStyle=1;" vertex="1" parent="step7">
+          <mxGeometry x="50" y="205" width="400" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="step7_5" value="Scaffolding Folder Config Files" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#880E4F;fontSize=11;fontStyle=1;" vertex="1" parent="step7">
+          <mxGeometry x="50" y="255" width="400" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="step7_6" value="System Markdown Documentation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#880E4F;fontSize=11;fontStyle=1;" vertex="1" parent="step7">
+          <mxGeometry x="50" y="305" width="400" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="step7_7" value="Docker Deployment setup" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#880E4F;fontSize=11;fontStyle=1;" vertex="1" parent="step7">
+          <mxGeometry x="50" y="355" width="400" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 8. REVIEW & DEBUG -->
+        <mxCell id="step8" value="8. REVIEW &amp; DEBUG" style="swimlane;startSize=35;fillColor=#E0F2F1;strokeColor=#004D40;fontStyle=1;rounded=1;glass=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="100" y="600" width="500" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="step8_1" value="Static Code Analysis Checks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#004D40;fontSize=12;fontStyle=1;" vertex="1" parent="step8">
+          <mxGeometry x="50" y="60" width="400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step8_2" value="Executes Sandboxed Error Checks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#004D40;fontSize=12;fontStyle=1;" vertex="1" parent="step8">
+          <mxGeometry x="50" y="130" width="400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step8_3" value="Auto-corrects Syntax Bugs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#004D40;fontSize=12;fontStyle=1;" vertex="1" parent="step8">
+          <mxGeometry x="50" y="200" width="400" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ROW 3 (Left to Right) -->
+
+        <!-- 9. EXECUTE PROJECT -->
+        <mxCell id="step9" value="9. EXECUTE PROJECT" style="swimlane;startSize=35;fillColor=#E8EAF6;strokeColor=#1A237E;fontStyle=1;rounded=1;glass=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1150" width="500" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="step9_1" value="Resolves Package Managers Dependencies" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1A237E;fontSize=12;fontStyle=1;" vertex="1" parent="step9">
+          <mxGeometry x="50" y="60" width="400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step9_2" value="Launches Local Bundlers Builds" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1A237E;fontSize=12;fontStyle=1;" vertex="1" parent="step9">
+          <mxGeometry x="50" y="130" width="400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step9_3" value="Audits Runtimes Systems Watchdogs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#1A237E;fontSize=12;fontStyle=1;" vertex="1" parent="step9">
+          <mxGeometry x="50" y="200" width="400" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- 10. TEST PROJECT -->
+        <mxCell id="step10" value="10. TEST PROJECT" style="swimlane;startSize=35;fillColor=#E1F5FE;strokeColor=#01579B;fontStyle=1;rounded=1;glass=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="750" y="1150" width="500" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="step10_1" value="Unit testing suites assertions checks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#01579B;fontSize=12;fontStyle=1;" vertex="1" parent="step10">
+          <mxGeometry x="50" y="60" width="400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step10_2" value="Integration boundary testing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#01579B;fontSize=12;fontStyle=1;" vertex="1" parent="step10">
+          <mxGeometry x="50" y="130" width="400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step10_3" value="Performance benchmarks profiling" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#01579B;fontSize=12;fontStyle=1;" vertex="1" parent="step10">
+          <mxGeometry x="50" y="200" width="400" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- 11. DEPLOY PROJECT -->
+        <mxCell id="step11" value="11. DEPLOY PROJECT" style="swimlane;startSize=35;fillColor=#E0F2F1;strokeColor=#004D40;fontStyle=1;rounded=1;glass=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="1150" width="500" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="step11_1" value="Builds isolated Docker Images" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#004D40;fontSize=12;fontStyle=1;" vertex="1" parent="step11">
+          <mxGeometry x="50" y="60" width="400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step11_2" value="Syncs Workspace Git branches configurations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#004D40;fontSize=12;fontStyle=1;" vertex="1" parent="step11">
+          <mxGeometry x="50" y="130" width="400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step11_3" value="Launches Local Port configurations routing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#004D40;fontSize=12;fontStyle=1;" vertex="1" parent="step11">
+          <mxGeometry x="50" y="200" width="400" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- 12. LEARN FOR FUTURE -->
+        <mxCell id="step12" value="12. LEARN FOR FUTURE" style="swimlane;startSize=35;fillColor=#FFFDE7;strokeColor=#F57F17;fontStyle=1;rounded=1;glass=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="2050" y="1150" width="550" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="step12_1" value="Appends successful snippets to Project Memory" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#F57F17;fontSize=12;fontStyle=1;" vertex="1" parent="step12">
+          <mxGeometry x="50" y="60" width="450" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step12_2" value="Updates local vector embedding database" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#F57F17;fontSize=12;fontStyle=1;" vertex="1" parent="step12">
+          <mxGeometry x="50" y="130" width="450" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step12_3" value="Prepares token datasets logs for model fine-tuning" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#F57F17;fontSize=12;fontStyle=1;" vertex="1" parent="step12">
+          <mxGeometry x="50" y="200" width="450" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- 13. FINAL RESULT -->
+        <mxCell id="step13" value="13. FINAL RESULT" style="swimlane;startSize=35;fillColor=#FCE4EC;strokeColor=#880E4F;fontStyle=1;rounded=1;glass=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="2750" y="1150" width="450" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="step13_1" value="Fully Compiled Working Software" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#880E4F;fontSize=12;fontStyle=1;" vertex="1" parent="step13">
+          <mxGeometry x="50" y="60" width="350" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step13_2" value="Complete System Documentation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#880E4F;fontSize=12;fontStyle=1;" vertex="1" parent="step13">
+          <mxGeometry x="50" y="130" width="350" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step13_3" value="Clean Rollback Manifests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#880E4F;fontSize=12;fontStyle=1;" vertex="1" parent="step13">
+          <mxGeometry x="50" y="200" width="350" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Dynamic Snake Flow Connectors -->
+
+        <!-- Row 1: Left to Right Connectors -->
+        <mxCell id="edge1" value="Loads Prompt" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7B1FA2;strokeWidth=3;fontColor=#4A148C;fontStyle=1;" edge="1" parent="1" source="step1" target="step2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2" value="Parses Content" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0288D1;strokeWidth=3;fontColor=#01579B;fontStyle=1;" edge="1" parent="1" source="step2" target="step3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge3" value="Decides Architectures" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2E7D32;strokeWidth=3;fontColor=#1B5E20;fontStyle=1;" edge="1" parent="1" source="step3" target="step4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Downward Loop to Row 2: Step 4 -> Step 5 -->
+        <mxCell id="edge4" value="Queries References" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#F57F17;strokeWidth=3;fontColor=#E65100;fontStyle=1;" edge="1" parent="1" source="step4" target="step5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Row 2: Right to Left Connectors -->
+        <mxCell id="edge5" value="Prepares Contexts" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#006064;strokeWidth=3;fontColor=#004D40;fontStyle=1;" edge="1" parent="1" source="step5" target="step6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge6" value="Compiles Source Files" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#880E4F;strokeWidth=3;fontColor=#4A0E2E;fontStyle=1;" edge="1" parent="1" source="step6" target="step7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge7" value="Audits Bugfixes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#004D40;strokeWidth=3;fontColor=#00332c;fontStyle=1;" edge="1" parent="1" source="step7" target="step8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Downward Loop to Row 3: Step 8 -> Step 9 -->
+        <mxCell id="edge8" value="Launches Local Builds" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#1A237E;strokeWidth=3;fontColor=#0d133a;fontStyle=1;" edge="1" parent="1" source="step8" target="step9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Row 3: Left to Right Connectors -->
+        <mxCell id="edge9" value="Validates Assertions" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#01579B;strokeWidth=3;fontColor=#003666;fontStyle=1;" edge="1" parent="1" source="step9" target="step10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge10" value="Syncs Containers" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#004D40;strokeWidth=3;fontColor=#002a24;fontStyle=1;" edge="1" parent="1" source="step10" target="step11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge11" value="Saves Snippets" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#F57F17;strokeWidth=3;fontColor=#b55a00;fontStyle=1;" edge="1" parent="1" source="step11" target="step12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge12" value="Delivers Scaffolds" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#880E4F;strokeWidth=3;fontColor=#4d002a;fontStyle=1;" edge="1" parent="1" source="step12" target="step13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,21 +1,33 @@
 import * as vscode from 'vscode';
 import { CheckpointEngine } from './checkpointEngine';
-import { CheckpointInfo, CheckpointEventListener } from './checkpointTypes';
+import { CheckpointInfo, CheckpointEventListener, CheckpointStatus } from './checkpointTypes';
 import { checkpointRegistry } from './checkpointRegistry';
+import { ILazyWorkspaceService, WorkspaceLifecycleState, workspaceLifecycleManager } from '../workspace/workspaceLifecycleManager';
 
-export class CheckpointService {
+export class CheckpointService implements ILazyWorkspaceService {
+  public state: WorkspaceLifecycleState = 'NOT_INITIALIZED';
   private activeEngine: CheckpointEngine | null = null;
+  private pendingSubscriptions: CheckpointEventListener[] = [];
 
-  private getEngine(): CheckpointEngine {
-    const folders = vscode.workspace.workspaceFolders;
-    if (!folders || folders.length === 0) {
-      throw new Error('Workspace Checkpoint Service: No workspace folder is open');
-    }
+  constructor() {
+    workspaceLifecycleManager.registerService(this);
+  }
 
-    const root = folders[0].uri.fsPath;
-    if (!this.activeEngine) {
-      this.activeEngine = new CheckpointEngine(root);
+  public initialize(rootPath: string): void {
+    this.activeEngine = new CheckpointEngine(rootPath);
+    this.state = 'READY';
+    for (const listener of this.pendingSubscriptions) {
+      this.activeEngine.subscribe(listener);
     }
+    this.pendingSubscriptions = [];
+  }
+
+  public reset(): void {
+    this.activeEngine = null;
+    this.state = 'WAITING_FOR_WORKSPACE';
+  }
+
+  private getEngine(): CheckpointEngine | null {
     return this.activeEngine;
   }
 
@@ -23,7 +35,14 @@ export class CheckpointService {
    * Subscribes to active checkpoint events.
    */
   public subscribe(listener: CheckpointEventListener): () => void {
-    return this.getEngine().subscribe(listener);
+    const engine = this.getEngine();
+    if (!engine) {
+      this.pendingSubscriptions.push(listener);
+      return () => {
+        this.pendingSubscriptions = this.pendingSubscriptions.filter(l => l !== listener);
+      };
+    }
+    return engine.subscribe(listener);
   }
 
   // --- Wrapper APIs ---
@@ -34,19 +53,38 @@ export class CheckpointService {
     affectedFiles: string[], 
     metadata?: Record<string, any>
   ): CheckpointInfo {
-    return this.getEngine().createCheckpoint(workspaceId, transactionId, affectedFiles, metadata);
+    const engine = this.getEngine();
+    if (!engine) {
+      const fallback: CheckpointInfo = {
+        id: `chk-${Date.now()}`,
+        workspaceId,
+        transactionId,
+        timestamp: Date.now(),
+        affectedFiles,
+        status: CheckpointStatus.Created,
+        workspaceHash: ''
+      };
+      return fallback;
+    }
+    return engine.createCheckpoint(workspaceId, transactionId, affectedFiles, metadata);
   }
 
   public restoreCheckpoint(id: string): void {
-    this.getEngine().restoreCheckpoint(id);
+    const engine = this.getEngine();
+    if (!engine) return;
+    engine.restoreCheckpoint(id);
   }
 
   public deleteCheckpoint(id: string): void {
-    this.getEngine().deleteCheckpoint(id);
+    const engine = this.getEngine();
+    if (!engine) return;
+    engine.deleteCheckpoint(id);
   }
 
   public expireCheckpoint(id: string): void {
-    this.getEngine().expireCheckpoint(id);
+    const engine = this.getEngine();
+    if (!engine) return;
+    engine.expireCheckpoint(id);
   }
 
   public getCheckpoint(id: string): CheckpointInfo | undefined {
@@ -59,3 +97,4 @@ export class CheckpointService {
 }
 
 export const checkpointService = new CheckpointService();
+export default checkpointService;

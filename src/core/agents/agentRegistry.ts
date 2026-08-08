@@ -12,12 +12,73 @@ import { DebugAgent } from './debug/debugAgent';
 import { PerformanceAgent } from './performance/performanceAgent';
 import { DependencyAgent } from './dependency/dependencyAgent';
 import { ArchitectureAgent } from './architecture/architectureAgent';
+import { RequirementAgent } from './requirement/requirementAgent';
+import { ProjectIntelligenceAgent } from './projectIntelligence/projectIntelligenceAgent';
+import { EngineeringDecisionAgent } from './engineeringDecision/engineeringDecisionAgent';
+import { WorkspaceAgent } from './workspace/workspaceAgent';
+import { ProjectManifestAgent } from './projectManifest/projectManifestAgent';
+import { GeneratorSDKAgent } from './generatorSDK/generatorSDKAgent';
 import { agentValidator } from './agentValidator';
 
 export class AgentRegistry {
   private agents = new Map<string, BaseAgent>();
 
   constructor() {
+    this.register(new RequirementAgent({
+      id: 'requirement-agent',
+      name: 'Requirement Agent',
+      role: 'Prompt Requirement Analysis & Intent QA',
+      version: '1.0.0',
+      status: AgentStatus.Idle,
+      priority: 10,
+      capabilities: ['requirement', 'intent', 'scope'],
+      permissions: ['READ']
+    }));
+
+    this.register(new ProjectIntelligenceAgent({
+      id: 'project-intelligence-agent',
+      name: 'Project Intelligence Agent',
+      role: 'Project Classification & Tech Stack Intelligence QA',
+      version: '1.0.0',
+      status: AgentStatus.Idle,
+      priority: 10,
+      capabilities: ['intelligence', 'classification', 'stack_recommendation'],
+      permissions: ['READ']
+    }));
+
+    this.register(new EngineeringDecisionAgent({
+      id: 'engineering-decision-agent',
+      name: 'Engineering Decision Agent',
+      role: 'Technical Decisions & Architecture Strategy QA',
+      version: '1.0.0',
+      status: AgentStatus.Idle,
+      priority: 10,
+      capabilities: ['decision', 'architecture_selection', 'framework_selection'],
+      permissions: ['READ']
+    }));
+
+    this.register(new ProjectManifestAgent({
+      id: 'project-manifest-agent',
+      name: 'Project Manifest Agent',
+      role: 'Single Source of Truth Manifest & Ownership QA',
+      version: '1.0.0',
+      status: AgentStatus.Idle,
+      priority: 10,
+      capabilities: ['manifest', 'ownership', 'file_tree'],
+      permissions: ['READ']
+    }));
+
+    this.register(new GeneratorSDKAgent({
+      id: 'generator-sdk-agent',
+      name: 'Generator SDK Agent',
+      role: 'Central Code Generator Framework Execution QA',
+      version: '1.0.0',
+      status: AgentStatus.Idle,
+      priority: 10,
+      capabilities: ['generator_sdk', 'code_generation', 'lifecycle_execution'],
+      permissions: ['READ', 'WRITE']
+    }));
+
     this.register(new PlannerAgent({
       id: 'planner-agent',
       name: 'Planner Agent',
@@ -150,14 +211,14 @@ export class AgentRegistry {
       permissions: ['READ']
     }));
 
-    this.register(new TaskAgent({
+    this.register(new WorkspaceAgent({
       id: 'workspace-agent',
       name: 'Workspace Agent',
-      role: 'File Discovery & Sync',
+      role: 'Workspace Layout & Boundaries QA',
       version: '1.0.0',
       status: AgentStatus.Idle,
-      priority: 5,
-      capabilities: ['discovery', 'modification'],
+      priority: 8,
+      capabilities: ['workspace', 'boundaries', 'discovery'],
       permissions: ['READ', 'WRITE']
     }));
 

@@ -114,7 +114,37 @@ export enum MessageType {
   REPLANNING_REQUEST = "REPLANNING_REQUEST",
   RECOVERY_UPDATE = "RECOVERY_UPDATE",
   RECOVERY_REQUEST = "RECOVERY_REQUEST",
+  RELEASE_REQUEST = "RELEASE_REQUEST",
+  RELEASE_UPDATE = "RELEASE_UPDATE",
+  MODEL_STATUS = "MODEL_STATUS",
+  MODEL_READY = "MODEL_READY",
+  MODEL_LOADING = "MODEL_LOADING",
+  MODEL_OFFLINE = "MODEL_OFFLINE",
+  MODEL_LIST = "MODEL_LIST",
+  MODEL_SWITCH_REQUEST = "MODEL_SWITCH_REQUEST",
+  MODEL_SWITCH_RESPONSE = "MODEL_SWITCH_RESPONSE",
+  UPLOAD_ASSETS_REQUEST = "UPLOAD_ASSETS_REQUEST",
+  UPLOAD_ASSETS_RESPONSE = "UPLOAD_ASSETS_RESPONSE",
+  SHOW_HISTORY = "SHOW_HISTORY",
+  MORE_OPTIONS = "MORE_OPTIONS",
+  CLOSE_PANEL = "CLOSE_PANEL",
+  PIPELINE_STATUS = "PIPELINE_STATUS",
+  EXECUTION_EVENT = "EXECUTION_EVENT",
   UNKNOWN = "UNKNOWN",
+}
+
+export interface IExecutionEventPayload {
+  id: string;
+  timestamp: number;
+  elapsedMs: number;
+  stage: string;
+  substage: string;
+  message: string;
+  progress: number | null;
+  status: 'running' | 'done' | 'warning' | 'error';
+  model?: string;
+  file?: string;
+  tokenCount?: number;
 }
 
 export enum MessageSource {

@@ -20,3 +20,5 @@ export * from './conventions';
 export * from './naming';
 export * from './imports';
 export * from './symbols';
+export * from './project';
+

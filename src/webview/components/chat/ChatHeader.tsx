@@ -1,73 +1,156 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useAppContext } from '../../context/AppContext';
+import { vscodeBridge } from '../../services/vscodeBridge';
+import { workspaceService } from '../../services/workspaceService';
+import { WorkspaceSummary } from '../../../core/workspace/workspaceTypes';
 
-export function ChatHeader(): React.JSX.Element {
+export interface ChatHeaderProps {
+  currentView: 'chat' | 'platform' | 'runtime' | 'release';
+  setCurrentView: (view: 'chat' | 'platform' | 'runtime' | 'release') => void;
+}
+
+export function ChatHeader({ currentView, setCurrentView }: ChatHeaderProps): React.JSX.Element {
+  const { chatState, setChatState } = useAppContext();
+  const [folderName, setFolderName] = useState<string>('Kairo AI');
+
+  useEffect(() => {
+    workspaceService.getWorkspaceSummary()
+      .then((summary) => {
+        if (summary && (summary as WorkspaceSummary).projectName) {
+          setFolderName((summary as WorkspaceSummary).projectName);
+        }
+      })
+      .catch(() => {
+        // Fallback to default
+      });
+  }, []);
+
+  const handleNewChat = () => {
+    setChatState({
+      messages: [],
+      isTyping: false,
+      isStreaming: false
+    });
+  };
+
+  const handleShowHistory = () => {
+    const prompts = chatState.messages
+      .filter(m => m.role === 'USER')
+      .map(m => m.content);
+    
+    vscodeBridge.postMessage({
+      type: 'SHOW_HISTORY',
+      payload: { prompts }
+    } as any);
+  };
+
+  const handleMoreOptions = () => {
+    vscodeBridge.postMessage({
+      type: 'MORE_OPTIONS'
+    } as any);
+  };
+
+  const handleClosePanel = () => {
+    vscodeBridge.postMessage({
+      type: 'CLOSE_PANEL'
+    } as any);
+  };
+
   return (
-    <header className="chat-header">
-      <div className="chat-header-identity">
-        <div className="chat-header-avatar" style={{
-          width: '24px',
-          height: '24px',
-          borderRadius: '6px',
-          backgroundColor: 'var(--primary, #007acc)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#fff'
-        }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" />
-            <path d="M12 8v14" />
-            <path d="M16 12h4" />
-            <path d="M4 12h4" />
-          </svg>
-        </div>
-        <h1 className="chat-header-title">Kaira AI</h1>
-        <span className="chat-status-badge" style={{
-          fontSize: '10px',
-          fontWeight: 600,
-          padding: '2px 6px',
-          borderRadius: '10px',
-          backgroundColor: 'rgba(78, 201, 176, 0.15)',
-          color: '#4ec9b0',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '4px'
-        }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#4ec9b0', display: 'inline-block' }}></span>
-          Running
-        </span>
+    <header style={styles.header}>
+      {/* Title section on the left */}
+      <div style={styles.titleContainer}>
+        <h1 style={styles.title} title={folderName}>
+          {folderName}
+        </h1>
       </div>
-      <div className="chat-header-actions">
-        <button className="header-icon-button" title="New Session" aria-label="New Session">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 5v14M5 12h14" />
+
+      {/* Action buttons on the right */}
+      <div style={styles.actionsContainer}>
+        {/* Plus Button */}
+        <button style={styles.iconButton} title="New Session" onClick={handleNewChat}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
         </button>
-        <button className="header-icon-button" title="History" aria-label="History">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+
+        {/* History / Clock Button */}
+        <button style={styles.iconButton} title="Show history" onClick={handleShowHistory}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
         </button>
-        <button className="header-icon-button" title="Stop Task" aria-label="Stop Task">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="6" y="6" width="12" height="12" rx="1" />
+
+        {/* More Options Button */}
+        <button style={styles.iconButton} title="More actions" onClick={handleMoreOptions}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <circle cx="12" cy="5" r="1.5" />
+            <circle cx="12" cy="12" r="1.5" />
+            <circle cx="12" cy="19" r="1.5" />
           </svg>
         </button>
-        <button className="header-icon-button" title="Settings" aria-label="Settings">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-          </svg>
-        </button>
-        <button className="header-icon-button" title="More" aria-label="More">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="5" r="1" />
-            <circle cx="12" cy="12" r="1" />
-            <circle cx="12" cy="19" r="1" />
+
+        {/* Close Button */}
+        <button style={styles.iconButton} title="Close panel" onClick={handleClosePanel}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
       </div>
     </header>
   );
 }
+
+const styles = {
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#121212',
+    borderBottom: '1px solid #2d2d2d',
+    padding: '8px 16px',
+    height: '40px',
+    boxSizing: 'border-box' as 'border-box',
+    flexShrink: 0
+  },
+  titleContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    maxWidth: '70%',
+    overflow: 'hidden'
+  },
+  title: {
+    margin: 0,
+    fontSize: '13px',
+    fontWeight: 'normal' as 'normal',
+    color: '#cccccc',
+    whiteSpace: 'nowrap' as 'nowrap',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+  },
+  actionsContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px'
+  },
+  iconButton: {
+    background: 'none',
+    border: 'none',
+    color: '#8c8c8c',
+    cursor: 'pointer',
+    padding: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '4px',
+    transition: 'all 0.15s ease',
+    '&:hover': {
+      color: '#cccccc',
+      backgroundColor: '#2d2d2d'
+    }
+  }
+};

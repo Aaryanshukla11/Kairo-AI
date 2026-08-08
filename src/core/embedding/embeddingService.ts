@@ -2,20 +2,37 @@ import * as vscode from 'vscode';
 import { EmbeddingEngine } from './embeddingEngine';
 import { EmbeddingObject, EmbeddingSourceType } from './embeddingTypes';
 import { EmbeddingProvider } from './providers';
+import { ILazyWorkspaceService, WorkspaceLifecycleState, workspaceLifecycleManager } from '../workspace/workspaceLifecycleManager';
 
-export class EmbeddingService {
+export class EmbeddingService implements ILazyWorkspaceService {
+  public state: WorkspaceLifecycleState = 'NOT_INITIALIZED';
   private activeEngine: EmbeddingEngine | null = null;
+  private pendingSubscriptions: any[] = [];
+  private deferredProvider: EmbeddingProvider | null = null;
 
-  private getEngine(): EmbeddingEngine {
-    const folders = vscode.workspace.workspaceFolders;
-    if (!folders || folders.length === 0) {
-      throw new Error('Workspace Embedding Service: No workspace folder is open');
-    }
+  constructor() {
+    workspaceLifecycleManager.registerService(this);
+  }
 
-    const root = folders[0].uri.fsPath;
-    if (!this.activeEngine) {
-      this.activeEngine = new EmbeddingEngine();
+  public initialize(rootPath: string): void {
+    this.activeEngine = new EmbeddingEngine();
+    this.state = 'READY';
+    if (this.deferredProvider) {
+      this.activeEngine.setProvider(this.deferredProvider);
+      this.deferredProvider = null;
     }
+    for (const listener of this.pendingSubscriptions) {
+      this.activeEngine.subscribe(listener);
+    }
+    this.pendingSubscriptions = [];
+  }
+
+  public reset(): void {
+    this.activeEngine = null;
+    this.state = 'WAITING_FOR_WORKSPACE';
+  }
+
+  private getEngine(): EmbeddingEngine | null {
     return this.activeEngine;
   }
 
@@ -23,34 +40,67 @@ export class EmbeddingService {
    * Subscribes a listener to Embedding changes.
    */
   public subscribe(listener: any): () => void {
-    return this.getEngine().subscribe(listener);
+    const engine = this.getEngine();
+    if (!engine) {
+      this.pendingSubscriptions.push(listener);
+      return () => {
+        this.pendingSubscriptions = this.pendingSubscriptions.filter(l => l !== listener);
+      };
+    }
+    return engine.subscribe(listener);
   }
 
   // --- Wrapper APIs ---
 
   public setProvider(provider: EmbeddingProvider): void {
-    this.getEngine().setProvider(provider);
+    const engine = this.getEngine();
+    if (!engine) {
+      this.deferredProvider = provider;
+      return;
+    }
+    engine.setProvider(provider);
   }
 
   public getProviderName(): string {
-    return this.getEngine().getProviderName();
+    const engine = this.getEngine();
+    if (!engine) {
+      return 'None';
+    }
+    return engine.getProviderName();
   }
 
   public queueJob(sourceId: string, sourceType: EmbeddingSourceType, content: string): EmbeddingObject {
-    return this.getEngine().queueJob(sourceId, sourceType, content);
+    const engine = this.getEngine();
+    if (!engine) {
+      return {
+        id: sourceId,
+        sourceType,
+        contentHash: '',
+        vector: [],
+        timestamp: Date.now()
+      };
+    }
+    return engine.queueJob(sourceId, sourceType, content);
   }
 
   public async processQueue(): Promise<void> {
-    await this.getEngine().processQueue();
+    const engine = this.getEngine();
+    if (!engine) return;
+    await engine.processQueue();
   }
 
   public getPendingQueue(): any[] {
-    return this.getEngine().getPendingQueue();
+    const engine = this.getEngine();
+    if (!engine) return [];
+    return engine.getPendingQueue();
   }
 
   public getFailedItems(): Map<string, string> {
-    return this.getEngine().getFailedItems();
+    const engine = this.getEngine();
+    if (!engine) return new Map();
+    return engine.getFailedItems();
   }
 }
 
 export const embeddingService = new EmbeddingService();
+export default embeddingService;

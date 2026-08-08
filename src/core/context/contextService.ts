@@ -2,20 +2,32 @@ import * as vscode from 'vscode';
 import { ContextEngine } from './contextEngine';
 import { ProjectContext, ContextSelectionInfo, ContextPlannerInfo, ContextExecutionInfo, ContextGitInfo } from './contextTypes';
 import { Diagnostic } from '../diagnostics/diagnosticsTypes';
+import { ILazyWorkspaceService, WorkspaceLifecycleState, workspaceLifecycleManager } from '../workspace/workspaceLifecycleManager';
 
-export class ContextService {
+export class ContextService implements ILazyWorkspaceService {
+  public state: WorkspaceLifecycleState = 'NOT_INITIALIZED';
   private activeEngine: ContextEngine | null = null;
+  private pendingSubscriptions: any[] = [];
 
-  private getEngine(): ContextEngine {
-    const folders = vscode.workspace.workspaceFolders;
-    if (!folders || folders.length === 0) {
-      throw new Error('Workspace Context Service: No workspace folder is open');
-    }
+  constructor() {
+    workspaceLifecycleManager.registerService(this);
+  }
 
-    const root = folders[0].uri.fsPath;
-    if (!this.activeEngine) {
-      this.activeEngine = new ContextEngine(root);
+  public initialize(rootPath: string): void {
+    this.activeEngine = new ContextEngine(rootPath);
+    this.state = 'READY';
+    for (const listener of this.pendingSubscriptions) {
+      this.activeEngine.subscribe(listener);
     }
+    this.pendingSubscriptions = [];
+  }
+
+  public reset(): void {
+    this.activeEngine = null;
+    this.state = 'WAITING_FOR_WORKSPACE';
+  }
+
+  private getEngine(): ContextEngine | null {
     return this.activeEngine;
   }
 
@@ -23,7 +35,14 @@ export class ContextService {
    * Subscribes to active context events.
    */
   public subscribe(listener: any): () => void {
-    return this.getEngine().subscribe(listener);
+    const engine = this.getEngine();
+    if (!engine) {
+      this.pendingSubscriptions.push(listener);
+      return () => {
+        this.pendingSubscriptions = this.pendingSubscriptions.filter(l => l !== listener);
+      };
+    }
+    return engine.subscribe(listener);
   }
 
   // --- Wrapper APIs ---
@@ -37,16 +56,36 @@ export class ContextService {
     diagnostics: Diagnostic[];
     limitBytes?: number;
   }): ProjectContext {
-    return this.getEngine().buildContext(params);
+    const engine = this.getEngine();
+    if (!engine) {
+      return {
+        id: 'none',
+        workspace: { rootPath: '', name: '', folderCount: 0 },
+        files: [],
+        selection: params.selection,
+        planner: params.planner,
+        execution: params.execution,
+        git: params.git,
+        diagnostics: params.diagnostics,
+        metadata: { tokenEstimateTotal: 0, sizeBytesTotal: 0, limitBytes: params.limitBytes || 0 },
+        timestamp: Date.now()
+      };
+    }
+    return engine.buildContext(params);
   }
 
   public getActiveContext(): ProjectContext | null {
-    return this.getEngine().getActiveContext();
+    const engine = this.getEngine();
+    if (!engine) return null;
+    return engine.getActiveContext();
   }
 
   public expireContext(): void {
-    this.getEngine().expireContext();
+    const engine = this.getEngine();
+    if (!engine) return;
+    engine.expireContext();
   }
 }
 
 export const contextService = new ContextService();
+export default contextService;

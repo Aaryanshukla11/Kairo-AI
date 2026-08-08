@@ -9,3 +9,5 @@ export * from './retrievalPipeline';
 export * from './strategies';
 export * from './retrieverEngine';
 export * from './retrieverService';
+export * from './snippetProvider';
+

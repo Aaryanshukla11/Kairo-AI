@@ -7,3 +7,4 @@ export * from './configIndexer';
 export * from './fileIndexer';
 export * from './indexBuilder';
 export * from './indexerEngine';
+export * from './indexRegistry';

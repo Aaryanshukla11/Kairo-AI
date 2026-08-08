@@ -1,20 +1,32 @@
 import * as vscode from 'vscode';
 import { FilesystemEngine } from './filesystemEngine';
 import { FileStat, FilesystemEventListener } from './filesystemTypes';
+import { ILazyWorkspaceService, WorkspaceLifecycleState, workspaceLifecycleManager } from '../workspace/workspaceLifecycleManager';
 
-export class FilesystemService {
+export class FilesystemService implements ILazyWorkspaceService {
+  public state: WorkspaceLifecycleState = 'NOT_INITIALIZED';
   private activeEngine: FilesystemEngine | null = null;
+  private pendingSubscriptions: FilesystemEventListener[] = [];
 
-  private getEngine(): FilesystemEngine {
-    const folders = vscode.workspace.workspaceFolders;
-    if (!folders || folders.length === 0) {
-      throw new Error('Workspace Filesystem Service: No workspace folder is open');
-    }
+  constructor() {
+    workspaceLifecycleManager.registerService(this);
+  }
 
-    const root = folders[0].uri.fsPath;
-    if (!this.activeEngine) {
-      this.activeEngine = new FilesystemEngine(root);
+  public initialize(rootPath: string): void {
+    this.activeEngine = new FilesystemEngine(rootPath);
+    this.state = 'READY';
+    for (const listener of this.pendingSubscriptions) {
+      this.activeEngine.subscribe(listener);
     }
+    this.pendingSubscriptions = [];
+  }
+
+  public reset(): void {
+    this.activeEngine = null;
+    this.state = 'WAITING_FOR_WORKSPACE';
+  }
+
+  private getEngine(): FilesystemEngine | null {
     return this.activeEngine;
   }
 
@@ -22,49 +34,78 @@ export class FilesystemService {
    * Subscribes a listener to the active filesystem events.
    */
   public subscribe(listener: FilesystemEventListener): () => void {
-    return this.getEngine().subscribe(listener);
+    const engine = this.getEngine();
+    if (!engine) {
+      this.pendingSubscriptions.push(listener);
+      return () => {
+        this.pendingSubscriptions = this.pendingSubscriptions.filter(l => l !== listener);
+      };
+    }
+    return engine.subscribe(listener);
   }
 
   // --- Wrapper APIs ---
 
   public readFile(filePath: string): string {
-    return this.getEngine().readFile(filePath);
+    const engine = this.getEngine();
+    if (!engine) return '';
+    return engine.readFile(filePath);
   }
 
   public readDirectory(dirPath: string): string[] {
-    return this.getEngine().readDirectory(dirPath);
+    const engine = this.getEngine();
+    if (!engine) return [];
+    return engine.readDirectory(dirPath);
   }
 
   public exists(targetPath: string): boolean {
-    return this.getEngine().exists(targetPath);
+    const engine = this.getEngine();
+    if (!engine) return false;
+    return engine.exists(targetPath);
   }
 
   public stat(targetPath: string): FileStat {
-    return this.getEngine().stat(targetPath);
+    const engine = this.getEngine();
+    if (!engine) {
+      return { isFile: false, isDirectory: false, size: 0, mtime: 0 };
+    }
+    return engine.stat(targetPath);
   }
 
   public createFile(filePath: string, content: string): void {
-    this.getEngine().createFile(filePath, content);
+    const engine = this.getEngine();
+    if (!engine) return;
+    engine.createFile(filePath, content);
   }
 
   public updateFile(filePath: string, content: string): void {
-    this.getEngine().updateFile(filePath, content);
+    const engine = this.getEngine();
+    if (!engine) return;
+    engine.updateFile(filePath, content);
   }
 
   public deleteFile(targetPath: string): void {
-    this.getEngine().deleteFile(targetPath);
+    const engine = this.getEngine();
+    if (!engine) return;
+    engine.deleteFile(targetPath);
   }
 
   public createDirectory(dirPath: string): void {
-    this.getEngine().createDirectory(dirPath);
+    const engine = this.getEngine();
+    if (!engine) return;
+    engine.createDirectory(dirPath);
   }
 
   public rename(oldPath: string, newPath: string): void {
-    this.getEngine().rename(oldPath, newPath);
+    const engine = this.getEngine();
+    if (!engine) return;
+    engine.rename(oldPath, newPath);
   }
 
   public move(oldPath: string, newPath: string): void {
-    this.getEngine().move(oldPath, newPath);
+    const engine = this.getEngine();
+    if (!engine) return;
+    engine.move(oldPath, newPath);
   }
 
   /**
@@ -76,3 +117,4 @@ export class FilesystemService {
 }
 
 export const filesystemService = new FilesystemService();
+export default filesystemService;

@@ -27,6 +27,9 @@
     "Programming Languages"
   ],
   "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -51,6 +54,30 @@
       {
         "command": "sasta-antigravity.startSession",
         "title": "Kaira AI: Start New Session"
+      },
+      {
+        "command": "kairo.newProject",
+        "title": "Kaira AI: New Project"
+      },
+      {
+        "command": "kairo.generate",
+        "title": "Kaira AI: Generate Plan/Code"
+      },
+      {
+        "command": "kairo.stop",
+        "title": "Kaira AI: Stop Current Pipeline"
+      },
+      {
+        "command": "kairo.retry",
+        "title": "Kaira AI: Retry Last Pipeline Phase"
+      },
+      {
+        "command": "kairo.clearHistory",
+        "title": "Kaira AI: Clear Session History"
+      },
+      {
+        "command": "kairo.showLogs",
+        "title": "Kaira AI: Show Execution Logs"
       }
     ]
   },
@@ -66,7 +93,7 @@
     "lint": "eslint src --ext ts,tsx",
     "format": "prettier --check \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\"",
     "format:fix": "prettier --write \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\"",
-    "test": "mocha \"dist/tests/unit/**/*.test.js\"",
+    "test": "mocha \"dist/tests/**/*.test.js\"",
     "test:extension": "tsc -p tsconfig.test.json && node dist/tests/runTest.js",
     "build": "npm run clean && npm run compile",
     "package": "npx @vscode/vsce package"

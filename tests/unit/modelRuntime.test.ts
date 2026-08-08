@@ -31,7 +31,7 @@ describe('AI Model Runtime Engine Tests', () => {
 
       await engine.loadModel(DEFAULT_MODELS[0]);
       assert.strictEqual(engine.getModelState(), ModelState.Ready);
-      assert.strictEqual(engine.getActiveConfig()?.modelId, 'qwen-2.5-7b-coder');
+      assert.strictEqual(engine.getActiveConfig()?.modelId, 'qwen2.5-coder:7b');
 
       let tokenReceived = false;
       const res = await engine.generate(promptPkg, { temperature: 0.7 }, (tok) => {

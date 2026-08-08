@@ -46,3 +46,19 @@ export interface AgentEvent {
 }
 
 export type AgentEventListener = (event: AgentEvent) => void;
+
+export type AgentManagerStage =
+  | 'REGISTRATION'
+  | 'AGENT_SELECTION'
+  | 'TASK_DISPATCH'
+  | 'TASK_COMPLETED'
+  | 'TASK_FAILED';
+
+export interface IAgentManagerLog {
+  readonly stage: AgentManagerStage;
+  readonly timestamp: number;
+  readonly status: 'SUCCESS' | 'WARNING' | 'FAILED';
+  readonly message: string;
+  readonly details: Record<string, any>;
+}
+

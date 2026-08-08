@@ -35,6 +35,14 @@ export interface RetrievedContext {
   confidenceScore: number;
 }
 
+export interface SearchHit {
+  symbol?: string;
+  file?: string;
+  snippet?: string;
+  score?: number;
+}
+
+
 export enum RetrieverEventType {
   RetrievalRequested = 'RetrievalRequested',
   RetrievalStarted = 'RetrievalStarted',

@@ -1,19 +1,32 @@
 import * as vscode from 'vscode';
 import { ToolEngine } from './toolEngine';
 import { ToolResult } from './toolTypes';
+import { ILazyWorkspaceService, WorkspaceLifecycleState, workspaceLifecycleManager } from '../workspace/workspaceLifecycleManager';
 
-export class ToolService {
+export class ToolService implements ILazyWorkspaceService {
+  public state: WorkspaceLifecycleState = 'NOT_INITIALIZED';
   private activeEngine: ToolEngine | null = null;
+  private pendingSubscriptions: any[] = [];
 
-  private getEngine(): ToolEngine {
-    const folders = vscode.workspace.workspaceFolders;
-    if (!folders || folders.length === 0) {
-      throw new Error('Workspace Tool Service: No workspace folder is open');
-    }
+  constructor() {
+    workspaceLifecycleManager.registerService(this);
+  }
 
-    if (!this.activeEngine) {
-      this.activeEngine = new ToolEngine();
+  public initialize(rootPath: string): void {
+    this.activeEngine = new ToolEngine();
+    this.state = 'READY';
+    for (const listener of this.pendingSubscriptions) {
+      this.activeEngine.subscribe(listener);
     }
+    this.pendingSubscriptions = [];
+  }
+
+  public reset(): void {
+    this.activeEngine = null;
+    this.state = 'WAITING_FOR_WORKSPACE';
+  }
+
+  private getEngine(): ToolEngine | null {
     return this.activeEngine;
   }
 
@@ -21,18 +34,34 @@ export class ToolService {
    * Subscribes a listener to Tool Calling changes.
    */
   public subscribe(listener: any): () => void {
-    return this.getEngine().subscribe(listener);
+    const engine = this.getEngine();
+    if (!engine) {
+      this.pendingSubscriptions.push(listener);
+      return () => {
+        this.pendingSubscriptions = this.pendingSubscriptions.filter(l => l !== listener);
+      };
+    }
+    return engine.subscribe(listener);
   }
 
   // --- Wrapper APIs ---
 
   public async executeTool(toolId: string, args: Record<string, any>): Promise<ToolResult> {
-    return this.getEngine().executeTool(toolId, args);
+    const engine = this.getEngine();
+    if (!engine) {
+      return { success: false, error: 'Workspace Tool Service: No workspace folder is open' };
+    }
+    return engine.executeTool(toolId, args);
   }
 
   public getHistory(): any[] {
-    return this.getEngine().getHistory();
+    const engine = this.getEngine();
+    if (!engine) {
+      return [];
+    }
+    return engine.getHistory();
   }
 }
 
 export const toolService = new ToolService();
+export default toolService;

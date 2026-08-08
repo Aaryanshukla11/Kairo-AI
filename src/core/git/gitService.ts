@@ -1,20 +1,33 @@
 import * as vscode from 'vscode';
 import { GitEngine } from './gitEngine';
 import { GitRepositoryInfo, GitStatusInfo, GitCommitInfo, GitEventListener } from './gitTypes';
+import { ILazyWorkspaceService, WorkspaceLifecycleState, workspaceLifecycleManager } from '../workspace/workspaceLifecycleManager';
 
-export class GitService {
+export class GitService implements ILazyWorkspaceService {
+  public state: WorkspaceLifecycleState = 'NOT_INITIALIZED';
   private activeEngine: GitEngine | null = null;
+  private pendingSubscriptions: GitEventListener[] = [];
 
-  private getEngine(): GitEngine {
-    const folders = vscode.workspace.workspaceFolders;
-    if (!folders || folders.length === 0) {
-      throw new Error('Workspace Git Service: No workspace folder is open');
-    }
+  constructor() {
+    workspaceLifecycleManager.registerService(this);
+  }
 
-    const root = folders[0].uri.fsPath;
-    if (!this.activeEngine) {
-      this.activeEngine = new GitEngine(root);
+  public initialize(rootPath: string): void {
+    this.activeEngine = new GitEngine(rootPath);
+    this.state = 'READY';
+    // Flush pending subscriptions
+    for (const listener of this.pendingSubscriptions) {
+      this.activeEngine.subscribe(listener);
     }
+    this.pendingSubscriptions = [];
+  }
+
+  public reset(): void {
+    this.activeEngine = null;
+    this.state = 'WAITING_FOR_WORKSPACE';
+  }
+
+  private getEngine(): GitEngine | null {
     return this.activeEngine;
   }
 
@@ -22,30 +35,58 @@ export class GitService {
    * Subscribes to active repository events.
    */
   public subscribe(listener: GitEventListener): () => void {
-    return this.getEngine().subscribe(listener);
+    const engine = this.getEngine();
+    if (!engine) {
+      this.pendingSubscriptions.push(listener);
+      return () => {
+        this.pendingSubscriptions = this.pendingSubscriptions.filter(l => l !== listener);
+      };
+    }
+    return engine.subscribe(listener);
   }
 
   // --- Wrapper APIs ---
 
   public getRepositoryInfo(): GitRepositoryInfo {
-    return this.getEngine().getRepositoryInfo();
+    const engine = this.getEngine();
+    if (!engine) {
+      return { root: '', branch: 'unknown', status: 'unknown', isDirty: false, ahead: 0, behind: 0 };
+    }
+    return engine.getRepositoryInfo();
   }
 
   public getStatus(): GitStatusInfo {
-    return this.getEngine().getStatus();
+    const engine = this.getEngine();
+    if (!engine) {
+      return { branch: 'unknown', isDirty: false, changedFiles: [] };
+    }
+    return engine.getStatus();
   }
 
   public getDiff(filePath?: string): string {
-    return this.getEngine().getDiff(filePath);
+    const engine = this.getEngine();
+    if (!engine) {
+      return '';
+    }
+    return engine.getDiff(filePath);
   }
 
   public commit(message: string): string {
-    return this.getEngine().commit(message);
+    const engine = this.getEngine();
+    if (!engine) {
+      return '';
+    }
+    return engine.commit(message);
   }
 
   public getHistory(limit = 5): GitCommitInfo[] {
-    return this.getEngine().getHistory(limit);
+    const engine = this.getEngine();
+    if (!engine) {
+      return [];
+    }
+    return engine.getHistory(limit);
   }
 }
 
 export const gitService = new GitService();
+export default gitService;

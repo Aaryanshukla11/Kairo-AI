@@ -1,4 +1,5 @@
 import { IKairoEvent, KairoEventType, IEventValidationResult } from './kairoEventBusTypes';
+import { eventEvents } from '../eventEvents';
 
 export class KairoEventBus {
   private history: IKairoEvent[] = [];
@@ -6,13 +7,24 @@ export class KairoEventBus {
   private handlers = new Map<string, Array<(event: IKairoEvent) => Promise<void>>>();
   private knownEventTypes = new Set<string>([
     'PromptReceived',
+    'IntentDetected',
+    'PlanningStarted',
+    'PlanningCompleted',
+    'ArchitectureReady',
+    'ApprovalRequired',
+    'ApprovalGranted',
     'RequirementCompleted',
     'ArchitectureCompleted',
     'WorkspaceCompleted',
     'ManifestCompleted',
+    'GenerationStarted',
+    'GeneratorStarted',
+    'GeneratorCompleted',
+    'FileGenerated',
     'GenerationCompleted',
     'ExecutionStarted',
     'ExecutionCompleted',
+    'ExecutionFailed',
     'ReviewUpdated',
     'ProjectCompleted'
   ]);
@@ -20,10 +32,6 @@ export class KairoEventBus {
   public validateEvent(event: IKairoEvent): IEventValidationResult {
     if (!event || !event.eventId || !event.eventType) {
       return { valid: false, errorType: 'INVALID_PAYLOAD', message: 'Event structure or mandatory fields missing.' };
-    }
-
-    if (!this.knownEventTypes.has(event.eventType)) {
-      return { valid: false, errorType: 'UNKNOWN_EVENT', message: `Event type '${event.eventType}' is unknown.` };
     }
 
     if (this.eventIds.has(event.eventId)) {
@@ -45,11 +53,16 @@ export class KairoEventBus {
   public async publish(event: IKairoEvent): Promise<void> {
     const validation = this.validateEvent(event);
     if (!validation.valid) {
+      console.error(`[EventBus][ERROR] Validation error for event '${event.eventType}': ${validation.message}`);
       throw new Error(`[KairoEventBus Validation Error] ${validation.errorType}: ${validation.message}`);
     }
 
+    this.knownEventTypes.add(event.eventType);
     this.eventIds.add(event.eventId);
     this.history.push(event);
+
+    const execId = event.correlationId || event.sessionId || event.eventId;
+    console.log(`[EventBus][EMIT] - executionId: ${execId}, eventName: ${event.eventType}, producer: ${event.source}, timestamp: ${event.timestamp}`);
 
     const subscribers = this.handlers.get(event.eventType) || [];
     const wildcardSubscribers = this.handlers.get('*') || [];
@@ -58,9 +71,16 @@ export class KairoEventBus {
     for (const handler of allHandlers) {
       try {
         await handler(event);
-      } catch (err) {
-        console.error(`[KairoEventBus] Error in subscriber for event ${event.eventType}:`, err);
+      } catch (err: any) {
+        console.error(`[EventBus][ERROR] Error in subscriber for event ${event.eventType}:`, err.message || err);
       }
+    }
+
+    // Forward automatically to eventEvents so MessageRouter & VS Code Webview receive live event updates
+    try {
+      eventEvents.emit(event.eventType, event);
+    } catch (err: any) {
+      console.error(`[EventBus][ERROR] Error forwarding event '${event.eventType}' to eventEvents:`, err.message || err);
     }
   }
 

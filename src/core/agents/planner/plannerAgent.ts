@@ -158,7 +158,10 @@ export class PlannerAgent extends BaseAgent {
     });
 
     // STAGE 4: EXECUTION QUEUE CREATION
-    const orderedTaskList: IGeneratorTask[] = [
+    const routeDecision = task.payload?.routeDecision;
+    const selectedGens: string[] = routeDecision?.selectedGenerators || ['ConfigGenerator', 'SharedUtilGenerator', 'BackendGenerator', 'UIComponentGenerator'];
+
+    const fullTaskList: IGeneratorTask[] = [
       {
         id: 'task-gen-001',
         title: 'Generate Workspace Config Files',
@@ -192,6 +195,8 @@ export class PlannerAgent extends BaseAgent {
         dependencies: ['task-gen-003']
       }
     ];
+
+    const orderedTaskList = fullTaskList.filter(t => selectedGens.includes(t.generatorId));
 
     const parallelGroups = [
       ['ConfigGenerator', 'SharedUtilGenerator']

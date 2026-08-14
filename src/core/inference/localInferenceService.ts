@@ -2,6 +2,7 @@ import { ILocalInferenceSession, ILocalInferenceResult, IModelConfig } from './t
 import { providerRegistry } from './registry';
 import { providerFactory } from './factory';
 import * as crypto from 'crypto';
+import { logKairoStage } from '../../common/kairoLogger';
 
 export class LocalInferenceService {
   public async execute(
@@ -12,6 +13,7 @@ export class LocalInferenceService {
   ): Promise<ILocalInferenceResult> {
     const startTime = Date.now();
     const requestId = crypto.randomUUID ? crypto.randomUUID() : `req-${Date.now()}`;
+    logKairoStage('LocalInferenceService', 'ENTER', requestId, { model: config.modelName, provider: config.provider });
 
     // Resolve provider, register dynamically if not present
     let provider = providerRegistry.getProvider(config.provider);
@@ -64,9 +66,13 @@ export class LocalInferenceService {
 
       const result = await provider.execute(session, onToken, signal);
       clearTimeout(timeoutHandle);
+      const duration = Date.now() - startTime;
+      logKairoStage('LocalInferenceService', 'EXIT', requestId, { model: config.modelName }, { textLength: result.generatedText.length }, duration);
       return this.deepFreeze(result);
     } catch (err: any) {
       clearTimeout(timeoutHandle);
+      const duration = Date.now() - startTime;
+      logKairoStage('LocalInferenceService', 'ERROR', requestId, { model: config.modelName }, null, duration, err);
       return {
         generatedText: '',
         tokenUsage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },

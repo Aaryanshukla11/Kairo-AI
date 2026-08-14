@@ -7,6 +7,15 @@ export enum RiskLevel {
   Critical = 'Critical'
 }
 
+export interface IStructuredRepairIssue {
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  filePath: string;
+  issueType: 'MISSING_EXPORT' | 'INVALID_IMPORT' | 'SYNTAX_ERROR' | 'SCHEMA_VIOLATION';
+  exactProblem: string;
+  affectedSymbol: string;
+  suggestedFix: string;
+}
+
 export interface ReviewReport {
   planId: string;
   overallScore: number;
@@ -18,6 +27,8 @@ export interface ReviewReport {
   warnings: string[];
   recommendations: string[];
   suggestedImprovements: string[];
+  decision?: 'PASS' | 'REPAIR_REQUIRED';
+  structuredRepairIssues?: IStructuredRepairIssue[];
 }
 
 export enum ReviewerEventType {

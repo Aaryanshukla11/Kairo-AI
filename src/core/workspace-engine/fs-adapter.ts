@@ -60,6 +60,7 @@ export class InMemoryFsAdapter implements IFilesystemAdapter {
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { logKairoStage } from '../../common/kairoLogger';
 
 export class NodeFsAdapter implements IFilesystemAdapter {
   public async exists(filePath: string): Promise<boolean> {
@@ -71,11 +72,23 @@ export class NodeFsAdapter implements IFilesystemAdapter {
   }
 
   public async writeFile(filePath: string, content: string): Promise<void> {
-    const dir = path.dirname(filePath);
-    if (!fs.existsSync(dir)) {
-      await fs.promises.mkdir(dir, { recursive: true });
+    const executionId = `fs-write-${Date.now()}`;
+    const startTime = Date.now();
+    logKairoStage('Filesystem', 'ENTER', executionId, { filePath, contentSize: content?.length || 0 });
+
+    try {
+      const dir = path.dirname(filePath);
+      if (!fs.existsSync(dir)) {
+        await fs.promises.mkdir(dir, { recursive: true });
+      }
+      await fs.promises.writeFile(filePath, content, 'utf-8');
+      const duration = Date.now() - startTime;
+      logKairoStage('Filesystem', 'EXIT', executionId, { filePath }, { success: true }, duration);
+    } catch (error: any) {
+      const duration = Date.now() - startTime;
+      logKairoStage('Filesystem', 'ERROR', executionId, { filePath }, null, duration, error);
+      throw error;
     }
-    await fs.promises.writeFile(filePath, content, 'utf-8');
   }
 
   public async deleteFile(filePath: string): Promise<void> {

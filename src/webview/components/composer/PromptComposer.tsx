@@ -3,6 +3,7 @@ import { useAppContext } from '../../context/AppContext';
 import { useModelContext } from '../../context/ModelContext';
 import { promptService } from '../../services/promptService';
 import { vscodeBridge } from '../../services/vscodeBridge';
+import { logKairoStage } from '../../../common/kairoLogger';
 
 export function PromptComposer({ isLandingPage }: { isLandingPage?: boolean } = {}): React.JSX.Element {
   const [inputValue, setInputValue] = useState('');
@@ -63,9 +64,14 @@ export function PromptComposer({ isLandingPage }: { isLandingPage?: boolean } = 
       isTyping: true
     }));
 
+    const executionId = `exec-${Date.now()}`;
+    const startTime = Date.now();
+    logKairoStage('Webview', 'ENTER', executionId, { prompt: inputValue });
+
     // Send through IPC
     promptService.requestPlan(inputValue)
       .then((payload) => {
+        logKairoStage('Webview', 'EXIT', executionId, { prompt: inputValue }, { hasPayload: !!payload }, Date.now() - startTime);
         setChatState((prev) => ({
           ...prev,
           messages: [
@@ -84,6 +90,7 @@ export function PromptComposer({ isLandingPage }: { isLandingPage?: boolean } = 
         }));
       })
       .catch((error) => {
+        logKairoStage('Webview', 'ERROR', executionId, { prompt: inputValue }, null, Date.now() - startTime, error);
         setChatState((prev) => ({
           ...prev,
           messages: [

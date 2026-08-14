@@ -50,6 +50,7 @@ export interface IGeneratorSDKResult {
   readonly sessionId: string;
   readonly success: boolean;
   readonly generatorResults: readonly IGeneratorExecutionResult[];
+  readonly contracts?: readonly any[];
   readonly totalArtifactsCount: number;
   readonly executionTimeMs: number;
 }

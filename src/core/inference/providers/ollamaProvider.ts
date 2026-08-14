@@ -1,4 +1,5 @@
 import { ILocalInferenceProvider, ILocalInferenceSession, ILocalInferenceResult } from '../types';
+import { logKairoStage } from '../../../common/kairoLogger';
 
 export class OllamaProvider implements ILocalInferenceProvider {
   public readonly name = 'ollama';
@@ -37,23 +38,26 @@ export class OllamaProvider implements ILocalInferenceProvider {
   ): Promise<ILocalInferenceResult> {
     console.log('[TRACE] [Ollama] ENTER: execute. Model:', session.modelName);
     const startTime = Date.now();
+    const executionId = session.requestId || `ollama-${Date.now()}`;
+    logKairoStage('OllamaProvider', 'ENTER', executionId, { model: session.modelName });
+
     const errors: string[] = [];
     const warnings: string[] = [];
 
-    // 1. Verify server status
-    const running = await this.isServerRunning();
-    if (!running) {
-      throw new Error(`Ollama Server is not running at ${this.serverUrl}. Make sure Ollama is installed and started.`);
-    }
-
-    // 2. Verify model availability
-    const availableModels = await this.getAvailableModels();
-    const matchesModel = availableModels.some(m => m.includes(session.modelName) || session.modelName.includes(m));
-    if (!matchesModel && availableModels.length > 0) {
-      warnings.push(`Model '${session.modelName}' was not found in available models: [${availableModels.join(', ')}]. Attempting call anyway.`);
-    }
-
     try {
+      // 1. Verify server status
+      const running = await this.isServerRunning();
+      if (!running) {
+        throw new Error(`Ollama Server is not running at ${this.serverUrl}. Make sure Ollama is installed and started.`);
+      }
+
+      // 2. Verify model availability
+      const availableModels = await this.getAvailableModels();
+      const matchesModel = availableModels.some(m => m.includes(session.modelName) || session.modelName.includes(m));
+      if (!matchesModel && availableModels.length > 0) {
+        warnings.push(`Model '${session.modelName}' was not found in available models: [${availableModels.join(', ')}]. Attempting call anyway.`);
+      }
+
       // 3. Initiate post request with stream support
       const response = await fetch(`${this.serverUrl}/api/generate`, {
         method: 'POST',
@@ -101,6 +105,10 @@ export class OllamaProvider implements ILocalInferenceProvider {
           for (const line of lines) {
             try {
               const parsedLine = JSON.parse(line);
+              if (parsedLine.done && parsedLine.done_reason === 'length') {
+                warnings.push('[OllamaProvider] WARNING: Response reached max num_predict length limit!');
+                console.warn('[OllamaProvider] Output truncation detected (done_reason=length)!');
+              }
               if (parsedLine.response) {
                 generatedText += parsedLine.response;
                 if (onToken) {
@@ -131,9 +139,12 @@ export class OllamaProvider implements ILocalInferenceProvider {
         }
       };
       console.log('[TRACE] [Ollama] EXIT: execute completed successfully. Text length:', generatedText.length);
+      logKairoStage('OllamaProvider', 'EXIT', executionId, { model: session.modelName }, { textLength: generatedText.length }, duration);
       return resVal;
     } catch (err: any) {
       console.log('[TRACE] [Ollama] EXIT: execute failed with error:', err.message);
+      const duration = Date.now() - startTime;
+      logKairoStage('OllamaProvider', 'ERROR', executionId, { model: session.modelName }, null, duration, err);
       if (signal?.aborted || err.name === 'AbortError') {
         throw new Error('Inference execution was cancelled.');
       }

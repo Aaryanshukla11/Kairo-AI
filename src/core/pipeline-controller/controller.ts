@@ -1,5 +1,6 @@
 import { aiKernel } from '../ai-kernel';
 import { PlanningSessionBuilder } from '../planning-session-builder';
+import { logKairoStage } from '../../common/kairoLogger';
 import { PlanningModelIntegration } from '../planning-model-integration';
 import { PlanningValidatorHandoff } from '../planning-validator-handoff';
 import { PipelineState, IPipelineEvent, IPipelineResult } from './types';
@@ -51,6 +52,8 @@ export class PipelineController {
     const startTime = Date.now();
     this.currentPipelineId = crypto.randomUUID ? crypto.randomUUID() : `pipeline-${Date.now()}`;
     this.abortController = new AbortController();
+
+    logKairoStage('PipelineController', 'ENTER', this.currentPipelineId, { prompt: rawPrompt });
 
     this.state = 'PROCESSING_PROMPT';
     this.emitEvent('PromptReceived', `Processing user prompt of length ${rawPrompt.length}`);
@@ -130,6 +133,9 @@ export class PipelineController {
       this.state = 'SUCCESS';
       this.emitEvent('PipelineCompleted', 'AI Planning & Generation Pipeline finished successfully.');
       console.log('[TRACE] [Prompt Engine] EXIT: Pipeline completed successfully');
+      
+      const duration = Date.now() - startTime;
+      logKairoStage('PipelineController', 'EXIT', this.currentPipelineId, { prompt: rawPrompt }, { state: 'SUCCESS' }, duration);
     } catch (err: any) {
       if ((this.state as string) !== 'CANCELLED') {
         this.state = 'FAILED';
@@ -137,6 +143,9 @@ export class PipelineController {
       errors.push(err.message || String(err));
       this.emitEvent('PipelineFailed', `Pipeline failed with error: ${err.message}`);
       console.log('[TRACE] [Prompt Engine] EXIT with error:', err.message);
+      
+      const duration = Date.now() - startTime;
+      logKairoStage('PipelineController', 'ERROR', this.currentPipelineId, { prompt: rawPrompt }, null, duration, err);
     }
 
     const duration = Date.now() - startTime;

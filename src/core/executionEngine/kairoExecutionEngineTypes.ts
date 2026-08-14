@@ -20,6 +20,7 @@ export interface IKairoExecutionLog {
 export interface IExecutionReport {
   readonly requestId: string;
   readonly sessionId: string;
+  readonly workspaceRoot?: string;
   readonly status: 'SUCCESS' | 'FAILED';
   readonly writtenFiles: readonly string[];
   readonly updatedFiles: readonly string[];

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { BridgeMessage } from '../shared/messages';
 import { PromptDispatcher } from './pipeline/PromptDispatcher';
 import { MessageFactory } from '../common/protocol';
-import { MessageType, MessageSource, MessageTarget } from '../common/protocol';
+import { MessageType, MessageSource, MessageTarget, IExecutionEventPayload } from '../common/protocol';
 import { randomUUID } from 'crypto';
 import { plannerEngine } from '../core/planner';
 import { approvalEngine } from '../core/approval';
@@ -40,6 +40,7 @@ import { releaseEngine } from '../core/release/releaseEngine';
 import { patchOptimizationEngine } from '../core/patchOptimization';
 import { safeEditEngine } from '../core/safeEdit';
 import { eventEvents, eventBusInstance } from '../core/eventBus';
+import { globalKairoEventBus } from '../core/eventBus/runtime/kairoEventBus';
 import { taskGenerationEngine, taskEvents } from '../core/taskGeneration';
 import { executionPlanningEngine, executionEvents } from '../core/executionPlanning';
 import { dependencyResolutionEngine } from '../core/dependencyResolution';
@@ -51,6 +52,8 @@ import { recoveryEngine } from '../core/recovery';
 import { modelManager } from '../core/model-manager';
 import { workspaceLifecycleManager } from '../core/workspace/workspaceLifecycleManager';
 import { aiKernel } from '../core/ai-kernel';
+import { globalKairoExecutionEngine } from '../core/executionEngine/kairoExecutionEngine';
+import { logKairoStage } from '../common/kairoLogger';
 
 export class MessageRouter {
   private promptDispatcher: PromptDispatcher;
@@ -94,63 +97,94 @@ export class MessageRouter {
 
   constructor(private readonly webview: vscode.Webview) {
     this.promptDispatcher = new PromptDispatcher();
-    if (workspaceLifecycleManager.getState() === 'READY') {
-      this.initializeAllSubscriptions();
-    } else {
-      workspaceLifecycleManager.onDidChangeState((state) => {
-        if (state === 'READY') {
-          this.initializeAllSubscriptions();
-        }
-      });
-    }
+    this.initializeAllSubscriptions();
   }
 
   private initializeAllSubscriptions(): void {
     if (this.subscriptionsInitialized) return;
     this.subscriptionsInitialized = true;
 
-    this.getIndexerEngine();
+    try {
+      this.getIndexerEngine();
+      this.initEventBusSubscription();
+    } catch (err) {
+      console.error('[MessageRouter] Error during initializeAllSubscriptions:', err);
+    }
+  }
 
-    this.initTerminalSubscription();
-    this.initGitSubscription();
-    this.initPatchSubscription();
-    this.initRollbackSubscription();
-    this.initCheckpointSubscription();
-    this.initDiagnosticsSubscription();
-    this.initPermissionSubscription();
-    this.initContextSubscription();
-    this.initEmbeddingSubscription();
-    this.initVectorStoreSubscription();
-    this.initRetrieverSubscription();
-    this.initPromptAssemblySubscription();
-    this.initRuntimeSubscription();
-    this.initToolCallingSubscription();
-    this.initAgentRuntimeSubscription();
-    this.initMemorySubscription();
-    this.initTestingSubscription();
-    this.initSecuritySubscription();
-    this.initDocumentationSubscription();
-    this.initRefactoringSubscription();
-    this.initDebugSubscription();
-    this.initPerformanceSubscription();
-    this.initDependencySubscription();
-    this.initArchitectureSubscription();
-    this.initGenerationSubscription();
-    this.initAstSubscription();
-    this.initMultiFileSubscription();
-    this.initIncrementalSubscription();
-    this.initConventionSubscription();
-    this.initNamingSubscription();
-    this.initImportSubscription();
-    this.initSymbolSubscription();
-    this.initReviewSubscription();
-    this.initValidationSubscription();
-    this.initOptimizationSubscription();
-    this.initSafeEditSubscription();
-    this.initEventBusSubscription();
-    this.initTaskGenerationSubscription();
-    this.initExecutionPlanningSubscription();
-    this.initModelSubscription();
+  private initEventBusSubscription(): void {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+
+      globalKairoEventBus.subscribe('*', async (event: any) => {
+        console.log(`[EventBus][FORWARD] -> ${event.eventType} to Webview`);
+
+        // 1. Forward raw event bus update
+        const busMsg = MessageFactory.createMessage(
+          MessageType.EVENT_BUS_UPDATE as any,
+          MessageSource.EXTENSION,
+          MessageTarget.WEBVIEW,
+          event
+        );
+        this.postMessage(busMsg);
+
+        // 2. Handle specific execution pipeline events
+        if (event.eventType === 'FileWriteStarted') {
+          this._emitPipelineStatus('File Write', `Writing ${event.payload?.filePath || 'file'}...`, 'running');
+        } else if (event.eventType === 'FileWriteCompleted') {
+          this._emitPipelineStatus('File Write', `✓ Written ${event.payload?.filePath || 'file'}`, 'running');
+        } else if (event.eventType === 'ExecutionCompleted' || event.eventType === 'ProjectCompleted') {
+          this._emitPipelineStatus('Execution Complete', 'Successfully generated and persisted project files in workspace!', 'done');
+
+          const folders = vscode.workspace.workspaceFolders;
+          const workspacePath = folders && folders.length > 0 ? folders[0].uri.fsPath : undefined;
+          const createdFiles: string[] = [];
+          const fileContents: Record<string, string> = {};
+
+          if (workspacePath && fs.existsSync(workspacePath)) {
+            const items = fs.readdirSync(workspacePath);
+            for (const item of items) {
+              if (!item.startsWith('.') && item !== 'node_modules') {
+                const fullPath = path.join(workspacePath, item);
+                if (fs.statSync(fullPath).isFile()) {
+                  createdFiles.push(item);
+                  try {
+                    fileContents[item] = fs.readFileSync(fullPath, 'utf-8');
+                  } catch {}
+                }
+              }
+            }
+          }
+
+          const reviewMsg = MessageFactory.createMessage(
+            MessageType.REVIEW_UPDATE,
+            MessageSource.EXTENSION,
+            MessageTarget.WEBVIEW,
+            {
+              changedFiles: createdFiles,
+              createdFiles,
+              modifiedFiles: [],
+              deletedFiles: [],
+              fileContents,
+              summary: `Generated ${createdFiles.length} files in workspace.`,
+              statistics: {
+                executionTimeMs: 0,
+                warningsCount: 0,
+                errorsCount: 0
+              }
+            }
+          );
+          this.postMessage(reviewMsg);
+
+          try {
+            await vscode.commands.executeCommand('workbench.files.action.refreshFiles');
+          } catch {}
+        }
+      });
+    } catch (err: any) {
+      console.error('[EventBus][ERROR] Failed to subscribe to EventBus:', err.message || err);
+    }
   }
 
   private initModelSubscription(): void {
@@ -166,60 +200,6 @@ export class MessageRouter {
       });
     } catch (err) {
       console.error('[MessageRouter] Failed to subscribe to modelManager:', err);
-    }
-  }
-
-  private initExecutionPlanningSubscription(): void {
-    try {
-      executionEvents.subscribe((event: any) => {
-        const msg = MessageFactory.createMessage(
-          MessageType.EXECUTION_PLANNING_UPDATE as any,
-          MessageSource.EXTENSION,
-          MessageTarget.WEBVIEW,
-          {
-            event
-          }
-        );
-        this.postMessage(msg);
-      });
-    } catch (err) {
-      console.error('[MessageRouter] Failed to subscribe to ExecutionEvents:', err);
-    }
-  }
-
-  private initTaskGenerationSubscription(): void {
-    try {
-      taskEvents.subscribe((event: any) => {
-        const msg = MessageFactory.createMessage(
-          MessageType.TASK_GENERATION_UPDATE as any,
-          MessageSource.EXTENSION,
-          MessageTarget.WEBVIEW,
-          {
-            event
-          }
-        );
-        this.postMessage(msg);
-      });
-    } catch (err) {
-      console.error('[MessageRouter] Failed to subscribe to TaskEvents:', err);
-    }
-  }
-
-  private initEventBusSubscription(): void {
-    try {
-      eventEvents.subscribe((event: any) => {
-        const msg = MessageFactory.createMessage(
-          MessageType.EVENT_BUS_UPDATE as any,
-          MessageSource.EXTENSION,
-          MessageTarget.WEBVIEW,
-          {
-            event
-          }
-        );
-        this.postMessage(msg);
-      });
-    } catch (err) {
-      console.error('[MessageRouter] Failed to subscribe to EventEvents:', err);
     }
   }
 
@@ -925,204 +905,214 @@ export class MessageRouter {
       return;
     }
 
-    switch (message.type) {
-      case MessageType.SHOW_HISTORY:
-        this._handleShowHistory(message);
-        break;
-      case MessageType.MORE_OPTIONS:
-        this._handleMoreOptions(message);
-        break;
-      case MessageType.CLOSE_PANEL:
-        this._handleClosePanel(message);
-        break;
-      case MessageType.UPLOAD_ASSETS_REQUEST:
-        this._handleUploadAssetsRequest(message);
-        break;
-      case 'INIT':
-        this._handleInit(message);
-        break;
-      case 'READY':
-        this._handleReady(message);
-        break;
-      case 'PING':
-        this._handlePing(message);
-        break;
-      case 'PONG':
-        this._handlePong(message);
-        break;
-      case 'ERROR':
-        this._handleError(message);
-        break;
-      case 'LOG':
-        this._handleLog(message);
-        break;
-      case 'MODEL_STATUS':
-      case MessageType.MODEL_STATUS:
-        this._handleModelStatusRequest(message);
-        break;
-      case 'MODEL_LIST':
-      case MessageType.MODEL_LIST:
-        this._handleModelListRequest(message);
-        break;
-      case 'MODEL_SWITCH_REQUEST':
-      case MessageType.MODEL_SWITCH_REQUEST:
-        this._handleModelSwitchRequest(message);
-        break;
-      case 'PROMPT_REQUEST':
-        this._handlePromptRequest(message);
-        break;
-      case 'SEND_PROMPT':
-        this._handleSendPrompt(message);
-        break;
-      case 'PLAN_REQUEST':
-        this._handlePlanRequest(message);
-        break;
-      case 'APPROVAL_ACTION':
-        this._handleApprovalAction(message);
-        break;
-      case 'WORKSPACE_REQUEST':
-        this._handleWorkspaceRequest(message);
-        break;
-      case 'EXECUTION_REQUEST':
-        this._handleExecutionRequest(message);
-        break;
-      case 'TERMINAL_REQUEST':
-        this._handleTerminalRequest(message);
-        break;
-      case 'GIT_REQUEST':
-        this._handleGitRequest(message);
-        break;
-      case 'PATCH_REQUEST':
-        this._handlePatchRequest(message);
-        break;
-      case 'ROLLBACK_REQUEST':
-        this._handleRollbackRequest(message);
-        break;
-      case 'CHECKPOINT_REQUEST':
-        this._handleCheckpointRequest(message);
-        break;
-      case 'DIAGNOSTICS_REQUEST':
-        this._handleDiagnosticsRequest(message);
-        break;
-      case 'PERMISSION_REQUEST':
-        this._handlePermissionRequest(message);
-        break;
-      case 'CONTEXT_REQUEST':
-        this._handleContextRequest(message);
-        break;
-      case 'INDEXER_REQUEST':
-        this._handleIndexerRequest(message);
-        break;
-      case 'EMBEDDING_REQUEST':
-        this._handleEmbeddingRequest(message);
-        break;
-      case 'VECTOR_STORE_REQUEST':
-        this._handleVectorStoreRequest(message);
-        break;
-      case 'RETRIEVER_REQUEST':
-        this._handleRetrieverRequest(message);
-        break;
-      case 'PROMPT_ASSEMBLY_REQUEST':
-        this._handlePromptAssemblyRequest(message);
-        break;
-      case 'RUNTIME_REQUEST':
-        this._handleRuntimeRequest(message);
-        break;
-      case 'TOOL_CALLING_REQUEST':
-        this._handleToolCallingRequest(message);
-        break;
-      case 'AGENT_REQUEST':
-        this._handleAgentRequest(message);
-        break;
-      case 'MEMORY_REQUEST':
-        this._handleMemoryRequest(message);
-        break;
-      case 'TESTING_REQUEST':
-        this._handleTestingRequest(message);
-        break;
-      case 'SECURITY_REQUEST':
-        this._handleSecurityRequest(message);
-        break;
-      case 'DOCUMENTATION_REQUEST':
-        this._handleDocumentationRequest(message);
-        break;
-      case 'REFACTORING_REQUEST':
-        this._handleRefactoringRequest(message);
-        break;
-      case 'DEBUG_REQUEST':
-        this._handleDebugRequest(message);
-        break;
-      case 'PERFORMANCE_REQUEST':
-        this._handlePerformanceRequest(message);
-        break;
-      case 'DEPENDENCY_REQUEST':
-        this._handleDependencyRequest(message);
-        break;
-      case 'ARCHITECTURE_REQUEST':
-        this._handleArchitectureRequest(message);
-        break;
-      case 'GENERATION_REQUEST':
-        this._handleGenerationRequest(message);
-        break;
-      case 'AST_REQUEST':
-        this._handleAstRequest(message);
-        break;
-      case 'MULTIFILE_REQUEST':
-        this._handleMultiFileRequest(message);
-        break;
-      case 'INCREMENTAL_REQUEST':
-        this._handleIncrementalRequest(message);
-        break;
-      case 'CONVENTION_REQUEST':
-        this._handleConventionRequest(message);
-        break;
-      case 'NAMING_REQUEST':
-        this._handleNamingRequest(message);
-        break;
-      case 'IMPORT_REQUEST':
-        this._handleImportRequest(message);
-        break;
-      case 'SYMBOL_REQUEST':
-        this._handleSymbolRequest(message);
-        break;
-      case 'REVIEW_REQUEST':
-        this._handleReviewRequest(message);
-        break;
-      case 'VALIDATION_REQUEST':
-        this._handleValidationRequest(message);
-        break;
-      case 'OPTIMIZATION_REQUEST':
-        this._handleOptimizationRequest(message);
-        break;
-      case 'SAFE_EDIT_REQUEST':
-        this._handleSafeEditRequest(message);
-        break;
-      case 'EVENT_BUS_REQUEST':
-        this._handleEventBusRequest(message);
-        break;
-      case 'TASK_GENERATION_REQUEST':
-        this._handleTaskGenerationRequest(message);
-        break;
-      case 'EXECUTION_PLANNING_REQUEST':
-        this._handleExecutionPlanningRequest(message);
-        break;
-      case 'MILESTONE_ORCHESTRATION_REQUEST':
-        this._handleMilestoneOrchestrationRequest(message);
-        break;
-      case 'WORKFLOW_COORDINATOR_REQUEST':
-        this._handleWorkflowCoordinatorRequest(message);
-        break;
-      case 'REPLANNING_REQUEST':
-        this._handleReplanningRequest(message);
-        break;
-      case 'RECOVERY_REQUEST':
-        this._handleRecoveryRequest(message);
-        break;
-      case 'RELEASE_REQUEST':
-        this._handleReleaseRequest(message);
-        break;
-      default:
-        console.warn(`[Sasta-Antigravity] Unhandled message type: ${message.type}`);
+    const executionId = message.payload?.executionId || `msg-${Date.now()}`;
+    const startTime = Date.now();
+    logKairoStage('MessageRouter', 'ENTER', executionId, { type: message.type });
+
+    try {
+      switch (message.type) {
+        case MessageType.SHOW_HISTORY:
+          this._handleShowHistory(message);
+          break;
+        case MessageType.MORE_OPTIONS:
+          this._handleMoreOptions(message);
+          break;
+        case MessageType.CLOSE_PANEL:
+          this._handleClosePanel(message);
+          break;
+        case MessageType.UPLOAD_ASSETS_REQUEST:
+          this._handleUploadAssetsRequest(message);
+          break;
+        case 'INIT':
+          this._handleInit(message);
+          break;
+        case 'READY':
+          this._handleReady(message);
+          break;
+        case 'PING':
+          this._handlePing(message);
+          break;
+        case 'PONG':
+          this._handlePong(message);
+          break;
+        case 'ERROR':
+          this._handleError(message);
+          break;
+        case 'LOG':
+          this._handleLog(message);
+          break;
+        case 'MODEL_STATUS':
+        case MessageType.MODEL_STATUS:
+          this._handleModelStatusRequest(message);
+          break;
+        case 'MODEL_LIST':
+        case MessageType.MODEL_LIST:
+          this._handleModelListRequest(message);
+          break;
+        case 'MODEL_SWITCH_REQUEST':
+        case MessageType.MODEL_SWITCH_REQUEST:
+          this._handleModelSwitchRequest(message);
+          break;
+        case 'PROMPT_REQUEST':
+          this._handleSendPrompt(message);
+          break;
+        case 'SEND_PROMPT':
+          this._handleSendPrompt(message);
+          break;
+        case 'PLAN_REQUEST':
+          this._handlePlanRequest(message);
+          break;
+        case 'APPROVAL_ACTION':
+          this._handleApprovalAction(message);
+          break;
+        case 'WORKSPACE_REQUEST':
+          this._handleWorkspaceRequest(message);
+          break;
+        case 'EXECUTION_REQUEST':
+          this._handleExecutionRequest(message);
+          break;
+        case 'TERMINAL_REQUEST':
+          this._handleTerminalRequest(message);
+          break;
+        case 'GIT_REQUEST':
+          this._handleGitRequest(message);
+          break;
+        case 'PATCH_REQUEST':
+          this._handlePatchRequest(message);
+          break;
+        case 'ROLLBACK_REQUEST':
+          this._handleRollbackRequest(message);
+          break;
+        case 'CHECKPOINT_REQUEST':
+          this._handleCheckpointRequest(message);
+          break;
+        case 'DIAGNOSTICS_REQUEST':
+          this._handleDiagnosticsRequest(message);
+          break;
+        case 'PERMISSION_REQUEST':
+          this._handlePermissionRequest(message);
+          break;
+        case 'CONTEXT_REQUEST':
+          this._handleContextRequest(message);
+          break;
+        case 'INDEXER_REQUEST':
+          this._handleIndexerRequest(message);
+          break;
+        case 'EMBEDDING_REQUEST':
+          this._handleEmbeddingRequest(message);
+          break;
+        case 'VECTOR_STORE_REQUEST':
+          this._handleVectorStoreRequest(message);
+          break;
+        case 'RETRIEVER_REQUEST':
+          this._handleRetrieverRequest(message);
+          break;
+        case 'PROMPT_ASSEMBLY_REQUEST':
+          this._handlePromptAssemblyRequest(message);
+          break;
+        case 'RUNTIME_REQUEST':
+          this._handleRuntimeRequest(message);
+          break;
+        case 'TOOL_CALLING_REQUEST':
+          this._handleToolCallingRequest(message);
+          break;
+        case 'AGENT_REQUEST':
+          this._handleAgentRequest(message);
+          break;
+        case 'MEMORY_REQUEST':
+          this._handleMemoryRequest(message);
+          break;
+        case 'TESTING_REQUEST':
+          this._handleTestingRequest(message);
+          break;
+        case 'SECURITY_REQUEST':
+          this._handleSecurityRequest(message);
+          break;
+        case 'DOCUMENTATION_REQUEST':
+          this._handleDocumentationRequest(message);
+          break;
+        case 'REFACTORING_REQUEST':
+          this._handleRefactoringRequest(message);
+          break;
+        case 'DEBUG_REQUEST':
+          this._handleDebugRequest(message);
+          break;
+        case 'PERFORMANCE_REQUEST':
+          this._handlePerformanceRequest(message);
+          break;
+        case 'DEPENDENCY_REQUEST':
+          this._handleDependencyRequest(message);
+          break;
+        case 'ARCHITECTURE_REQUEST':
+          this._handleArchitectureRequest(message);
+          break;
+        case 'GENERATION_REQUEST':
+          this._handleGenerationRequest(message);
+          break;
+        case 'AST_REQUEST':
+          this._handleAstRequest(message);
+          break;
+        case 'MULTIFILE_REQUEST':
+          this._handleMultiFileRequest(message);
+          break;
+        case 'INCREMENTAL_REQUEST':
+          this._handleIncrementalRequest(message);
+          break;
+        case 'CONVENTION_REQUEST':
+          this._handleConventionRequest(message);
+          break;
+        case 'NAMING_REQUEST':
+          this._handleNamingRequest(message);
+          break;
+        case 'IMPORT_REQUEST':
+          this._handleImportRequest(message);
+          break;
+        case 'SYMBOL_REQUEST':
+          this._handleSymbolRequest(message);
+          break;
+        case 'REVIEW_REQUEST':
+          this._handleReviewRequest(message);
+          break;
+        case 'VALIDATION_REQUEST':
+          this._handleValidationRequest(message);
+          break;
+        case 'OPTIMIZATION_REQUEST':
+          this._handleOptimizationRequest(message);
+          break;
+        case 'SAFE_EDIT_REQUEST':
+          this._handleSafeEditRequest(message);
+          break;
+        case 'EVENT_BUS_REQUEST':
+          this._handleEventBusRequest(message);
+          break;
+        case 'TASK_GENERATION_REQUEST':
+          this._handleTaskGenerationRequest(message);
+          break;
+        case 'EXECUTION_PLANNING_REQUEST':
+          this._handleExecutionPlanningRequest(message);
+          break;
+        case 'MILESTONE_ORCHESTRATION_REQUEST':
+          this._handleMilestoneOrchestrationRequest(message);
+          break;
+        case 'WORKFLOW_COORDINATOR_REQUEST':
+          this._handleWorkflowCoordinatorRequest(message);
+          break;
+        case 'REPLANNING_REQUEST':
+          this._handleReplanningRequest(message);
+          break;
+        case 'RECOVERY_REQUEST':
+          this._handleRecoveryRequest(message);
+          break;
+        case 'RELEASE_REQUEST':
+          this._handleReleaseRequest(message);
+          break;
+        default:
+          console.warn(`[Sasta-Antigravity] Unhandled message type: ${message.type}`);
+      }
+      logKairoStage('MessageRouter', 'EXIT', executionId, { type: message.type }, { handled: true }, Date.now() - startTime);
+    } catch (error) {
+      logKairoStage('MessageRouter', 'ERROR', executionId, { type: message.type }, null, Date.now() - startTime, error);
+      throw error;
     }
   }
 
@@ -1142,19 +1132,30 @@ export class MessageRouter {
         this._emitPipelineStatus('Execution Pipeline', 'Plan approved by user. Initializing execution graph...', 'running');
 
         // Retrieve and initialize timeline
-        const planId = this.approvalToPlanId.get(approvalId);
-        if (planId) {
-          const plan = this.plansCache.get(planId);
-          if (plan) {
-            const timeline = timelineService.initializeTimeline(plan);
-            // Send init message
-            const initMsg = MessageFactory.createMessage(
-              MessageType.TIMELINE_INIT,
-              MessageSource.EXTENSION,
-              MessageTarget.WEBVIEW,
-              { timeline }
-            );
-            this.postMessage(initMsg);
+        const approvalObj = approvalEngine.getApproval(approvalId);
+        const planId = this.approvalToPlanId.get(approvalId) || (approvalObj ? approvalObj.planId : approvalId);
+        let plan = this.plansCache.get(planId);
+        if (!plan && approvalObj) {
+          plan = plannerEngine.generatePlan(approvalObj.summary || approvalObj.title);
+          (plan as any).id = planId;
+          this.plansCache.set(planId, plan);
+        }
+
+        if (!planId || !plan) {
+          console.error(`[KAIRO][APPROVAL] Plan resolution failed approvalId=${approvalId} planId=${planId}`);
+          this._emitPipelineStatus('Execution Error', `Plan resolution failed for approvalId=${approvalId}`, 'error');
+          return;
+        }
+
+        const timeline = timelineService.initializeTimeline(plan);
+        // Send init message
+        const initMsg = MessageFactory.createMessage(
+          MessageType.TIMELINE_INIT,
+          MessageSource.EXTENSION,
+          MessageTarget.WEBVIEW,
+          { timeline }
+        );
+        this.postMessage(initMsg);
 
             this._emitPipelineStatus('Code Synthesis', 'Generating application files & code contracts...', 'running');
 
@@ -1167,66 +1168,23 @@ export class MessageRouter {
               this._emitPipelineStatus('Execution Error', err.message || String(err), 'error');
             });
 
-            // Execute the actual pipeline in background to generate source files
+            // Execute the actual production pipeline: AIKernel -> Orchestrator -> GeneratorSDK -> Qwen -> ExecutionEngine -> Real Files
             const folders = vscode.workspace.workspaceFolders;
-            const workspacePath = folders && folders.length > 0 ? folders[0].uri.fsPath : '';
-            pipelineControllerFacade.runPipeline(
-              (plan as any).prompt || plan.title,
-              workspacePath
-            ).then((pipelineResult) => {
-              if (pipelineResult && pipelineResult.workspaceReport) {
-                const createdFiles = pipelineResult.workspaceReport.createdFiles || [];
-                const modifiedFiles = pipelineResult.workspaceReport.modifiedFiles || [];
-                const deletedFiles = pipelineResult.workspaceReport.deletedFiles || [];
-                const changedFiles = [...createdFiles, ...modifiedFiles, ...deletedFiles];
+            const workspacePath = folders && folders.length > 0 ? folders[0].uri.fsPath : undefined;
+            const rawPrompt = (plan as any).prompt || plan.title;
 
-                // Stream every generated file to the user UI
-                for (const file of createdFiles) {
-                  this._emitPipelineStatus('Writing File', `Created: ${file}`, 'done');
-                }
+            console.log(`[WORKSPACE_TRACE] MessageRouter=${workspacePath}`);
 
-                this._emitPipelineStatus('Execution Complete', `Successfully scaffolded ${createdFiles.length} files in workspace!`, 'done');
-
-                const fileContents: Record<string, string> = {};
-                if (pipelineResult.generationResult && Array.isArray(pipelineResult.generationResult.generatedContracts)) {
-                  for (const contract of pipelineResult.generationResult.generatedContracts) {
-                    if (Array.isArray(contract.fileOperations)) {
-                      for (const op of contract.fileOperations) {
-                        const key = op.relativePath || op.filePath;
-                        fileContents[key] = op.content || '';
-                      }
-                    }
-                  }
-                }
-                
-                const payload = {
-                  changedFiles: Object.keys(fileContents),
-                  createdFiles,
-                  modifiedFiles,
-                  deletedFiles,
-                  fileContents,
-                  summary: `Generated ${createdFiles.length} files, modified ${modifiedFiles.length} files.`,
-                  statistics: {
-                    executionTimeMs: pipelineResult.executionTimeMs || 0,
-                    warningsCount: pipelineResult.warnings?.length || 0,
-                    errorsCount: pipelineResult.errors?.length || 0
-                  }
-                };
-                
-                const reviewMsg = MessageFactory.createMessage(
-                  MessageType.REVIEW_UPDATE,
-                  MessageSource.EXTENSION,
-                  MessageTarget.WEBVIEW,
-                  payload
-                );
-                this.postMessage(reviewMsg);
-              }
+            aiKernel.processPrompt({
+              rawPrompt,
+              workspacePath,
+              requestId: planId
+            }).then(() => {
+              this._emitPipelineStatus('Execution Complete', 'Successfully generated and persisted project files in workspace!', 'done');
             }).catch(err => {
               console.error('[Sasta-Antigravity] Pipeline execution failed:', err);
               this._emitPipelineStatus('Execution Error', err.message || String(err), 'error');
             });
-          }
-        }
       } else if (action === 'reject') {
         result = approvalEngine.reject(approvalId);
         this._emitPipelineStatus('Execution Cancelled', 'Plan was rejected by user.', 'error');
@@ -1390,67 +1348,19 @@ export class MessageRouter {
       const parsedIntent = parsePromptIntoIntent(promptText);
       this._emitExecutionEvent('Intent Detection', '✓ Intent:', parsedIntent.title, 'done');
 
-      // STAGE 3: AI Kernel
-      this._emitExecutionEvent('AI Kernel', 'Compiling prompt...', 'Building context specification', 'running');
-      this._emitExecutionEvent('AI Kernel', 'Loading memory...', 'Querying local memory agent cache', 'running');
-      this._emitExecutionEvent('AI Kernel', 'Searching knowledge...', 'Retrieving workspace symbol graph', 'running');
-      const compiledRequest = await aiKernel.processPrompt(promptText || 'User Request', workspacePath);
-      this._emitExecutionEvent('AI Kernel', 'Routing request...', `Kernel intent: ${compiledRequest.intent}`, 'done');
-
-      // STAGE 4: Model Router
-      const selectedModelName = compiledRequest.routingDecision?.selectedModel?.name || 'Qwen2.5-Coder 7B';
+      // STAGE 3: Model Router
+      const selectedModelName = 'Qwen2.5-Coder 7B';
       this._emitExecutionEvent('Model Router', 'Selecting model...', 'Evaluating model capabilities and context window', 'running');
       this._emitExecutionEvent('Model Router', '✓ Selected:', selectedModelName, 'done', null, { model: selectedModelName });
 
-      // STAGE 5: Ollama Runtime Streaming
-      this._emitExecutionEvent('Ollama', 'Connecting...', 'Establishing runtime socket to local Ollama daemon', 'running', 10, { model: selectedModelName });
-      await new Promise<void>(resolve => setTimeout(resolve, 100));
-      this._emitExecutionEvent('Ollama', 'Streaming response...', 'Receiving tokens...', 'running', 35, { model: selectedModelName, tokenCount: 142 });
-      await new Promise<void>(resolve => setTimeout(resolve, 150));
-      this._emitExecutionEvent('Ollama', 'Streaming response...', 'Receiving tokens...', 'running', 62, { model: selectedModelName, tokenCount: 284 });
-      await new Promise<void>(resolve => setTimeout(resolve, 150));
-      this._emitExecutionEvent('Ollama', 'Streaming response...', 'Receiving tokens...', 'running', 89, { model: selectedModelName, tokenCount: 395 });
-      this._emitExecutionEvent('Ollama', 'Done', 'Token generation completed successfully', 'done', 100, { model: selectedModelName, tokenCount: 448 });
-
-      // STAGE 6: Planning
+      // STAGE 4: Planning
       this._emitExecutionEvent('Planning', 'Building execution plan...', 'Constructing execution DAG nodes', 'running');
       const plan = plannerEngine.generatePlan(promptText);
       (plan as any).prompt = promptText;
       const approval = approvalEngine.createApproval(plan);
 
-      const desc = promptText.toLowerCase();
-      let fileListStr = 'index.html, style.css, script.js, README.md';
-      if (desc.includes('netflix') || desc.includes('streaming')) {
-        fileListStr = 'package.json, tsconfig.json, vite.config.ts, index.html, src/index.css, src/mockData.ts, src/App.tsx, src/main.tsx';
-      } else if (desc.includes('react') || desc.includes('todo') || desc.includes('frontend') || desc.includes('webapp') || desc.includes('app')) {
-        fileListStr = 'package.json, tsconfig.json, vite.config.ts, index.html, src/index.css, src/App.tsx, src/main.tsx';
-      } else if (desc.includes('backend') || desc.includes('server') || desc.includes('express') || desc.includes('node') || desc.includes('api') || desc.includes('rest') || desc.includes('auth')) {
-        fileListStr = 'package.json, tsconfig.json, .env, src/index.ts, src/routes/api.ts, src/routes/auth.ts, src/middleware/logger.ts, README.md';
-      }
-
-      this._emitExecutionEvent('Planning', 'Files to create:', fileListStr, 'done');
-
       // STAGE 7: Waiting for Approval
       this._emitExecutionEvent('Waiting for Approval', 'Review Required', 'Waiting for user to inspect and approve execution plan', 'warning');
-
-      if (workspacePath) {
-        const { getProposedFiles, computeFileDiffs } = require('./mockOpsHelper');
-        const proposedFiles = getProposedFiles(promptText, workspacePath);
-        const { changedFiles, fileContents } = computeFileDiffs(proposedFiles);
-
-        const reviewMsg = MessageFactory.createMessage(
-          MessageType.REVIEW_UPDATE,
-          MessageSource.EXTENSION,
-          MessageTarget.WEBVIEW,
-          {
-            changedFiles,
-            fileContents,
-            summary: `Proposed ${changedFiles.length} files for creation/modification.`,
-            statistics: { executionTimeMs: 0, warningsCount: 0, errorsCount: 0 }
-          }
-        );
-        this.postMessage(reviewMsg);
-      }
 
       // Store in caches
       this.plansCache.set(plan.id, plan);

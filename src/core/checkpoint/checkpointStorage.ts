@@ -5,7 +5,11 @@ export class CheckpointStorage {
   private storageDir: string;
 
   constructor(workspaceRoot: string) {
-    this.storageDir = path.resolve(workspaceRoot, '.aiidle', 'checkpoints');
+    const hasWorkspaceAiidle = fs.existsSync(path.resolve(workspaceRoot, '.aiidle'));
+    this.storageDir = hasWorkspaceAiidle
+      ? path.resolve(workspaceRoot, '.aiidle', 'checkpoints')
+      : path.resolve(require('os').tmpdir(), 'kairo-checkpoints', path.basename(workspaceRoot));
+
     if (!fs.existsSync(this.storageDir)) {
       fs.mkdirSync(this.storageDir, { recursive: true });
     }

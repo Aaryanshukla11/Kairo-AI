@@ -19,12 +19,24 @@ export class ReviewerBrain {
       'Document newly added interfaces.'
     ];
 
+    const decision = issues.length > 0 ? 'REPAIR_REQUIRED' : 'PASS';
+    const structuredRepairIssues = issues.map(i => ({
+      severity: i.severity === 'critical' || i.severity === 'high' ? ('CRITICAL' as const) : ('HIGH' as const),
+      filePath: (i as any).location || 'src/components/App.tsx',
+      issueType: 'MISSING_EXPORT' as const,
+      exactProblem: i.description,
+      affectedSymbol: (i as any).ruleId || i.type,
+      suggestedFix: `Repair issue in ${(i as any).location || 'component'}`
+    }));
+
     return {
       planId: plan.id,
       ...scores,
       warnings,
       recommendations,
-      suggestedImprovements
+      suggestedImprovements,
+      decision,
+      structuredRepairIssues
     };
   }
 }

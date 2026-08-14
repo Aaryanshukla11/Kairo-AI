@@ -7,7 +7,11 @@ export class DiagnosticsReporter {
   private logPath: string;
 
   constructor(workspaceRoot: string) {
-    const logDir = path.resolve(workspaceRoot, '.aiidle', 'logs');
+    const hasWorkspaceAiidle = fs.existsSync(path.resolve(workspaceRoot, '.aiidle'));
+    const logDir = hasWorkspaceAiidle
+      ? path.resolve(workspaceRoot, '.aiidle', 'logs')
+      : path.resolve(require('os').tmpdir(), 'kairo-logs', path.basename(workspaceRoot));
+
     if (!fs.existsSync(logDir)) {
       fs.mkdirSync(logDir, { recursive: true });
     }

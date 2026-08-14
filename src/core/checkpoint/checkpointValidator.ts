@@ -20,9 +20,10 @@ export class CheckpointValidator {
    * Assures snapshot directories are present on disk.
    */
   public validateSnapshotIntact(checkpointId: string, workspaceRoot: string): void {
-    const cpDir = path.resolve(workspaceRoot, '.aiidle', 'checkpoints', checkpointId);
-    if (!fs.existsSync(cpDir)) {
-      throw new Error(`Checkpoint validation error: Snapshot directory is missing at "${cpDir}"`);
+    const wsCpDir = path.resolve(workspaceRoot, '.aiidle', 'checkpoints', checkpointId);
+    const tmpCpDir = path.resolve(require('os').tmpdir(), 'kairo-checkpoints', path.basename(workspaceRoot), checkpointId);
+    if (!fs.existsSync(wsCpDir) && !fs.existsSync(tmpCpDir)) {
+      throw new Error(`Checkpoint validation error: Snapshot directory is missing at "${wsCpDir}"`);
     }
   }
 }

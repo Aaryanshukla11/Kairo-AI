@@ -2,6 +2,7 @@ import { AgentTask, AgentDefinition, AgentStatus, IAgentManagerLog, AgentManager
 import { agentRuntimeInstance, AgentRuntime } from './agentRuntime';
 import { agentRegistry, AgentRegistry } from './agentRegistry';
 import { BaseAgent } from './base';
+import { globalKairoEventBus } from '../eventBus/runtime/kairoEventBus';
 
 export class AgentManager {
   private runtime: AgentRuntime;
@@ -173,6 +174,24 @@ export class AgentManager {
 
     // STAGE 2: TASK DISPATCH
     task.status = 'running';
+
+    const agentSeqMap: Record<string, string> = {
+      'requirement-agent': 'RequirementAgent',
+      'project-intelligence-agent': 'ProjectIntelligenceAgent',
+      'engineering-decision-agent': 'EngineeringDecisionAgent',
+      'architecture-agent': 'ArchitectureAgent',
+      'workspace-agent': 'WorkspaceAgent',
+      'project-manifest-agent': 'ProjectManifestAgent',
+      'planner-agent': 'GenerationPlanner',
+      'generator-sdk-agent': 'GeneratorSDK',
+      'executor-agent': 'Executor',
+      'reviewer-agent': 'Reviewer'
+    };
+    const seqName = agentSeqMap[selectedAgent.id];
+    if (seqName) {
+      console.log(`[Orchestrator][AgentSequence] ${seqName} - executionId: ${task.payload?.requestId || task.id}`);
+    }
+
     this.emitLog({
       stage: 'TASK_DISPATCH',
       timestamp: Date.now(),
@@ -185,10 +204,85 @@ export class AgentManager {
       }
     });
 
+    const requestId = task.payload?.requestId || task.id;
+    const sessionId = task.payload?.sessionId || task.id;
+
+    // Granular Stage Start Events
+    if (selectedAgent.id === 'requirement-agent') {
+      await globalKairoEventBus.publish({
+        eventId: `evt-req-start-${Date.now()}`,
+        eventType: 'RequirementAnalysisStarted',
+        timestamp: Date.now(),
+        source: 'RequirementAgent',
+        priority: 'HIGH',
+        correlationId: requestId,
+        sessionId,
+        payload: { requestId, sessionId, stage: 'Analyzing Requirements' }
+      });
+    } else if (selectedAgent.id === 'architecture-agent') {
+      await globalKairoEventBus.publish({
+        eventId: `evt-arch-start-${Date.now()}`,
+        eventType: 'ArchitectureGenerationStarted',
+        timestamp: Date.now(),
+        source: 'ArchitectureAgent',
+        priority: 'HIGH',
+        correlationId: requestId,
+        sessionId,
+        payload: { requestId, sessionId, stage: 'Designing Architecture' }
+      });
+    } else if (selectedAgent.id === 'planner-agent') {
+      await globalKairoEventBus.publish({
+        eventId: `evt-plan-start-${Date.now()}`,
+        eventType: 'ImplementationPlanStarted',
+        timestamp: Date.now(),
+        source: 'PlannerAgent',
+        priority: 'HIGH',
+        correlationId: requestId,
+        sessionId,
+        payload: { requestId, sessionId, stage: 'Building Implementation Plan' }
+      });
+    }
+
     try {
       const result = await this.runtime.dispatchTask(task);
       task.status = 'completed';
       task.result = result;
+
+      // Granular Stage Completion Events
+      if (selectedAgent.id === 'requirement-agent') {
+        await globalKairoEventBus.publish({
+          eventId: `evt-req-done-${Date.now()}`,
+          eventType: 'RequirementAnalysisCompleted',
+          timestamp: Date.now(),
+          source: 'RequirementAgent',
+          priority: 'HIGH',
+          correlationId: requestId,
+          sessionId,
+          payload: { requestId, sessionId, stage: 'Requirements Analyzed' }
+        });
+      } else if (selectedAgent.id === 'architecture-agent') {
+        await globalKairoEventBus.publish({
+          eventId: `evt-arch-done-${Date.now()}`,
+          eventType: 'ArchitectureGenerationCompleted',
+          timestamp: Date.now(),
+          source: 'ArchitectureAgent',
+          priority: 'HIGH',
+          correlationId: requestId,
+          sessionId,
+          payload: { requestId, sessionId, stage: 'Architecture Designed' }
+        });
+      } else if (selectedAgent.id === 'planner-agent') {
+        await globalKairoEventBus.publish({
+          eventId: `evt-plan-done-${Date.now()}`,
+          eventType: 'ImplementationPlanCompleted',
+          timestamp: Date.now(),
+          source: 'PlannerAgent',
+          priority: 'HIGH',
+          correlationId: requestId,
+          sessionId,
+          payload: { requestId, sessionId, stage: 'Implementation Plan Built' }
+        });
+      }
 
       // STAGE 3: TASK COMPLETED
       this.emitLog({
@@ -308,6 +402,10 @@ export class AgentManager {
             contextData.plannerResult = result;
           } else if (taskSuffix === '8') {
             contextData.sdkResult = result;
+          } else if (taskSuffix === '9') {
+            contextData.executorResult = result;
+          } else if (taskSuffix === '10') {
+            contextData.reviewerResult = result;
           }
 
           if (task.payload.taskType) {
@@ -321,6 +419,7 @@ export class AgentManager {
           const errorMsg = `Task '${task.id}' failed on agent '${task.assignedAgentId}': ${err.message || String(err)}`;
           errors.push(errorMsg);
           results.push({ taskId: task.id, agentId: task.assignedAgentId, success: false, error: errorMsg });
+          break; // Stop execution of downstream tasks on task failure
         }
       }
     }

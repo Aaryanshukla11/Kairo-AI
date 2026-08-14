@@ -10,6 +10,7 @@ import {
   TaskPriority
 } from './types';
 import * as crypto from 'crypto';
+import { pipelineRouter } from './pipelineRouter';
 
 export class OrchestratorEngine implements IOrchestrator {
   private logs: IOrchestratorStageLog[] = [];
@@ -44,6 +45,7 @@ export class OrchestratorEngine implements IOrchestrator {
    */
   public async executeWorkflow(compiledRequest: IAIKernelCompiledRequest): Promise<IOrchestrationResult> {
     console.log('[TRACE] [Orchestrator] ENTER: executeWorkflow. Request ID:', compiledRequest.requestId);
+    console.log(`[WORKSPACE_TRACE] Orchestrator=${compiledRequest.workspacePath}`);
     const startTime = Date.now();
     const requestId = compiledRequest.requestId;
     const uid = crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 8);
@@ -164,13 +166,17 @@ export class OrchestratorEngine implements IOrchestrator {
           sessionId,
           workflowId,
           requestId,
+          workspacePath: compiledRequest.workspacePath,
+          compiledRequest,
           taskType: t.taskType,
           priority: t.priority
         },
         status: 'pending'
       }));
 
+      console.log(`[Orchestrator][AgentSequence] START - executionId: ${requestId}, sessionId: ${sessionId}`);
       const agentResult = await this.agentManager.dispatchWorkflowTasks(agentTasks);
+      console.log(`[Orchestrator][AgentSequence] COMPLETE - executionId: ${requestId}, duration: ${Date.now() - startTime}ms`);
 
       // Update Workflow Context state
       const isSuccess = agentResult.failedCount === 0;
@@ -263,95 +269,160 @@ export class OrchestratorEngine implements IOrchestrator {
    * Decomposes compiled AI Kernel request into executable workflow tasks with assigned priorities.
    */
   private decomposeRequestIntoTasks(sessionId: string, compiledRequest: IAIKernelCompiledRequest): IWorkflowTask[] {
-    const tasks: IWorkflowTask[] = [];
+    const routeDecision = pipelineRouter.routeRequest(compiledRequest);
 
-    if (compiledRequest.intent === 'NEW_PROJECT') {
-      // NEW_PROJECT Pipeline Tasks (6-stage intent-driven workflow)
-      // Task 1: Prompt Requirement Analysis & Intent Scope
-      const task1Id = `task-${sessionId}-1`;
-      tasks.push({
-        taskId: task1Id,
+    const allPossibleTasks: Record<string, (prevTaskId: string | null) => IWorkflowTask> = {
+      'requirement-agent': (prevId) => ({
+        taskId: `task-${sessionId}-req`,
         title: 'Analyze Prompt Requirements & Extract Scope',
         assignedAgentId: 'requirement-agent',
         taskType: 'REQUIREMENT_ANALYSIS',
         priority: 'CRITICAL',
-        dependencies: [],
+        dependencies: prevId ? [prevId] : [],
         payload: {
           rawPrompt: compiledRequest.rawPrompt,
           requestId: compiledRequest.requestId,
           sessionId,
           intent: compiledRequest.intent,
-          techStack: compiledRequest.promptContext.detectedTechnologies
+          techStack: compiledRequest.promptContext.detectedTechnologies,
+          routeDecision
         },
         status: 'QUEUED'
-      });
+      }),
 
-      // Task 2: Generate Software Architecture Blueprint
-      const task2Id = `task-${sessionId}-2`;
-      tasks.push({
-        taskId: task2Id,
+      'project-intelligence-agent': (prevId) => ({
+        taskId: `task-${sessionId}-intel`,
+        title: 'Analyze Project Intelligence & Classify Architecture',
+        assignedAgentId: 'project-intelligence-agent',
+        taskType: 'PROJECT_INTELLIGENCE',
+        priority: 'CRITICAL',
+        dependencies: prevId ? [prevId] : [],
+        payload: {
+          rawPrompt: compiledRequest.rawPrompt,
+          requestId: compiledRequest.requestId,
+          sessionId,
+          intent: compiledRequest.intent,
+          techStack: compiledRequest.promptContext.detectedTechnologies,
+          routeDecision
+        },
+        status: 'QUEUED'
+      }),
+
+      'engineering-decision-agent': (prevId) => ({
+        taskId: `task-${sessionId}-eng`,
+        title: 'Formulate Engineering Technical Decisions',
+        assignedAgentId: 'engineering-decision-agent',
+        taskType: 'ENGINEERING_DECISION',
+        priority: 'CRITICAL',
+        dependencies: prevId ? [prevId] : [],
+        payload: {
+          rawPrompt: compiledRequest.rawPrompt,
+          requestId: compiledRequest.requestId,
+          sessionId,
+          intent: compiledRequest.intent,
+          techStack: compiledRequest.promptContext.detectedTechnologies,
+          routeDecision
+        },
+        status: 'QUEUED'
+      }),
+
+      'architecture-agent': (prevId) => ({
+        taskId: `task-${sessionId}-arch`,
         title: 'Generate Software Architecture Blueprint',
         assignedAgentId: 'architecture-agent',
         taskType: 'ARCHITECTURE_BLUEPRINT',
         priority: 'CRITICAL',
-        dependencies: [task1Id],
+        dependencies: prevId ? [prevId] : [],
         payload: {
           rawPrompt: compiledRequest.rawPrompt,
           requestId: compiledRequest.requestId,
           sessionId,
           intent: compiledRequest.intent,
-          techStack: compiledRequest.promptContext.detectedTechnologies
+          techStack: compiledRequest.promptContext.detectedTechnologies,
+          routeDecision
         },
         status: 'QUEUED'
-      });
+      }),
 
-      // Task 3: Generate Executable Project Generation Plan
-      const task3Id = `task-${sessionId}-3`;
-      tasks.push({
-        taskId: task3Id,
+      'workspace-agent': (prevId) => ({
+        taskId: `task-${sessionId}-ws`,
+        title: 'Generate Workspace Blueprint & Layout Boundaries',
+        assignedAgentId: 'workspace-agent',
+        taskType: 'WORKSPACE_BLUEPRINT',
+        priority: 'CRITICAL',
+        dependencies: prevId ? [prevId] : [],
+        payload: {
+          rawPrompt: compiledRequest.rawPrompt,
+          requestId: compiledRequest.requestId,
+          sessionId,
+          intent: compiledRequest.intent,
+          techStack: compiledRequest.promptContext.detectedTechnologies,
+          routeDecision
+        },
+        status: 'QUEUED'
+      }),
+
+      'project-manifest-agent': (prevId) => ({
+        taskId: `task-${sessionId}-manifest`,
+        title: 'Generate Project Single Source of Truth Manifest',
+        assignedAgentId: 'project-manifest-agent',
+        taskType: 'PROJECT_MANIFEST',
+        priority: 'CRITICAL',
+        dependencies: prevId ? [prevId] : [],
+        payload: {
+          rawPrompt: compiledRequest.rawPrompt,
+          requestId: compiledRequest.requestId,
+          sessionId,
+          intent: compiledRequest.intent,
+          techStack: compiledRequest.promptContext.detectedTechnologies,
+          routeDecision
+        },
+        status: 'QUEUED'
+      }),
+
+      'planner-agent': (prevId) => ({
+        taskId: `task-${sessionId}-plan`,
         title: 'Generate Executable Project Generation Plan',
         assignedAgentId: 'planner-agent',
         taskType: 'GENERATION_PLAN',
         priority: 'CRITICAL',
-        dependencies: [task2Id],
+        dependencies: prevId ? [prevId] : [],
         payload: {
           rawPrompt: compiledRequest.rawPrompt,
           requestId: compiledRequest.requestId,
           sessionId,
           intent: compiledRequest.intent,
-          techStack: compiledRequest.promptContext.detectedTechnologies
+          techStack: compiledRequest.promptContext.detectedTechnologies,
+          routeDecision
         },
         status: 'QUEUED'
-      });
+      }),
 
-      // Task 4: Execute Central Generator SDK Framework Pipeline
-      const task4Id = `task-${sessionId}-4`;
-      tasks.push({
-        taskId: task4Id,
+      'generator-sdk-agent': (prevId) => ({
+        taskId: `task-${sessionId}-sdk`,
         title: 'Execute Central Generator SDK Framework Pipeline',
         assignedAgentId: 'generator-sdk-agent',
         taskType: 'GENERATOR_SDK',
         priority: 'CRITICAL',
-        dependencies: [task3Id],
+        dependencies: prevId ? [prevId] : [],
         payload: {
           rawPrompt: compiledRequest.rawPrompt,
           requestId: compiledRequest.requestId,
           sessionId,
           intent: compiledRequest.intent,
-          techStack: compiledRequest.promptContext.detectedTechnologies
+          techStack: compiledRequest.promptContext.detectedTechnologies,
+          routeDecision
         },
         status: 'QUEUED'
-      });
+      }),
 
-      // Task 5: Synthesize Application Code & Artifacts
-      const task5Id = `task-${sessionId}-5`;
-      tasks.push({
-        taskId: task5Id,
+      'executor-agent': (prevId) => ({
+        taskId: `task-${sessionId}-exec`,
         title: 'Synthesize Application Code & Artifacts',
         assignedAgentId: 'executor-agent',
         taskType: 'CODE_SYNTHESIS',
         priority: 'CRITICAL',
-        dependencies: [task4Id],
+        dependencies: prevId ? [prevId] : [],
         payload: {
           rawPrompt: compiledRequest.rawPrompt,
           aiRequest: compiledRequest.aiRequest,
@@ -359,232 +430,38 @@ export class OrchestratorEngine implements IOrchestrator {
           workspacePath: compiledRequest.workspacePath,
           provider: compiledRequest.provider,
           codingProvider: compiledRequest.codingProvider,
-          fsAdapter: compiledRequest.fsAdapter
+          fsAdapter: compiledRequest.fsAdapter,
+          routeDecision
         },
         status: 'QUEUED'
-      });
+      }),
 
-      // Task 6: Review Generated Code Quality
-      const task6Id = `task-${sessionId}-6`;
-      tasks.push({
-        taskId: task6Id,
+      'reviewer-agent': (prevId) => ({
+        taskId: `task-${sessionId}-rev`,
         title: 'Review Generated Code Quality',
         assignedAgentId: 'reviewer-agent',
         taskType: 'CODE_REVIEW',
         priority: 'MEDIUM',
-        dependencies: [task5Id],
+        dependencies: prevId ? [prevId] : [],
         payload: {
-          intent: compiledRequest.intent
+          intent: compiledRequest.intent,
+          routeDecision
         },
         status: 'QUEUED'
-      });
+      })
+    };
 
-      return tasks;
+    const tasks: IWorkflowTask[] = [];
+    let lastTaskId: string | null = null;
+
+    for (const agentId of routeDecision.selectedAgents) {
+      const taskFn = allPossibleTasks[agentId];
+      if (taskFn) {
+        const task = taskFn(lastTaskId);
+        tasks.push(task);
+        lastTaskId = task.taskId;
+      }
     }
-
-    // Task 1: Prompt Requirement Analysis & Intent Scope
-    const task1Id = `task-${sessionId}-1`;
-    tasks.push({
-      taskId: task1Id,
-      title: 'Analyze Prompt Requirements & Extract Scope',
-      assignedAgentId: 'requirement-agent',
-      taskType: 'REQUIREMENT_ANALYSIS',
-      priority: 'CRITICAL',
-      dependencies: [],
-      payload: {
-        rawPrompt: compiledRequest.rawPrompt,
-        requestId: compiledRequest.requestId,
-        sessionId,
-        intent: compiledRequest.intent,
-        techStack: compiledRequest.promptContext.detectedTechnologies
-      },
-      status: 'QUEUED'
-    });
-
-    // Task 2: Project Intelligence Analysis & Architecture Classification
-    const task2Id = `task-${sessionId}-2`;
-    tasks.push({
-      taskId: task2Id,
-      title: 'Analyze Project Intelligence & Classify Architecture',
-      assignedAgentId: 'project-intelligence-agent',
-      taskType: 'PROJECT_INTELLIGENCE',
-      priority: 'CRITICAL',
-      dependencies: [task1Id],
-      payload: {
-        rawPrompt: compiledRequest.rawPrompt,
-        requestId: compiledRequest.requestId,
-        sessionId,
-        intent: compiledRequest.intent,
-        techStack: compiledRequest.promptContext.detectedTechnologies
-      },
-      status: 'QUEUED'
-    });
-
-    // Task 3: Engineering Decision & Technology Strategy Selection
-    const task3Id = `task-${sessionId}-3`;
-    tasks.push({
-      taskId: task3Id,
-      title: 'Formulate Engineering Technical Decisions',
-      assignedAgentId: 'engineering-decision-agent',
-      taskType: 'ENGINEERING_DECISION',
-      priority: 'CRITICAL',
-      dependencies: [task2Id],
-      payload: {
-        rawPrompt: compiledRequest.rawPrompt,
-        requestId: compiledRequest.requestId,
-        sessionId,
-        intent: compiledRequest.intent,
-        techStack: compiledRequest.promptContext.detectedTechnologies
-      },
-      status: 'QUEUED'
-    });
-
-    // Task 4: Architecture Blueprint Formulation
-    const task4Id = `task-${sessionId}-4`;
-    tasks.push({
-      taskId: task4Id,
-      title: 'Generate Software Architecture Blueprint',
-      assignedAgentId: 'architecture-agent',
-      taskType: 'ARCHITECTURE_BLUEPRINT',
-      priority: 'CRITICAL',
-      dependencies: [task3Id],
-      payload: {
-        rawPrompt: compiledRequest.rawPrompt,
-        requestId: compiledRequest.requestId,
-        sessionId,
-        intent: compiledRequest.intent,
-        techStack: compiledRequest.promptContext.detectedTechnologies
-      },
-      status: 'QUEUED'
-    });
-
-    // Task 5: Workspace Blueprint & Boundaries Planning
-    const task5Id = `task-${sessionId}-5`;
-    tasks.push({
-      taskId: task5Id,
-      title: 'Generate Workspace Blueprint & Layout Boundaries',
-      assignedAgentId: 'workspace-agent',
-      taskType: 'WORKSPACE_BLUEPRINT',
-      priority: 'CRITICAL',
-      dependencies: [task4Id],
-      payload: {
-        rawPrompt: compiledRequest.rawPrompt,
-        requestId: compiledRequest.requestId,
-        sessionId,
-        intent: compiledRequest.intent,
-        techStack: compiledRequest.promptContext.detectedTechnologies
-      },
-      status: 'QUEUED'
-    });
-
-    // Task 6: Project Manifest Generation & Single Source of Truth
-    const task6Id = `task-${sessionId}-6`;
-    tasks.push({
-      taskId: task6Id,
-      title: 'Generate Project Single Source of Truth Manifest',
-      assignedAgentId: 'project-manifest-agent',
-      taskType: 'PROJECT_MANIFEST',
-      priority: 'CRITICAL',
-      dependencies: [task5Id],
-      payload: {
-        rawPrompt: compiledRequest.rawPrompt,
-        requestId: compiledRequest.requestId,
-        sessionId,
-        intent: compiledRequest.intent,
-        techStack: compiledRequest.promptContext.detectedTechnologies
-      },
-      status: 'QUEUED'
-    });
-
-    // Task 7: Generation Planning & Execution Queue Construction
-    const task7Id = `task-${sessionId}-7`;
-    tasks.push({
-      taskId: task7Id,
-      title: 'Generate Executable Project Generation Plan',
-      assignedAgentId: 'planner-agent',
-      taskType: 'GENERATION_PLAN',
-      priority: 'CRITICAL',
-      dependencies: [task6Id],
-      payload: {
-        rawPrompt: compiledRequest.rawPrompt,
-        requestId: compiledRequest.requestId,
-        sessionId,
-        intent: compiledRequest.intent,
-        techStack: compiledRequest.promptContext.detectedTechnologies
-      },
-      status: 'QUEUED'
-    });
-
-    // Task 8: Central Generator SDK Framework Execution
-    const task8Id = `task-${sessionId}-8`;
-    tasks.push({
-      taskId: task8Id,
-      title: 'Execute Central Generator SDK Framework Pipeline',
-      assignedAgentId: 'generator-sdk-agent',
-      taskType: 'GENERATOR_SDK',
-      priority: 'CRITICAL',
-      dependencies: [task7Id],
-      payload: {
-        rawPrompt: compiledRequest.rawPrompt,
-        requestId: compiledRequest.requestId,
-        sessionId,
-        intent: compiledRequest.intent,
-        techStack: compiledRequest.promptContext.detectedTechnologies
-      },
-      status: 'QUEUED'
-    });
-
-    // Task 9: Memory & Architectural Context Retrieval
-    const task9Id = `task-${sessionId}-9`;
-    tasks.push({
-      taskId: task9Id,
-      title: 'Sync Project Memory Context',
-      assignedAgentId: 'memory-agent',
-      taskType: 'MEMORY_SYNC',
-      priority: 'HIGH',
-      dependencies: [task8Id],
-      payload: {
-        query: compiledRequest.intent,
-        memoriesCount: compiledRequest.memories.length
-      },
-      status: 'QUEUED'
-    });
-
-    // Task 10: Execution & Code Synthesis
-    const task10Id = `task-${sessionId}-10`;
-    tasks.push({
-      taskId: task10Id,
-      title: 'Synthesize Application Code & Artifacts',
-      assignedAgentId: 'executor-agent',
-      taskType: 'CODE_SYNTHESIS',
-      priority: 'CRITICAL',
-      dependencies: [task9Id],
-      payload: {
-        rawPrompt: compiledRequest.rawPrompt,
-        aiRequest: compiledRequest.aiRequest,
-        modelId: compiledRequest.routingDecision.selectedModel.modelId,
-        workspacePath: compiledRequest.workspacePath,
-        provider: compiledRequest.provider,
-        codingProvider: compiledRequest.codingProvider,
-        fsAdapter: compiledRequest.fsAdapter
-      },
-      status: 'QUEUED'
-    });
-
-    // Task 11: Quality Assurance & Review
-    const task11Id = `task-${sessionId}-11`;
-    tasks.push({
-      taskId: task11Id,
-      title: 'Review Generated Code Quality',
-      assignedAgentId: 'reviewer-agent',
-      taskType: 'CODE_REVIEW',
-      priority: 'MEDIUM',
-      dependencies: [task10Id],
-      payload: {
-        intent: compiledRequest.intent
-      },
-      status: 'QUEUED'
-    });
 
     return tasks;
   }

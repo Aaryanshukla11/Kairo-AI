@@ -89,4 +89,72 @@ describe('Sprint 4 - Code Generation Pipeline Tests', () => {
     assert.strictEqual(result.failedModules.length, 0);
   });
 
+  describe('Critical Blocker Fix #1 - No Keyword Mock Bypass', () => {
+    const testCases = [
+      { name: 'TEST 1: Create Calculator', prompt: 'Create Calculator' },
+      { name: 'TEST 2: Create React website', prompt: 'Create React website' },
+      { name: 'TEST 3: Create Express API', prompt: 'Create Express API' },
+      { name: 'TEST 4: Create Commercial Kitchen Equipment Manufacturer Website', prompt: 'Create Commercial Kitchen Equipment Manufacturer Website' }
+    ];
+
+    testCases.forEach(({ name, prompt }) => {
+      it(`${name} -> must NOT use mock template and MUST reach coding runtime`, async () => {
+        let reachedCodingRuntime = false;
+        const trackingProvider: ICodingModelProvider = {
+          providerId: 'qwen2.5-coder:7b',
+          executeStream: async () => {
+            reachedCodingRuntime = true;
+            return JSON.stringify({
+              generatedFiles: [{ path: 'src/app.ts', content: `// Real model output for: ${prompt}` }]
+            });
+          }
+        };
+
+        const req: IDevelopmentRequest = {
+          ...mockRequest,
+          projectInfo: {
+            ...mockRequest.projectInfo,
+            name: prompt,
+            description: prompt
+          }
+        };
+
+        // Ensure env flag is not forcing mock templates
+        delete process.env.KAIRO_USE_MOCK_TEMPLATES;
+
+        const result = await codeGenerationPipeline.generateCode(req, trackingProvider);
+
+        assert.strictEqual(reachedCodingRuntime, true, `Prompt "${prompt}" failed to reach coding runtime!`);
+        assert.strictEqual(result.completedModules.length, 2);
+        assert.strictEqual(result.failedModules.length, 0);
+      });
+    });
+
+    it('should report failure correctly when coding model provider fails, rather than silently falling back to mock template', async () => {
+      const failingProvider: ICodingModelProvider = {
+        providerId: 'ollama-unavailable',
+        executeStream: async () => {
+          throw new Error('Ollama Server is not running at http://localhost:11434.');
+        }
+      };
+
+      const req: IDevelopmentRequest = {
+        ...mockRequest,
+        projectInfo: {
+          ...mockRequest.projectInfo,
+          name: 'Create Calculator',
+          description: 'Create Calculator app with React and Express API'
+        }
+      };
+
+      delete process.env.KAIRO_USE_MOCK_TEMPLATES;
+
+      const result = await codeGenerationPipeline.generateCode(req, failingProvider);
+
+      assert.strictEqual(result.failedModules.length, 2, 'Failed modules count should be 2');
+      assert.strictEqual(result.completedModules.length, 0, 'Completed modules count should be 0');
+      assert.ok(result.errors.some(e => e.includes('Ollama Server is not running')));
+    });
+  });
+
 });

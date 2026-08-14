@@ -16,11 +16,15 @@ export class MemoryStore {
     const folders = vscode.workspace.workspaceFolders;
     if (folders && folders.length > 0) {
       const root = folders[0].uri.fsPath;
-      const aiidleDir = path.join(root, '.aiidle', 'memory');
-      if (!fs.existsSync(aiidleDir)) {
-        fs.mkdirSync(aiidleDir, { recursive: true });
+      const hasWorkspaceAiidle = fs.existsSync(path.join(root, '.aiidle'));
+      const storageDir = hasWorkspaceAiidle
+        ? path.join(root, '.aiidle', 'memory')
+        : path.join(require('os').tmpdir(), 'kairo-memory', path.basename(root));
+
+      if (!fs.existsSync(storageDir)) {
+        fs.mkdirSync(storageDir, { recursive: true });
       }
-      this.storagePath = path.join(aiidleDir, 'project-memories.json');
+      this.storagePath = path.join(storageDir, 'project-memories.json');
       this.loadFromDisk();
     }
   }

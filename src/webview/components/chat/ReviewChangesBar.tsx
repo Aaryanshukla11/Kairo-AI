@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { vscodeBridge } from '../../services/vscodeBridge';
 import { MessageType } from '../../../common/protocol';
+import { logKairoStage } from '../../../common/kairoLogger';
 
 export function ReviewChangesBar(): React.JSX.Element {
   const [changedFiles, setChangedFiles] = useState<string[]>([]);
@@ -10,11 +11,22 @@ export function ReviewChangesBar(): React.JSX.Element {
 
   useEffect(() => {
     const handleReviewUpdate = (msg: any) => {
-      if (msg.payload && Array.isArray(msg.payload.changedFiles)) {
-        setChangedFiles(msg.payload.changedFiles);
-      }
-      if (msg.payload && msg.payload.fileContents) {
-        setFileContents(msg.payload.fileContents);
+      const executionId = msg.payload?.executionId || `rev-${Date.now()}`;
+      const startTime = Date.now();
+      logKairoStage('ReviewChanges', 'ENTER', executionId, { filesCount: msg.payload?.changedFiles?.length || 0 });
+
+      try {
+        if (msg.payload && Array.isArray(msg.payload.changedFiles)) {
+          setChangedFiles(msg.payload.changedFiles);
+        }
+        if (msg.payload && msg.payload.fileContents) {
+          setFileContents(msg.payload.fileContents);
+        }
+        const duration = Date.now() - startTime;
+        logKairoStage('ReviewChanges', 'EXIT', executionId, { filesCount: msg.payload?.changedFiles?.length || 0 }, { renderSuccess: true }, duration);
+      } catch (error: any) {
+        const duration = Date.now() - startTime;
+        logKairoStage('ReviewChanges', 'ERROR', executionId, { filesCount: msg.payload?.changedFiles?.length || 0 }, null, duration, error);
       }
     };
     vscodeBridge.subscribe(MessageType.REVIEW_UPDATE, handleReviewUpdate);

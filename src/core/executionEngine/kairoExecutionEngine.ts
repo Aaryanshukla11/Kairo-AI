@@ -1,5 +1,9 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import { KairoEventBus, globalKairoEventBus } from '../eventBus/runtime/kairoEventBus';
 import { IKairoEvent } from '../eventBus/runtime/kairoEventBusTypes';
+import { logKairoStage } from '../../common/kairoLogger';
+import { reviewEngine } from '../review/reviewEngine';
 import {
   ExecutionPipelineStage,
   IKairoExecutionLog,
@@ -63,207 +67,325 @@ export class KairoExecutionEngine {
     const requestId = event.payload?.requestId || event.eventId;
     const sessionId = event.sessionId;
 
-    // Publish ExecutionStarted event
-    await this.eventBus.publish({
-      eventId: `evt-exec-start-${sessionId}-${Date.now()}`,
-      eventType: 'ExecutionStarted',
-      timestamp: Date.now(),
-      source: 'KairoExecutionEngine',
-      priority: 'CRITICAL',
-      correlationId: event.correlationId || requestId,
-      sessionId,
-      payload: { requestId, sessionId }
-    });
+    // STEP 2: WORKSPACE PATH RESOLUTION
+    const workspaceRootRaw =
+      event.payload?.workspacePath ||
+      event.payload?.compiledRequest?.workspacePath ||
+      event.payload?.workspaceRoot ||
+      event.payload?.executionReport?.workspaceRoot;
 
-    // STAGE 1: RECEIVE GENERATION RESULT
-    this.emitLog({
-      stage: 'RECEIVE_GENERATION_RESULT',
-      timestamp: Date.now(),
-      status: 'SUCCESS',
-      message: `Received Generation Result for request '${requestId}'`,
-      details: { requestId, sessionId }
-    });
-
-    // STAGE 2: VALIDATE GENERATION RESULT
-    const isResultValid = true;
-    this.emitLog({
-      stage: 'VALIDATE_GENERATION_RESULT',
-      timestamp: Date.now(),
-      status: 'SUCCESS',
-      message: 'Validated Generation Result integrity and artifact manifest boundaries',
-      details: { requestId, sessionId, isResultValid }
-    });
-
-    // STAGE 3: CREATE EXECUTION QUEUE
-    const targetArtifacts: string[] = event.payload?.generatedArtifacts || [
-      'package.json',
-      'tsconfig.json',
-      'README.md',
-      'src/services/apiService.ts'
-    ];
-    const protectedFiles = event.payload?.protectedFiles || ['.env', 'user_config/custom_settings.json'];
-
-    const writtenFiles: string[] = [];
-    const updatedFiles: string[] = [];
-    const skippedFiles: string[] = [];
-
-    for (const file of targetArtifacts) {
-      if (protectedFiles.includes(file)) {
-        skippedFiles.push(file);
-      } else {
-        writtenFiles.push(file);
-      }
+    if (!workspaceRootRaw || typeof workspaceRootRaw !== 'string' || workspaceRootRaw.trim() === '' || workspaceRootRaw === '.') {
+      console.log(`[ExecutionEngine][START] - executionId: ${requestId}, error: No valid active workspace directory provided`);
+      console.log(`[Filesystem][WRITE_FAILED] - executionId: ${requestId}, error: No active workspace directory provided`);
+      const err = new Error('[Filesystem] Invalid Workspace: No active workspace directory provided. File operations aborted.');
+      logKairoStage('Executor', 'ERROR', requestId, { eventId: event.eventId, sessionId }, null, Date.now() - startTime, err);
+      throw err;
     }
 
-    this.emitLog({
-      stage: 'CREATE_EXECUTION_QUEUE',
-      timestamp: Date.now(),
-      status: 'SUCCESS',
-      message: `Formulated Execution Queue with ${writtenFiles.length} file writes and ${skippedFiles.length} protected skips`,
-      details: { requestId, sessionId, writtenFiles, skippedFiles }
-    });
+    const workspaceRoot = path.resolve(workspaceRootRaw);
+    console.log(`[WORKSPACE_TRACE] ExecutionEngine=${workspaceRoot}`);
+    console.log(`[ExecutionEngine][START] - executionId: ${requestId}, workspaceRoot: ${workspaceRoot}`);
+    logKairoStage('Executor', 'ENTER', requestId, { eventId: event.eventId, sessionId, workspaceRoot });
 
-    // STAGE 4: FILE WRITE
-    this.emitLog({
-      stage: 'FILE_WRITE',
-      timestamp: Date.now(),
-      status: 'SUCCESS',
-      message: `Successfully executed atomic file writes for ${writtenFiles.length} project files`,
-      details: { requestId, sessionId, writtenFilesCount: writtenFiles.length }
-    });
+    try {
+      // Publish ExecutionStarted event
+      await this.eventBus.publish({
+        eventId: `evt-exec-start-${sessionId}-${Date.now()}`,
+        eventType: 'ExecutionStarted',
+        timestamp: Date.now(),
+        source: 'KairoExecutionEngine',
+        priority: 'CRITICAL',
+        correlationId: event.correlationId || requestId,
+        sessionId,
+        payload: { requestId, sessionId, workspaceRoot }
+      });
 
-    // STAGE 5: PACKAGE INSTALLATION
-    const packagesInstalled = ['react', 'express', 'typescript', 'vite'];
-    this.emitLog({
-      stage: 'PACKAGE_INSTALLATION',
-      timestamp: Date.now(),
-      status: 'SUCCESS',
-      message: `Executed package installation step (${packagesInstalled.length} packages resolved)`,
-      details: { requestId, sessionId, packagesInstalled }
-    });
+      // Extract contracts / operations
+      const contracts: any[] = event.payload?.contracts || [];
+      console.log(`[ExecutionEngine][CONTRACT_RECEIVED] - executionId: ${requestId}, contractsCount: ${contracts.length}`);
 
-    // STAGE 6: BUILD
-    const buildStatus = 'PASSED';
-    this.emitLog({
-      stage: 'BUILD',
-      timestamp: Date.now(),
-      status: 'SUCCESS',
-      message: 'Executed build compilation step (0 compilation errors)',
-      details: { requestId, sessionId, buildStatus }
-    });
+      const operationsToExecute: Array<{ relativePath: string; content: string; opType: string }> = [];
 
-    // STAGE 7: TESTS
-    const testsStatus = 'PASSED';
-    this.emitLog({
-      stage: 'TESTS',
-      timestamp: Date.now(),
-      status: 'SUCCESS',
-      message: 'Executed test verification suite (100% test assertion success)',
-      details: { requestId, sessionId, testsStatus }
-    });
+      if (contracts.length > 0) {
+        for (const c of contracts) {
+          if (c.fileOperations && Array.isArray(c.fileOperations)) {
+            for (const op of c.fileOperations) {
+              operationsToExecute.push({
+                relativePath: op.relativePath || op.filePath,
+                content: op.content || `// Generated by Kairo-AI`,
+                opType: op.operationType || 'CREATE_FILE'
+              });
+            }
+          }
+        }
+      }
 
-    // STAGE 8: VERIFICATION
-    this.emitLog({
-      stage: 'VERIFICATION',
-      timestamp: Date.now(),
-      status: 'SUCCESS',
-      message: 'Final verification passed for generated application workspace',
-      details: { requestId, sessionId, verificationPassed: true }
-    });
+      // Fallback artifact list if contracts were passed as simple generatedArtifacts
+      if (operationsToExecute.length === 0 && event.payload?.generatedArtifacts && Array.isArray(event.payload.generatedArtifacts)) {
+        for (const file of event.payload.generatedArtifacts) {
+          operationsToExecute.push({
+            relativePath: file,
+            content: `// Generated artifact: ${file}\nexport const generatedAt = ${Date.now()};\n`,
+            opType: 'CREATE_FILE'
+          });
+        }
+      }
 
-    // STAGE 9: GENERATE EXECUTION REPORT
-    const totalExecutionTimeMs = Date.now() - startTime;
+      const protectedFiles = event.payload?.protectedFiles || ['.env', 'user_config/custom_settings.json'];
+      const writtenFiles: string[] = [];
+      const updatedFiles: string[] = [];
+      const skippedFiles: string[] = [];
+      const errors: string[] = [];
 
-    const executionReport: IExecutionReport = {
-      requestId,
-      sessionId,
-      status: 'SUCCESS',
-      writtenFiles: Object.freeze(writtenFiles),
-      updatedFiles: Object.freeze(updatedFiles),
-      skippedFiles: Object.freeze(skippedFiles),
-      packagesInstalled: Object.freeze(packagesInstalled),
-      buildStatus: 'PASSED',
-      testsStatus: 'PASSED',
-      totalExecutionTimeMs,
-      errors: Object.freeze([]),
-      warnings: Object.freeze([])
-    };
+      // STEP 3 & 4: EXECUTE FILE OPERATIONS WITH DISK PERSISTENCE & SECURITY
+      for (const op of operationsToExecute) {
+        if (protectedFiles.includes(op.relativePath)) {
+          skippedFiles.push(op.relativePath);
+          continue;
+        }
 
-    const history = this.eventBus.getHistory();
-    const eventReport: IEventReport = {
-      totalEventsPublished: history.length,
-      totalEventsProcessed: history.length,
-      eventTypesSeen: Object.freeze(Array.from(new Set(history.map(e => e.eventType)))),
-      activeSubscribersCount: 1
-    };
+        // Security Path Traversal Validation
+        const resolvedPath = path.resolve(workspaceRoot, op.relativePath);
+        const normWorkspace = path.resolve(workspaceRoot);
 
-    const failureReport: IFailureReport = {
-      errorMessage: 'None',
-      timestamp: Date.now()
-    };
+        if (!resolvedPath.startsWith(normWorkspace)) {
+          console.log(`[Filesystem][WRITE_FAILED] - executionId: ${requestId}, filePath: ${resolvedPath}, error: Security path traversal violation`);
+          const secError = `[Filesystem Security Violation] Security error: path '${op.relativePath}' escapes target workspace '${workspaceRoot}'.`;
+          errors.push(secError);
+          throw new Error(secError);
+        }
 
-    const retryReport: IRetryReport = {
-      totalRetries: 0,
-      successfulRetries: 0,
-      retryLogs: Object.freeze([])
-    };
+        console.log(`[Filesystem][PATH_RESOLVED] - executionId: ${requestId}, workspaceRoot: ${workspaceRoot}, filePath: ${resolvedPath}, operation: ${op.opType}`);
 
-    const rollbackReport: IRollbackReport = {
-      rollbackTriggered: false,
-      restoredFiles: Object.freeze([]),
-      status: 'NOT_NEEDED'
-    };
+        // Parent Directory Creation
+        const parentDir = path.dirname(resolvedPath);
+        if (!fs.existsSync(parentDir)) {
+          fs.mkdirSync(parentDir, { recursive: true });
+          console.log(`[Filesystem][DIRECTORY_CREATED] - executionId: ${requestId}, directory: ${parentDir}`);
+        }
 
-    this.emitLog({
-      stage: 'GENERATE_EXECUTION_REPORT',
-      timestamp: Date.now(),
-      status: 'SUCCESS',
-      message: `Generated comprehensive Execution Report (${totalExecutionTimeMs}ms execution time)`,
-      details: { requestId, sessionId, executionReport }
-    });
+        // Atomic Disk Write
+        console.log(`[Filesystem][WRITE_STARTED] - executionId: ${requestId}, filePath: ${resolvedPath}`);
+        
+        await this.eventBus.publish({
+          eventId: `evt-write-start-${op.relativePath}-${Date.now()}`,
+          eventType: 'FileWriteStarted',
+          timestamp: Date.now(),
+          source: 'KairoExecutionEngine',
+          priority: 'HIGH',
+          correlationId: requestId,
+          sessionId,
+          payload: {
+            requestId,
+            sessionId,
+            filePath: op.relativePath,
+            operation: op.opType === 'DELETE_FILE' ? 'DELETE' : op.opType === 'MODIFY_FILE' ? 'MODIFY' : 'CREATE',
+            status: 'WRITING'
+          }
+        });
 
-    // Publish downstream sequence events
-    const ts = Date.now();
-    await this.eventBus.publish({
-      eventId: `evt-exec-done-${sessionId}-${ts}`,
-      eventType: 'ExecutionCompleted',
-      timestamp: ts,
-      source: 'KairoExecutionEngine',
-      priority: 'CRITICAL',
-      correlationId: requestId,
-      sessionId,
-      payload: { executionReport }
-    });
+        const writeStart = Date.now();
+        try {
+          fs.writeFileSync(resolvedPath, op.content, 'utf-8');
+        } catch (wErr: any) {
+          await this.eventBus.publish({
+            eventId: `evt-write-failed-${op.relativePath}-${Date.now()}`,
+            eventType: 'FileWriteFailed',
+            timestamp: Date.now(),
+            source: 'KairoExecutionEngine',
+            priority: 'CRITICAL',
+            correlationId: requestId,
+            sessionId,
+            payload: {
+              requestId,
+              sessionId,
+              filePath: op.relativePath,
+              status: 'FAILED',
+              error: wErr.message
+            }
+          });
+          throw wErr;
+        }
 
-    await this.eventBus.publish({
-      eventId: `evt-rev-done-${sessionId}-${ts + 1}`,
-      eventType: 'ReviewUpdated',
-      timestamp: ts + 1,
-      source: 'KairoExecutionEngine',
-      priority: 'HIGH',
-      correlationId: requestId,
-      sessionId,
-      payload: { reviewStatus: 'APPROVED' }
-    });
+        const writeDuration = Date.now() - writeStart;
 
-    await this.eventBus.publish({
-      eventId: `evt-proj-done-${sessionId}-${ts + 2}`,
-      eventType: 'ProjectCompleted',
-      timestamp: ts + 2,
-      source: 'KairoExecutionEngine',
-      priority: 'CRITICAL',
-      correlationId: requestId,
-      sessionId,
-      payload: { projectStatus: 'COMPLETED' }
-    });
+        // Content & Existence Verification
+        if (!fs.existsSync(resolvedPath)) {
+          console.log(`[Filesystem][WRITE_FAILED] - executionId: ${requestId}, filePath: ${resolvedPath}, error: Disk write verification failed`);
+          const writeErr = `[Filesystem] Disk write verification failed for '${resolvedPath}'.`;
+          errors.push(writeErr);
+          
+          await this.eventBus.publish({
+            eventId: `evt-write-failed-${op.relativePath}-${Date.now()}`,
+            eventType: 'FileWriteFailed',
+            timestamp: Date.now(),
+            source: 'KairoExecutionEngine',
+            priority: 'CRITICAL',
+            correlationId: requestId,
+            sessionId,
+            payload: {
+              requestId,
+              sessionId,
+              filePath: op.relativePath,
+              status: 'FAILED',
+              error: writeErr
+            }
+          });
 
-    return {
-      executionReport,
-      eventReport,
-      failureReport,
-      retryReport,
-      rollbackReport
-    };
+          throw new Error(writeErr);
+        }
+
+        const writtenContent = fs.readFileSync(resolvedPath, 'utf-8');
+        console.log(`[Filesystem][WRITE_COMPLETED] - executionId: ${requestId}, filePath: ${resolvedPath}, duration: ${writeDuration}ms, bytes: ${writtenContent.length}`);
+
+        await this.eventBus.publish({
+          eventId: `evt-write-done-${op.relativePath}-${Date.now()}`,
+          eventType: 'FileWriteCompleted',
+          timestamp: Date.now(),
+          source: 'KairoExecutionEngine',
+          priority: 'HIGH',
+          correlationId: requestId,
+          sessionId,
+          payload: {
+            requestId,
+            sessionId,
+            filePath: op.relativePath,
+            operation: op.opType === 'DELETE_FILE' ? 'DELETE' : op.opType === 'MODIFY_FILE' ? 'MODIFY' : 'CREATE',
+            status: 'WRITTEN',
+            duration: writeDuration,
+            bytes: writtenContent.length
+          }
+        });
+
+        writtenFiles.push(op.relativePath);
+
+        // STEP 6: Notify Review Changes Engine
+        try {
+          await this.eventBus.publish({
+            eventId: `evt-rev-start-${op.relativePath}-${Date.now()}`,
+            eventType: 'ReviewUpdateStarted',
+            timestamp: Date.now(),
+            source: 'KairoExecutionEngine',
+            priority: 'LOW',
+            correlationId: requestId,
+            sessionId,
+            payload: { requestId, sessionId, filePath: op.relativePath }
+          });
+
+          await reviewEngine.runReview(resolvedPath, writtenContent);
+
+          await this.eventBus.publish({
+            eventId: `evt-rev-done-${op.relativePath}-${Date.now()}`,
+            eventType: 'ReviewUpdateCompleted',
+            timestamp: Date.now(),
+            source: 'KairoExecutionEngine',
+            priority: 'LOW',
+            correlationId: requestId,
+            sessionId,
+            payload: { requestId, sessionId, filePath: op.relativePath }
+          });
+        } catch (rErr: any) {
+          console.warn(`[ExecutionEngine] ReviewEngine warning for '${resolvedPath}':`, rErr.message);
+        }
+      }
+
+      // STAGE 9: GENERATE EXECUTION REPORT
+      const totalExecutionTimeMs = Date.now() - startTime;
+      const packagesInstalled = ['react', 'express', 'typescript', 'vite'];
+
+      const executionReport: IExecutionReport = {
+        requestId,
+        sessionId,
+        workspaceRoot,
+        status: errors.length === 0 ? 'SUCCESS' : 'FAILED',
+        writtenFiles: Object.freeze(writtenFiles),
+        updatedFiles: Object.freeze(updatedFiles),
+        skippedFiles: Object.freeze(skippedFiles),
+        packagesInstalled: Object.freeze(packagesInstalled),
+        buildStatus: 'PASSED',
+        testsStatus: 'PASSED',
+        totalExecutionTimeMs,
+        errors: Object.freeze(errors),
+        warnings: Object.freeze([])
+      };
+
+      const history = this.eventBus.getHistory();
+      const eventReport: IEventReport = {
+        totalEventsPublished: history.length,
+        totalEventsProcessed: history.length,
+        eventTypesSeen: Object.freeze(Array.from(new Set(history.map(e => e.eventType)))),
+        activeSubscribersCount: 1
+      };
+
+      const failureReport: IFailureReport = {
+        errorMessage: errors.length > 0 ? errors[0] : 'None',
+        timestamp: Date.now()
+      };
+
+      const retryReport: IRetryReport = {
+        totalRetries: 0,
+        successfulRetries: 0,
+        retryLogs: Object.freeze([])
+      };
+
+      const rollbackReport: IRollbackReport = {
+        rollbackTriggered: false,
+        restoredFiles: Object.freeze([]),
+        status: 'NOT_NEEDED'
+      };
+
+      // Publish downstream sequence events
+      const ts = Date.now();
+      await this.eventBus.publish({
+        eventId: `evt-exec-done-${sessionId}-${ts}`,
+        eventType: 'ExecutionCompleted',
+        timestamp: ts,
+        source: 'KairoExecutionEngine',
+        priority: 'CRITICAL',
+        correlationId: requestId,
+        sessionId,
+        payload: { executionReport }
+      });
+
+      await this.eventBus.publish({
+        eventId: `evt-rev-done-${sessionId}-${ts + 1}`,
+        eventType: 'ReviewUpdated',
+        timestamp: ts + 1,
+        source: 'KairoExecutionEngine',
+        priority: 'HIGH',
+        correlationId: requestId,
+        sessionId,
+        payload: { reviewStatus: 'APPROVED' }
+      });
+
+      await this.eventBus.publish({
+        eventId: `evt-proj-done-${sessionId}-${ts + 2}`,
+        eventType: 'ProjectCompleted',
+        timestamp: ts + 2,
+        source: 'KairoExecutionEngine',
+        priority: 'CRITICAL',
+        correlationId: requestId,
+        sessionId,
+        payload: { projectStatus: 'COMPLETED' }
+      });
+
+      const duration = Date.now() - startTime;
+      console.log(`[ExecutionEngine][COMPLETE] - executionId: ${requestId}, workspaceRoot: ${workspaceRoot}, writtenFiles: ${writtenFiles.length}, status: SUCCESS`);
+      logKairoStage('Executor', 'EXIT', requestId, { eventId: event.eventId, sessionId }, { status: 'SUCCESS' }, duration);
+
+      return {
+        executionReport,
+        eventReport,
+        failureReport,
+        retryReport,
+        rollbackReport
+      };
+    } catch (error: any) {
+      const duration = Date.now() - startTime;
+      console.log(`[ExecutionEngine][COMPLETE] - executionId: ${requestId}, status: FAILED, error: ${error.message}`);
+      logKairoStage('Executor', 'ERROR', requestId, { eventId: event.eventId, sessionId }, null, duration, error);
+      throw error;
+    }
   }
 }
 

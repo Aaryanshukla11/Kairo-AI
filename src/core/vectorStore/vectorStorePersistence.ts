@@ -6,7 +6,10 @@ export class VectorStorePersistence {
   private filePath: string;
 
   constructor(workspaceRoot: string) {
-    this.filePath = path.join(workspaceRoot, '.aiidle', 'vectorStore', 'index.json');
+    const hasWorkspaceAiidle = fs.existsSync(path.resolve(workspaceRoot, '.aiidle'));
+    this.filePath = hasWorkspaceAiidle
+      ? path.join(workspaceRoot, '.aiidle', 'vectorStore', 'index.json')
+      : path.join(require('os').tmpdir(), 'kairo-vectorstore', path.basename(workspaceRoot), 'index.json');
   }
 
   /**

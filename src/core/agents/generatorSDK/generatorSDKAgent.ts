@@ -32,6 +32,7 @@ export class GeneratorSDKAgent extends BaseAgent {
     console.log('[TRACE] [GeneratorSDK] ENTER: executeTask');
     this.status = AgentStatus.Running;
     const payload = task.payload || {};
+    console.log(`[WORKSPACE_TRACE] TaskContext=${payload.workspacePath}`);
 
     // Connect Generator SDK Agent to the actual Ollama Coding Runtime
     try {
@@ -50,7 +51,7 @@ export class GeneratorSDKAgent extends BaseAgent {
     const context: IGeneratorExecutionContext = {
       requestId: payload.requestId || task.id,
       sessionId: payload.sessionId || `session-${Date.now()}`,
-      requirementObject: payload.requirementObject || payload.requirementResult?.requirement,
+      requirementObject: payload.requirementObject || payload.requirementResult?.requirementObject || payload.requirementResult?.requirement,
       projectIntelligenceReport: payload.projectIntelligenceReport || payload.intelligenceResult?.report,
       engineeringDecisionReport: payload.engineeringDecisionReport || payload.decisionResult?.report,
       architectureBlueprint: payload.architectureBlueprint || payload.architectureResult?.blueprint,

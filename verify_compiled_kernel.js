@@ -77,6 +77,12 @@ buildBundles().then(() => {
     path.join(__dirname, 'dist', 'tests', 'unit', 'fullSuiteGeneratorsSDK.test.js'),
     path.join(__dirname, 'dist', 'tests', 'unit', 'executionEngineEventBus.test.js'),
     path.join(__dirname, 'dist', 'tests', 'unit', 'productionIntegrationV1.test.js'),
+    path.join(__dirname, 'dist', 'tests', 'unit', 'codeGenerationPipeline.test.js'),
+    path.join(__dirname, 'dist', 'tests', 'unit', 'agentDecompositionSequence.test.js'),
+    path.join(__dirname, 'dist', 'tests', 'unit', 'generatorSDKPipeline.test.js'),
+    path.join(__dirname, 'dist', 'tests', 'unit', 'eventBusIntegration.test.js'),
+    path.join(__dirname, 'dist', 'tests', 'unit', 'filesystemExecution.test.js'),
+    path.join(__dirname, 'dist', 'tests', 'unit', 'realTimeActivityUX.test.js'),
     path.join(__dirname, 'dist', 'tests', 'integration', 'aiKernelFlow.test.js'),
     path.join(__dirname, 'dist', 'tests', 'integration', 'orchestratorFlow.test.js')
   ];

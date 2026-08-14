@@ -32,7 +32,7 @@
   ],
   "contributes": {
     "viewsContainers": {
-      "activitybar": [
+      "secondarySidebar": [
         {
           "id": "sasta-antigravity-sidebar",
           "title": "Kaira AI Panel",

@@ -33,7 +33,44 @@ export class GeneratorRegistrySDK {
   }
 
   public resolve(id: string): BaseSDKGenerator | undefined {
-    return this.generators.get(id);
+    if (!id) return undefined;
+    if (this.generators.has(id)) return this.generators.get(id);
+
+    const lower = id.toLowerCase();
+    for (const [key, gen] of this.generators.entries()) {
+      if (key.toLowerCase() === lower || gen.id.toLowerCase() === lower) {
+        return gen;
+      }
+    }
+
+    const aliasMap: Record<string, string> = {
+      'frontend-generator': 'UIComponentGenerator',
+      'ui-generator': 'UIComponentGenerator',
+      'uicomponentgenerator': 'UIComponentGenerator',
+      'backend-generator': 'BackendGenerator',
+      'backendgenerator': 'BackendGenerator',
+      'config-generator': 'ConfigGeneratorSDK',
+      'configgenerator': 'ConfigGeneratorSDK',
+      'sharedutilgenerator': 'SharedUtilGenerator',
+      'database-generator': 'database-generator',
+      'auth-generator': 'auth-generator',
+      'api-generator': 'api-generator',
+      'documentation-generator': 'documentation-generator',
+      'testing-generator': 'testing-generator'
+    };
+
+    const mappedId = aliasMap[lower];
+    if (mappedId && this.generators.has(mappedId)) {
+      return this.generators.get(mappedId);
+    }
+
+    for (const gen of this.generators.values()) {
+      if (gen.capabilities.some(c => c.toLowerCase() === lower || lower.includes(c.toLowerCase()))) {
+        return gen;
+      }
+    }
+
+    return undefined;
   }
 
   public list(): readonly BaseSDKGenerator[] {

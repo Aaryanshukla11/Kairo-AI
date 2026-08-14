@@ -6,16 +6,33 @@ import { UserMessage } from './UserMessage';
 import { AssistantMessage } from './AssistantMessage';
 import { SystemMessage } from './SystemMessage';
 import { messageBus } from '../../services/messageBus';
-import { MessageType, IExecutionEventPayload } from '../../../common/protocol';
+import { MessageType } from '../../../common/protocol';
 import { PlanProposalMessage } from './PlanProposalMessage';
-import { PipelineStatusBubble, PipelineStatusEntry } from './PipelineStatusBubble';
-import { LiveExecutionTimeline } from './LiveExecutionTimeline';
+import { ActivityContainer } from '../activity/ActivityContainer';
+import { IStageActivityItemData } from '../activity/StageActivityItem';
+import { IFileActivityItem } from '../activity/FileActivityRow';
+
+const INITIAL_STAGES: IStageActivityItemData[] = [
+  { id: 'st-1', label: 'Understanding Request', status: 'pending' },
+  { id: 'st-2', label: 'Analyzing Workspace', status: 'pending' },
+  { id: 'st-3', label: 'Detecting Requirements', status: 'pending' },
+  { id: 'st-4', label: 'Designing Architecture', status: 'pending' },
+  { id: 'st-5', label: 'Creating Implementation Plan', status: 'pending' },
+  { id: 'st-6', label: 'Generating Files', status: 'pending' },
+  { id: 'st-7', label: 'Writing Files to Workspace', status: 'pending' },
+  { id: 'st-8', label: 'Running Validation', status: 'pending' },
+  { id: 'st-9', label: 'Completed', status: 'pending' }
+];
 
 export function ChatTimeline(): React.JSX.Element {
   const { chatState, setChatState } = useAppContext();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [pipelineEntries, setPipelineEntries] = useState<PipelineStatusEntry[]>([]);
-  const [executionEvents, setExecutionEvents] = useState<IExecutionEventPayload[]>([]);
+
+  const [stages, setStages] = useState<IStageActivityItemData[]>(INITIAL_STAGES);
+  const [filesMap, setFilesMap] = useState<Map<string, IFileActivityItem>>(new Map());
+  const [overallStatus, setOverallStatus] = useState<'idle' | 'running' | 'completed' | 'failed' | 'cancelled'>('idle');
+  const [currentActivity, setCurrentActivity] = useState<string>('');
+  const [taskComplexity, setTaskComplexity] = useState<'SMALL' | 'MEDIUM' | 'COMPLEX'>('COMPLEX');
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -23,13 +40,136 @@ export function ChatTimeline(): React.JSX.Element {
 
   useEffect(() => {
     scrollToBottom();
-  }, [chatState.messages, chatState.isTyping, pipelineEntries, executionEvents]);
+  }, [chatState.messages, chatState.isTyping, stages, filesMap, overallStatus, currentActivity]);
 
   useEffect(() => {
+    const handleEventBusUpdate = (msg: any) => {
+      if ((msg.type === MessageType.EVENT_BUS_UPDATE || msg.type === (MessageType.EVENT_BUS_UPDATE as any) || msg.type === 104) && msg.payload) {
+        const evt = msg.payload;
+        const type = evt.eventType || evt.type;
+        const payload = evt.payload || {};
+
+        setOverallStatus((prev) => (prev === 'idle' ? 'running' : prev));
+
+        // Update pipeline stage states
+        setStages((prevStages) => {
+          const updateStage = (stageId: string, status: 'active' | 'completed' | 'failed') => {
+            return prevStages.map(st => {
+              if (st.id === stageId) return { ...st, status };
+              if (status === 'completed' && st.id < stageId && st.status !== 'completed') return { ...st, status: 'completed' as const };
+              return st;
+            });
+          };
+
+          switch (type) {
+            case 'PromptReceived':
+            case 'IntentDetected':
+              setCurrentActivity('Understanding request...');
+              if (payload.intent === 'MODIFY_PROJECT' || payload.intent === 'CHAT') {
+                setTaskComplexity('SMALL');
+              }
+              return updateStage('st-1', 'active');
+
+            case 'WorkspaceAnalysisStarted':
+              setCurrentActivity('Analyzing workspace...');
+              return updateStage('st-2', 'active');
+            case 'WorkspaceAnalysisCompleted':
+              return updateStage('st-2', 'completed');
+
+            case 'RequirementAnalysisStarted':
+              setCurrentActivity('Detecting requirements...');
+              return updateStage('st-3', 'active');
+            case 'RequirementAnalysisCompleted':
+            case 'RequirementCompleted':
+              return updateStage('st-3', 'completed');
+
+            case 'ArchitectureGenerationStarted':
+              setCurrentActivity('Designing architecture...');
+              return updateStage('st-4', 'active');
+            case 'ArchitectureGenerationCompleted':
+            case 'ArchitectureCompleted':
+            case 'ArchitectureReady':
+              return updateStage('st-4', 'completed');
+
+            case 'ImplementationPlanStarted':
+              setCurrentActivity('Creating implementation plan...');
+              return updateStage('st-5', 'active');
+            case 'ImplementationPlanCompleted':
+            case 'PlanningCompleted':
+              setCurrentActivity('Plan created. Waiting for user approval...');
+              return updateStage('st-5', 'completed');
+
+            case 'GenerationStarted':
+            case 'GeneratorStarted':
+              setCurrentActivity('Generating components...');
+              return updateStage('st-6', 'active');
+            case 'GenerationCompleted':
+              return updateStage('st-6', 'completed');
+
+            case 'FileWriteStarted':
+              return updateStage('st-7', 'active');
+            case 'FileWriteCompleted':
+              return updateStage('st-7', 'active');
+
+            case 'FileValidationStarted':
+              setCurrentActivity('Running validation...');
+              return updateStage('st-8', 'active');
+            case 'FileValidationCompleted':
+              return updateStage('st-8', 'completed');
+
+            case 'ExecutionCompleted':
+            case 'ProjectCompleted':
+              setCurrentActivity('Project completed');
+              setOverallStatus('completed');
+              return prevStages.map(st => ({ ...st, status: 'completed' as const }));
+
+            case 'ExecutionFailed':
+              setCurrentActivity('Execution failed');
+              setOverallStatus('failed');
+              return prevStages.map(st => st.status === 'active' ? { ...st, status: 'failed' as const } : st);
+
+            default:
+              return prevStages;
+          }
+        });
+
+        // Track file activity state transitions
+        if (payload.filePath) {
+          const filePath = payload.filePath;
+          setFilesMap((prevMap) => {
+            const newMap = new Map(prevMap);
+            const current = newMap.get(filePath) || {
+              filePath,
+              status: 'PENDING'
+            };
+
+            if (type === 'FileGenerationStarted') {
+              current.status = 'GENERATING';
+              setCurrentActivity(`Generating ${filePath}...`);
+            } else if (type === 'FileGenerationCompleted') {
+              current.status = 'GENERATED';
+            } else if (type === 'FileWriteStarted') {
+              current.status = 'WRITING';
+              setCurrentActivity(`Writing ${filePath}...`);
+            } else if (type === 'FileWriteCompleted') {
+              current.status = 'CREATED';
+              setCurrentActivity(`Created ${filePath}`);
+            } else if (type === 'FileWriteFailed') {
+              current.status = 'FAILED';
+              current.error = payload.error || 'Disk write failed';
+              setCurrentActivity(`Failed ${filePath}`);
+            }
+
+            newMap.set(filePath, current);
+            return newMap;
+          });
+        }
+      }
+    };
+
     const handleMockResponse = (msg: any) => {
       if (msg.type === MessageType.MOCK_RESPONSE && msg.payload) {
         setChatState((prev) => {
-          // Verify it's not a duplicate
           const exists = prev.messages.find(m => m.id === msg.payload.id);
           if (exists) return prev;
 
@@ -42,92 +182,10 @@ export function ChatTimeline(): React.JSX.Element {
       }
     };
 
-    const handleTimelineInit = (msg: any) => {
-      if (msg.type === MessageType.TIMELINE_INIT && msg.payload?.timeline) {
-        const { timeline } = msg.payload;
-        setChatState((prev) => {
-          const updatedMessages = prev.messages.map((m) => {
-            if (m.role === 'PLAN_PROPOSAL' && m.plan && m.plan.id === timeline.planId) {
-              return { ...m, timeline };
-            }
-            return m;
-          });
-          return { ...prev, messages: updatedMessages };
-        });
-      }
-    };
-
-    const handleTimelineUpdate = (msg: any) => {
-      if (msg.type === MessageType.TIMELINE_UPDATE && msg.payload?.timeline) {
-        const { timeline } = msg.payload;
-        setChatState((prev) => {
-          const updatedMessages = prev.messages.map((m) => {
-            if (m.role === 'PLAN_PROPOSAL' && m.plan && m.plan.id === timeline.planId) {
-              return { ...m, timeline };
-            }
-            return m;
-          });
-          return { ...prev, messages: updatedMessages };
-        });
-      }
-    };
-
-    const handleExecutionUpdate = (msg: any) => {
-      if (msg.type === MessageType.EXECUTION_UPDATE && msg.payload?.progress) {
-        const { progress } = msg.payload;
-        setChatState((prev) => {
-          const updatedMessages = prev.messages.map((m) => {
-            if (m.role === 'PLAN_PROPOSAL' && m.timeline) {
-              return { ...m, executionProgress: progress };
-            }
-            return m;
-          });
-          return { ...prev, messages: updatedMessages };
-        });
-      }
-    };
-
-    const handlePipelineStatus = (msg: any) => {
-      if (msg.type === MessageType.PIPELINE_STATUS && msg.payload) {
-        const entry: PipelineStatusEntry = {
-          stage: msg.payload.stage,
-          detail: msg.payload.detail,
-          status: msg.payload.status,
-          timestamp: msg.payload.timestamp || Date.now()
-        };
-        setPipelineEntries(prev => {
-          // Update existing stage entry if same stage or append new
-          const existingIdx = prev.findIndex(e => e.stage === entry.stage);
-          if (existingIdx !== -1) {
-            const updated = [...prev];
-            updated[existingIdx] = entry;
-            return updated;
-          }
-          return [...prev, entry];
-        });
-      }
-    };
-
-    const handleExecutionEvent = (msg: any) => {
-      if (msg.type === MessageType.EXECUTION_EVENT && msg.payload) {
-        const eventItem = msg.payload as IExecutionEventPayload;
-        setExecutionEvents(prev => {
-          const existingIdx = prev.findIndex(e => e.id === eventItem.id);
-          if (existingIdx !== -1) {
-            const updated = [...prev];
-            updated[existingIdx] = eventItem;
-            return updated;
-          }
-          return [...prev, eventItem];
-        });
-      }
-    };
-
     const handleUploadAssetsResponse = (msg: any) => {
       if (msg.type === MessageType.UPLOAD_ASSETS_RESPONSE && msg.payload) {
         const { name, type, path } = msg.payload;
         
-        // 1. Add User message showing file upload
         setChatState((prev) => ({
           ...prev,
           messages: [
@@ -143,7 +201,6 @@ export function ChatTimeline(): React.JSX.Element {
           isTyping: true
         }));
 
-        // 2. Add AI analysis after 1.5 seconds
         setTimeout(() => {
           setChatState((prev) => ({
             ...prev,
@@ -163,28 +220,22 @@ export function ChatTimeline(): React.JSX.Element {
       }
     };
 
+    messageBus.subscribe(MessageType.EVENT_BUS_UPDATE, handleEventBusUpdate);
+    messageBus.subscribe((MessageType.EVENT_BUS_UPDATE as any), handleEventBusUpdate);
     messageBus.subscribe(MessageType.MOCK_RESPONSE, handleMockResponse);
-    messageBus.subscribe(MessageType.TIMELINE_INIT, handleTimelineInit);
-    messageBus.subscribe(MessageType.TIMELINE_UPDATE, handleTimelineUpdate);
-    messageBus.subscribe(MessageType.EXECUTION_UPDATE, handleExecutionUpdate);
     messageBus.subscribe(MessageType.UPLOAD_ASSETS_RESPONSE, handleUploadAssetsResponse);
-    messageBus.subscribe(MessageType.PIPELINE_STATUS, handlePipelineStatus);
-    messageBus.subscribe(MessageType.EXECUTION_EVENT, handleExecutionEvent);
 
     return () => {
+      messageBus.unsubscribe(MessageType.EVENT_BUS_UPDATE, handleEventBusUpdate);
+      messageBus.unsubscribe((MessageType.EVENT_BUS_UPDATE as any), handleEventBusUpdate);
       messageBus.unsubscribe(MessageType.MOCK_RESPONSE, handleMockResponse);
-      messageBus.unsubscribe(MessageType.TIMELINE_INIT, handleTimelineInit);
-      messageBus.unsubscribe(MessageType.TIMELINE_UPDATE, handleTimelineUpdate);
-      messageBus.unsubscribe(MessageType.EXECUTION_UPDATE, handleExecutionUpdate);
       messageBus.unsubscribe(MessageType.UPLOAD_ASSETS_RESPONSE, handleUploadAssetsResponse);
-      messageBus.unsubscribe(MessageType.PIPELINE_STATUS, handlePipelineStatus);
-      messageBus.unsubscribe(MessageType.EXECUTION_EVENT, handleExecutionEvent);
     };
   }, [setChatState]);
 
   return (
     <div className="chat-timeline">
-      {chatState.messages.length === 0 && pipelineEntries.length === 0 && executionEvents.length === 0 ? (
+      {chatState.messages.length === 0 && overallStatus === 'idle' ? (
         <EmptyState />
       ) : (
         <div className="chat-messages-container">
@@ -204,21 +255,23 @@ export function ChatTimeline(): React.JSX.Element {
                   key={msg.id} 
                   plan={msg.plan} 
                   approval={msg.approval} 
-                  timeline={msg.timeline}
-                  executionProgress={msg.executionProgress}
                 />
               );
             }
             return null;
           })}
-          {/* Antigravity Live Execution Timeline */}
-          {executionEvents.length > 0 && (
-            <LiveExecutionTimeline events={executionEvents} />
+
+          {/* Real-Time Live Activity UX */}
+          {overallStatus !== 'idle' && (
+            <ActivityContainer
+              taskComplexity={taskComplexity}
+              currentActivity={currentActivity}
+              overallStatus={overallStatus}
+              stages={stages}
+              files={Array.from(filesMap.values())}
+            />
           )}
-          {/* Real-time AI task progress fallback */}
-          {executionEvents.length === 0 && pipelineEntries.length > 0 && (
-            <PipelineStatusBubble entries={pipelineEntries} />
-          )}
+
           {chatState.isTyping && <TypingIndicator />}
           <div ref={messagesEndRef} />
         </div>
@@ -226,4 +279,3 @@ export function ChatTimeline(): React.JSX.Element {
     </div>
   );
 }
-

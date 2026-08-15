@@ -56,28 +56,35 @@ export class ExecutorAgent extends BaseAgent {
           backend: aiRequest?.projectInfo?.backendFramework || 'Express',
           database: aiRequest?.projectInfo?.database || null
         },
-        executionPhases: [
-          {
-            phaseName: 'WorkspaceStructure',
-            modules: ['WorkspaceStructure']
-          },
-          {
-            phaseName: 'Configuration',
-            modules: ['Configuration']
-          },
-          {
-            phaseName: 'Database',
-            modules: ['Database']
-          },
-          {
-            phaseName: 'Backend',
-            modules: ['Backend']
-          },
-          {
-            phaseName: 'Frontend',
-            modules: ['Frontend']
-          }
-        ],
+        executionPhases: (/\b(html|landing|index\.html|css|style|website|calculator)\b/i.test(rawPrompt) && !/\b(fullstack|database|backend|express|nest|docker)\b/i.test(rawPrompt))
+          ? [
+              {
+                phaseName: 'Frontend',
+                modules: ['Frontend']
+              }
+            ]
+          : [
+              {
+                phaseName: 'WorkspaceStructure',
+                modules: ['WorkspaceStructure']
+              },
+              {
+                phaseName: 'Configuration',
+                modules: ['Configuration']
+              },
+              {
+                phaseName: 'Database',
+                modules: ['Database']
+              },
+              {
+                phaseName: 'Backend',
+                modules: ['Backend']
+              },
+              {
+                phaseName: 'Frontend',
+                modules: ['Frontend']
+              }
+            ],
         validatedTaskGraph: [],
         dependencies: [],
         warnings: [],

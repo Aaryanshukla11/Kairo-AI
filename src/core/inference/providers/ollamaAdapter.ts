@@ -5,16 +5,21 @@ import { IPlanningSession } from '../../planning-session-builder/types';
 import { IGeneratorSession } from '../../generator-session-builder/types';
 
 export class OllamaPlanningProviderAdapter implements IPlanningModelProvider {
-  public readonly providerId = 'ollama-planning';
+  public readonly providerId = 'planning-adapter';
 
-  constructor(private readonly modelName: string = 'qwen2.5-coder:7b') {}
+  constructor(private readonly modelName: string = 'gemini-2.5-flash') {}
 
   public async execute(session: IPlanningSession): Promise<string> {
+    const effectiveProvider = (process.env.KAIRO_MODEL_PROVIDER || 'gemini').trim().toLowerCase();
+    const effectiveModel = effectiveProvider === 'gemini'
+      ? (process.env.GEMINI_MODEL || 'gemini-2.5-flash')
+      : this.modelName;
+
     const result = await localInferenceService.execute(
       session.userPromptPayload,
       {
-        provider: 'ollama',
-        modelName: this.modelName,
+        provider: effectiveProvider,
+        modelName: effectiveModel,
         modelPath: '',
         contextLength: 4096,
         temperature: 0.2,
@@ -37,9 +42,9 @@ export class OllamaPlanningProviderAdapter implements IPlanningModelProvider {
 }
 
 export class OllamaCodingProviderAdapter implements ICodingModelProvider {
-  public readonly providerId = 'ollama-coding';
+  public readonly providerId = 'coding-adapter';
 
-  constructor(private readonly modelName: string = 'qwen2.5-coder:7b') {}
+  constructor(private readonly modelName: string = 'gemini-2.5-flash') {}
 
   public async executeStream(
     session: IGeneratorSession,
@@ -71,11 +76,16 @@ Coding Standards:
 Output format: You MUST return a JSON object conforming to the schema specification below:
 ${session.outputContractSpecification}`;
 
+    const effectiveProvider = (process.env.KAIRO_MODEL_PROVIDER || 'gemini').trim().toLowerCase();
+    const effectiveModel = effectiveProvider === 'gemini'
+      ? (process.env.GEMINI_MODEL || 'gemini-2.5-flash')
+      : this.modelName;
+
     const result = await localInferenceService.execute(
       prompt,
       {
-        provider: 'ollama',
-        modelName: this.modelName,
+        provider: effectiveProvider,
+        modelName: effectiveModel,
         modelPath: '',
         contextLength: 4096,
         temperature: 0.2,

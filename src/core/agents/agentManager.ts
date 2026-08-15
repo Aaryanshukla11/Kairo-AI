@@ -241,6 +241,28 @@ export class AgentManager {
         sessionId,
         payload: { requestId, sessionId, stage: 'Building Implementation Plan' }
       });
+    } else if (selectedAgent.id === 'generator-sdk-agent' || selectedAgent.id === 'generator-agent') {
+      await globalKairoEventBus.publish({
+        eventId: `evt-gen-start-${Date.now()}`,
+        eventType: 'GenerationStarted',
+        timestamp: Date.now(),
+        source: 'GeneratorAgent',
+        priority: 'HIGH',
+        correlationId: requestId,
+        sessionId,
+        payload: { requestId, sessionId, stage: 'Generating Components' }
+      });
+    } else if (selectedAgent.id === 'executor-agent') {
+      await globalKairoEventBus.publish({
+        eventId: `evt-exec-start-${Date.now()}`,
+        eventType: 'FileWriteStarted',
+        timestamp: Date.now(),
+        source: 'ExecutorAgent',
+        priority: 'HIGH',
+        correlationId: requestId,
+        sessionId,
+        payload: { requestId, sessionId, stage: 'Writing Files to Workspace' }
+      });
     }
 
     try {
@@ -281,6 +303,59 @@ export class AgentManager {
           correlationId: requestId,
           sessionId,
           payload: { requestId, sessionId, stage: 'Implementation Plan Built' }
+        });
+      } else if (selectedAgent.id === 'generator-sdk-agent' || selectedAgent.id === 'generator-agent') {
+        await globalKairoEventBus.publish({
+          eventId: `evt-gen-done-${Date.now()}`,
+          eventType: 'GenerationCompleted',
+          timestamp: Date.now(),
+          source: 'GeneratorAgent',
+          priority: 'HIGH',
+          correlationId: requestId,
+          sessionId,
+          payload: { requestId, sessionId, stage: 'Generation Completed' }
+        });
+      } else if (selectedAgent.id === 'executor-agent') {
+        await globalKairoEventBus.publish({
+          eventId: `evt-fw-done-${Date.now()}`,
+          eventType: 'FileWriteCompleted',
+          timestamp: Date.now(),
+          source: 'ExecutorAgent',
+          priority: 'HIGH',
+          correlationId: requestId,
+          sessionId,
+          payload: { requestId, sessionId, stage: 'Files Written to Workspace' }
+        });
+        await globalKairoEventBus.publish({
+          eventId: `evt-fv-start-${Date.now()}`,
+          eventType: 'FileValidationStarted',
+          timestamp: Date.now(),
+          source: 'ExecutorAgent',
+          priority: 'HIGH',
+          correlationId: requestId,
+          sessionId,
+          payload: { requestId, sessionId, stage: 'Running Validation' }
+        });
+        await globalKairoEventBus.publish({
+          eventId: `evt-fv-done-${Date.now()}`,
+          eventType: 'FileValidationCompleted',
+          timestamp: Date.now(),
+          source: 'ExecutorAgent',
+          priority: 'HIGH',
+          correlationId: requestId,
+          sessionId,
+          payload: { requestId, sessionId, stage: 'Validation Completed' }
+        });
+      } else if (selectedAgent.id === 'reviewer-agent') {
+        await globalKairoEventBus.publish({
+          eventId: `evt-exec-done-${Date.now()}`,
+          eventType: 'ExecutionCompleted',
+          timestamp: Date.now(),
+          source: 'ReviewerAgent',
+          priority: 'HIGH',
+          correlationId: requestId,
+          sessionId,
+          payload: { requestId, sessionId, stage: 'Execution Completed' }
         });
       }
 

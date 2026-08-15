@@ -2,6 +2,14 @@ import { ModelConfig } from './runtimeTypes';
 
 export const DEFAULT_MODELS: ModelConfig[] = [
   {
+    modelId: 'gemini-2.5-flash',
+    name: 'Gemini 2.5 Flash',
+    provider: 'Gemini',
+    contextWindow: 1048576,
+    parametersCount: 'Cloud',
+    fileSizeGb: 0
+  },
+  {
     modelId: 'qwen2.5-coder:7b',
     name: 'Qwen 2.5 Coder 7B',
     provider: 'Ollama',

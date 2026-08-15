@@ -5,7 +5,7 @@ export class InferenceRequest {
     return {
       requestId: json.requestId || `req-${Date.now()}`,
       sessionId: json.sessionId || `sess-${Date.now()}`,
-      modelId: json.modelId || 'qwen2.5-coder:7b',
+      modelId: json.modelId || 'gemini-2.5-flash',
       prompt: json.prompt || '',
       systemPrompt: json.systemPrompt || '',
       workspaceContext: json.workspaceContext || '',

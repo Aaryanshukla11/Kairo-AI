@@ -13,20 +13,27 @@ export class LocalInferenceService {
   ): Promise<ILocalInferenceResult> {
     const startTime = Date.now();
     const requestId = crypto.randomUUID ? crypto.randomUUID() : `req-${Date.now()}`;
-    logKairoStage('LocalInferenceService', 'ENTER', requestId, { model: config.modelName, provider: config.provider });
+
+    const envProvider = (process.env.KAIRO_MODEL_PROVIDER || '').trim().toLowerCase();
+    const effectiveProviderName = envProvider || config.provider || 'gemini';
+    const effectiveModelName = effectiveProviderName === 'gemini'
+      ? (process.env.GEMINI_MODEL || 'gemini-2.5-flash')
+      : config.modelName;
+
+    logKairoStage('LocalInferenceService', 'ENTER', requestId, { model: effectiveModelName, provider: effectiveProviderName });
 
     // Resolve provider, register dynamically if not present
-    let provider = providerRegistry.getProvider(config.provider);
+    let provider = providerRegistry.getProvider(effectiveProviderName);
     if (!provider) {
-      provider = providerFactory.createProvider(config.provider);
+      provider = providerFactory.createProvider(effectiveProviderName);
       providerRegistry.registerProvider(provider);
     }
 
     // Build session
     const session: ILocalInferenceSession = {
       requestId,
-      modelName: config.modelName,
-      providerName: config.provider,
+      modelName: effectiveModelName,
+      providerName: effectiveProviderName,
       prompt,
       parameters: {
         temperature: config.temperature,
@@ -34,7 +41,8 @@ export class LocalInferenceService {
         topK: config.topK,
         maxTokens: config.maxTokens,
         gpuLayers: config.gpuLayers,
-        threadCount: config.threadCount
+        threadCount: config.threadCount,
+        streamingEnabled: config.streamingEnabled
       },
       metadata: {
         contextLength: config.contextLength,
@@ -48,9 +56,13 @@ export class LocalInferenceService {
     const signal = controller.signal;
 
     if (externalSignal) {
-      externalSignal.addEventListener('abort', () => {
+      if (externalSignal.aborted) {
         controller.abort();
-      });
+      } else {
+        externalSignal.addEventListener('abort', () => {
+          controller.abort();
+        });
+      }
     }
 
     // Set timeout trigger if maximum execution threshold reached
@@ -67,12 +79,12 @@ export class LocalInferenceService {
       const result = await provider.execute(session, onToken, signal);
       clearTimeout(timeoutHandle);
       const duration = Date.now() - startTime;
-      logKairoStage('LocalInferenceService', 'EXIT', requestId, { model: config.modelName }, { textLength: result.generatedText.length }, duration);
+      logKairoStage('LocalInferenceService', 'EXIT', requestId, { model: effectiveModelName, provider: effectiveProviderName }, { textLength: result.generatedText.length }, duration);
       return this.deepFreeze(result);
     } catch (err: any) {
       clearTimeout(timeoutHandle);
       const duration = Date.now() - startTime;
-      logKairoStage('LocalInferenceService', 'ERROR', requestId, { model: config.modelName }, null, duration, err);
+      logKairoStage('LocalInferenceService', 'ERROR', requestId, { model: effectiveModelName, provider: effectiveProviderName }, null, duration, err);
       return {
         generatedText: '',
         tokenUsage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
@@ -80,8 +92,8 @@ export class LocalInferenceService {
         warnings: [],
         errors: Object.freeze([err.message || String(err)]),
         providerInfo: {
-          providerName: config.provider,
-          modelName: config.modelName
+          providerName: effectiveProviderName,
+          modelName: effectiveModelName
         }
       };
     }

@@ -77,13 +77,34 @@ export class NodeFsAdapter implements IFilesystemAdapter {
     logKairoStage('Filesystem', 'ENTER', executionId, { filePath, contentSize: content?.length || 0 });
 
     try {
-      const dir = path.dirname(filePath);
+      let targetRoot: string = process.cwd();
+      try {
+        const vscode = require('vscode');
+        const folders = vscode?.workspace?.workspaceFolders;
+        if (folders && folders.length > 0) {
+          targetRoot = folders[0].uri.fsPath;
+        }
+      } catch {}
+
+      const normalizedPath = path.isAbsolute(filePath) ? filePath : path.resolve(targetRoot, filePath);
+      const dir = path.dirname(normalizedPath);
       if (!fs.existsSync(dir)) {
         await fs.promises.mkdir(dir, { recursive: true });
       }
-      await fs.promises.writeFile(filePath, content, 'utf-8');
+      await fs.promises.writeFile(normalizedPath, content, 'utf-8');
+
+      // Notify VS Code File System Provider if running in extension host
+      try {
+        const vscode = require('vscode');
+        if (vscode && vscode.workspace && vscode.workspace.fs && vscode.Uri) {
+          const uri = vscode.Uri.file(normalizedPath);
+          await vscode.workspace.fs.writeFile(uri, Buffer.from(content, 'utf-8'));
+          await vscode.commands.executeCommand('workbench.files.action.refreshFilesExplorer');
+        }
+      } catch {}
+
       const duration = Date.now() - startTime;
-      logKairoStage('Filesystem', 'EXIT', executionId, { filePath }, { success: true }, duration);
+      logKairoStage('Filesystem', 'EXIT', executionId, { filePath: normalizedPath }, { success: true }, duration);
     } catch (error: any) {
       const duration = Date.now() - startTime;
       logKairoStage('Filesystem', 'ERROR', executionId, { filePath }, null, duration, error);

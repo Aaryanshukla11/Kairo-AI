@@ -33,6 +33,7 @@ export function ChatTimeline(): React.JSX.Element {
   const [overallStatus, setOverallStatus] = useState<'idle' | 'running' | 'completed' | 'failed' | 'cancelled'>('idle');
   const [currentActivity, setCurrentActivity] = useState<string>('');
   const [taskComplexity, setTaskComplexity] = useState<'SMALL' | 'MEDIUM' | 'COMPLEX'>('COMPLEX');
+  const [logs, setLogs] = useState<{ id: string; timestamp: string; text: string; type?: 'info' | 'success' | 'warning' | 'error' }[]>([]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -40,9 +41,33 @@ export function ChatTimeline(): React.JSX.Element {
 
   useEffect(() => {
     scrollToBottom();
-  }, [chatState.messages, chatState.isTyping, stages, filesMap, overallStatus, currentActivity]);
+  }, [chatState.messages, chatState.isTyping, stages, filesMap, overallStatus, currentActivity, logs]);
 
   useEffect(() => {
+    const addLog = (text: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
+      const cleanText = text.trim();
+      if (!cleanText) return;
+      // Skip bare stage names without detail
+      const bareStages = ['Workspace Scan', 'Intent Detection', 'Model Router', 'Planning', 'Waiting for Approval', 'Execution Pipeline', 'Code Synthesis', 'Execution Error'];
+      if (bareStages.includes(cleanText)) return;
+
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      setLogs(prev => {
+        const last = prev[prev.length - 1];
+        if (last) {
+          if (last.text === cleanText) return prev;
+          if (cleanText.startsWith(last.text) && cleanText.length > last.text.length) {
+            const updated = [...prev];
+            updated[updated.length - 1] = { ...last, text: cleanText, type };
+            return updated;
+          }
+          if (last.text.startsWith(cleanText)) return prev;
+        }
+        return [...prev.slice(-50), { id: `log-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, timestamp: timeStr, text: cleanText, type }];
+      });
+    };
+
     const handleEventBusUpdate = (msg: any) => {
       if ((msg.type === MessageType.EVENT_BUS_UPDATE || msg.type === (MessageType.EVENT_BUS_UPDATE as any) || msg.type === 104) && msg.payload) {
         const evt = msg.payload;
@@ -50,6 +75,14 @@ export function ChatTimeline(): React.JSX.Element {
         const payload = evt.payload || {};
 
         setOverallStatus((prev) => (prev === 'idle' ? 'running' : prev));
+
+        // Append to real-time live activity log feed if it has specific payload content
+        if (payload.filePath) {
+          const fileAction = type === 'FileWriteStarted' ? 'Writing' : type === 'FileWriteCompleted' ? '✓ Written' : type === 'FileGenerationStarted' ? 'Generating' : 'File Action';
+          addLog(`${fileAction}: ${payload.filePath}`, type.includes('Failed') ? 'error' : 'success');
+        } else if (evt.message && evt.message !== type) {
+          addLog(evt.message, type.includes('Failed') || type.includes('Error') ? 'error' : type.includes('Completed') || type.includes('Passed') ? 'success' : 'info');
+        }
 
         // Update pipeline stage states
         setStages((prevStages) => {
@@ -109,7 +142,7 @@ export function ChatTimeline(): React.JSX.Element {
             case 'FileWriteStarted':
               return updateStage('st-7', 'active');
             case 'FileWriteCompleted':
-              return updateStage('st-7', 'active');
+              return updateStage('st-7', 'completed');
 
             case 'FileValidationStarted':
               setCurrentActivity('Running validation...');
@@ -163,6 +196,27 @@ export function ChatTimeline(): React.JSX.Element {
             newMap.set(filePath, current);
             return newMap;
           });
+        }
+      }
+    };
+
+    const handleExecutionEvent = (msg: any) => {
+      if (msg.payload) {
+        const { stage, substage, message, status } = msg.payload;
+        const detailParts = [substage, message].filter(Boolean);
+        const detail = detailParts.length > 0 ? `${stage}: ${detailParts.join(' — ')}` : stage;
+
+        if (detailParts.length > 0) {
+          setCurrentActivity(detail);
+          addLog(detail, status === 'error' ? 'error' : status === 'done' ? 'success' : 'info');
+        }
+
+        if (status === 'done' && (stage === 'Execution Complete' || stage === 'Completed')) {
+          setOverallStatus('completed');
+        } else if (status === 'error') {
+          setOverallStatus('failed');
+        } else {
+          setOverallStatus('running');
         }
       }
     };
@@ -222,12 +276,16 @@ export function ChatTimeline(): React.JSX.Element {
 
     messageBus.subscribe(MessageType.EVENT_BUS_UPDATE, handleEventBusUpdate);
     messageBus.subscribe((MessageType.EVENT_BUS_UPDATE as any), handleEventBusUpdate);
+    messageBus.subscribe(MessageType.EXECUTION_EVENT, handleExecutionEvent);
+    messageBus.subscribe(MessageType.PIPELINE_STATUS, handleExecutionEvent);
     messageBus.subscribe(MessageType.MOCK_RESPONSE, handleMockResponse);
     messageBus.subscribe(MessageType.UPLOAD_ASSETS_RESPONSE, handleUploadAssetsResponse);
 
     return () => {
       messageBus.unsubscribe(MessageType.EVENT_BUS_UPDATE, handleEventBusUpdate);
       messageBus.unsubscribe((MessageType.EVENT_BUS_UPDATE as any), handleEventBusUpdate);
+      messageBus.unsubscribe(MessageType.EXECUTION_EVENT, handleExecutionEvent);
+      messageBus.unsubscribe(MessageType.PIPELINE_STATUS, handleExecutionEvent);
       messageBus.unsubscribe(MessageType.MOCK_RESPONSE, handleMockResponse);
       messageBus.unsubscribe(MessageType.UPLOAD_ASSETS_RESPONSE, handleUploadAssetsResponse);
     };
@@ -269,6 +327,7 @@ export function ChatTimeline(): React.JSX.Element {
               overallStatus={overallStatus}
               stages={stages}
               files={Array.from(filesMap.values())}
+              logs={logs}
             />
           )}
 

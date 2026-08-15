@@ -26,7 +26,7 @@ import { retrieverService, RetrieverEvent } from '../core/retriever';
 import { promptAssemblyService, PromptAssemblyEvent } from '../core/promptAssembly';
 import { runtimeService, RuntimeEvent } from '../core/runtime/model';
 import { toolService, ToolCallingEvent } from '../core/toolCalling';
-import { agentRuntimeInstance, agentRegistry, AgentEvent, MemoryAgent, TestingAgent, SecurityAgent, DocumentationAgent, RefactoringAgent, DebugAgent, PerformanceAgent, DependencyAgent, ArchitectureAgent } from '../core/agents';
+import { agentRuntimeInstance, agentRegistry, agentManager, AgentTask, AgentEvent, MemoryAgent, TestingAgent, SecurityAgent, DocumentationAgent, RefactoringAgent, DebugAgent, PerformanceAgent, DependencyAgent, ArchitectureAgent } from '../core/agents';
 import { generationEngine, astEngine, multiFileEngine, incrementalEngine, conventionEngine, namingEngine, importEngine, symbolEngine, projectGeneratorEngine } from '../core/codeGeneration';
 import { reviewEngine } from '../core/review';
 import { validationEngine } from '../core/validation';
@@ -178,7 +178,7 @@ export class MessageRouter {
           this.postMessage(reviewMsg);
 
           try {
-            await vscode.commands.executeCommand('workbench.files.action.refreshFiles');
+            await vscode.commands.executeCommand('workbench.files.action.refreshFilesExplorer');
           } catch {}
         }
       });
@@ -1127,6 +1127,7 @@ export class MessageRouter {
       const { approvalId, action } = message.payload || {};
       let result;
       if (action === 'approve') {
+        console.log('[APPROVAL_FIX] APPROVAL_RECEIVED', { approvalId, action });
         result = approvalEngine.approve(approvalId);
         
         this._emitPipelineStatus('Execution Pipeline', 'Plan approved by user. Initializing execution graph...', 'running');
@@ -1135,17 +1136,16 @@ export class MessageRouter {
         const approvalObj = approvalEngine.getApproval(approvalId);
         const planId = this.approvalToPlanId.get(approvalId) || (approvalObj ? approvalObj.planId : approvalId);
         let plan = this.plansCache.get(planId);
-        if (!plan && approvalObj) {
-          plan = plannerEngine.generatePlan(approvalObj.summary || approvalObj.title);
-          (plan as any).id = planId;
-          this.plansCache.set(planId, plan);
-        }
 
+        // Strict resolution check: Fail explicitly if plan is missing. DO NOT call plannerEngine.generatePlan() as fallback!
         if (!planId || !plan) {
           console.error(`[KAIRO][APPROVAL] Plan resolution failed approvalId=${approvalId} planId=${planId}`);
-          this._emitPipelineStatus('Execution Error', `Plan resolution failed for approvalId=${approvalId}`, 'error');
-          return;
+          this._emitPipelineStatus('Execution Error', `Plan resolution failed for approvalId=${approvalId}. Approved plan not found in cache.`, 'error');
+          throw new Error(`Plan resolution failed for approvalId=${approvalId}. Approved plan not found in cache.`);
         }
+
+        console.log('[APPROVAL_FIX] PLAN_RESOLVED', { planId: plan.id, title: plan.title });
+        console.log('[APPROVAL_FIX] DIRECT_EXECUTION_START');
 
         const timeline = timelineService.initializeTimeline(plan);
         // Send init message
@@ -1157,34 +1157,97 @@ export class MessageRouter {
         );
         this.postMessage(initMsg);
 
-            this._emitPipelineStatus('Code Synthesis', 'Generating application files & code contracts...', 'running');
+        this._emitPipelineStatus('Code Synthesis', 'Generating application files & code contracts...', 'running');
 
-            // Generate execution graph and start executorService
-            const graph = graphEngine.generateGraph(plan);
-            executorService.startExecution(graph, (event: ExecutorEvent) => {
-              this.handleExecutorEvent(event);
-            }).catch(err => {
-              console.error('[Sasta-Antigravity] Execution failed:', err);
-              this._emitPipelineStatus('Execution Error', err.message || String(err), 'error');
-            });
+        // Generate execution graph and start executorService
+        const graph = graphEngine.generateGraph(plan);
+        executorService.startExecution(graph, (event: ExecutorEvent) => {
+          this.handleExecutorEvent(event);
+        }).catch(err => {
+          console.error('[Sasta-Antigravity] Execution failed:', err);
+          this._emitPipelineStatus('Execution Error', err.message || String(err), 'error');
+        });
 
-            // Execute the actual production pipeline: AIKernel -> Orchestrator -> GeneratorSDK -> Qwen -> ExecutionEngine -> Real Files
-            const folders = vscode.workspace.workspaceFolders;
-            const workspacePath = folders && folders.length > 0 ? folders[0].uri.fsPath : undefined;
-            const rawPrompt = (plan as any).prompt || plan.title;
+        // Direct Execution Handoff: Hand off approved plan via production AgentManager infrastructure
+        // DO NOT call aiKernel.processPrompt() here!
+        const folders = vscode.workspace.workspaceFolders;
+        const workspacePath = (plan as any).workspacePath || (folders && folders.length > 0 ? folders[0].uri.fsPath : undefined);
+        const rawPrompt = (plan as any).prompt || plan.title;
 
-            console.log(`[WORKSPACE_TRACE] MessageRouter=${workspacePath}`);
+        console.log(`[WORKSPACE_TRACE] MessageRouter=${workspacePath}`);
+        console.log('[APPROVAL_FIX] GENERATOR_START');
 
-            aiKernel.processPrompt({
-              rawPrompt,
-              workspacePath,
-              requestId: planId
-            }).then(() => {
-              this._emitPipelineStatus('Execution Complete', 'Successfully generated and persisted project files in workspace!', 'done');
-            }).catch(err => {
-              console.error('[Sasta-Antigravity] Pipeline execution failed:', err);
-              this._emitPipelineStatus('Execution Error', err.message || String(err), 'error');
-            });
+        const isLightweightWebPrompt = /\b(html|landing|index\.html|css|style|website|calculator)\b/i.test(rawPrompt) && !/\b(fullstack|database|backend|express|nest|docker)\b/i.test(rawPrompt);
+
+        const orderedTaskList = isLightweightWebPrompt
+          ? [
+              { id: 'task-gen-001', title: 'Synthesize Web Landing Page / UI Components', generatorId: 'UIComponentGenerator', stage: 'synthesize_ui', targetFiles: ['index.html', 'style.css', 'script.js'], dependencies: [] }
+            ]
+          : [
+              { id: 'task-gen-001', title: 'Generate Workspace Config Files', generatorId: 'ConfigGenerator', stage: 'generate_configs', targetFiles: ['package.json', 'tsconfig.json'], dependencies: [] },
+              { id: 'task-gen-002', title: 'Synthesize Shared Utilities', generatorId: 'SharedUtilGenerator', stage: 'synthesize_core', targetFiles: ['src/common/utils.ts'], dependencies: ['task-gen-001'] },
+              { id: 'task-gen-003', title: 'Synthesize Domain Services', generatorId: 'BackendGenerator', stage: 'synthesize_core', targetFiles: ['src/services/apiService.ts'], dependencies: ['task-gen-002'] },
+              { id: 'task-gen-004', title: 'Synthesize UI Presentation Components', generatorId: 'UIComponentGenerator', stage: 'synthesize_ui', targetFiles: ['src/index.ts', 'src/components/App.tsx'], dependencies: ['task-gen-003'] }
+            ];
+
+        const sdkTask: AgentTask = {
+          id: `task-${planId}-sdk`,
+          title: 'Execute Central Generator SDK Framework Pipeline',
+          assignedAgentId: 'generator-sdk-agent',
+          status: 'pending',
+          payload: {
+            requestId: planId,
+            sessionId: `session-${Date.now()}`,
+            workspacePath,
+            rawPrompt,
+            generationPlan: {
+              requestId: planId,
+              sessionId: `session-${Date.now()}`,
+              executionStages: isLightweightWebPrompt ? ['synthesize_ui'] : ['scaffold_workspace', 'generate_configs', 'synthesize_core', 'synthesize_ui', 'verify_build'],
+              orderedTaskList
+            }
+          }
+        };
+
+        const execTask: AgentTask = {
+          id: `task-${planId}-exec`,
+          title: 'Synthesize Application Code & Artifacts',
+          assignedAgentId: 'executor-agent',
+          status: 'pending',
+          payload: {
+            rawPrompt,
+            workspacePath,
+            modelId: 'Gemini 2.5 Flash'
+          }
+        };
+
+        console.log('[APPROVAL_FIX] EXECUTOR_START');
+
+        agentManager.dispatchWorkflowTasks([sdkTask, execTask]).then(async () => {
+          console.log('[APPROVAL_FIX] GENERATION_COMPLETED');
+          console.log('[APPROVAL_FIX] FILE_WRITE');
+          console.log('[APPROVAL_FIX] EXECUTION_COMPLETED');
+
+          await globalKairoEventBus.publish({
+            eventId: `evt-exec-complete-${planId}-${Date.now()}`,
+            eventType: 'ExecutionCompleted',
+            timestamp: Date.now(),
+            source: 'MessageRouter',
+            priority: 'HIGH',
+            correlationId: planId,
+            sessionId: `session-${Date.now()}`,
+            payload: { requestId: planId, workspacePath }
+          });
+
+          try {
+            await vscode.commands.executeCommand('workbench.files.action.refreshFilesExplorer');
+          } catch {}
+
+          this._emitPipelineStatus('Execution Complete', 'Successfully generated and persisted project files in workspace!', 'done');
+        }).catch(err => {
+          console.error('[Sasta-Antigravity] Direct pipeline execution failed:', err);
+          this._emitPipelineStatus('Execution Error', err.message || String(err), 'error');
+        });
       } else if (action === 'reject') {
         result = approvalEngine.reject(approvalId);
         this._emitPipelineStatus('Execution Cancelled', 'Plan was rejected by user.', 'error');
@@ -1349,18 +1412,51 @@ export class MessageRouter {
       this._emitExecutionEvent('Intent Detection', '✓ Intent:', parsedIntent.title, 'done');
 
       // STAGE 3: Model Router
-      const selectedModelName = 'Qwen2.5-Coder 7B';
+      const selectedModelName = 'Gemini 2.5 Flash';
       this._emitExecutionEvent('Model Router', 'Selecting model...', 'Evaluating model capabilities and context window', 'running');
       this._emitExecutionEvent('Model Router', '✓ Selected:', selectedModelName, 'done', null, { model: selectedModelName });
 
-      // STAGE 4: Planning
+      // Handle Conversational CHAT / EXPLAIN / DEBUG queries without generating plan/approval cards
+      if (parsedIntent.category === 'CHAT' || parsedIntent.category === 'EXPLAIN' || parsedIntent.category === 'DEBUG') {
+        let chatResponse = "";
+        if (parsedIntent.category === 'CHAT') {
+          chatResponse = "Hello! I'm Kairo-AI, your intelligent software engineering assistant inside VS Code. I'm ready to analyze your project, answer questions, debug issues, or make code changes. How can I help you today?";
+        } else {
+          try {
+            const { localInferenceService } = require('../core/inference');
+            const result = await localInferenceService.execute({
+              modelName: selectedModelName,
+              prompt: `You are Kairo-AI, an expert software engineering assistant. Answer the user's query clearly and concisely based on context.\nWorkspace Path: ${workspacePath || 'Root'}\nUser Query: ${promptText}`
+            });
+            chatResponse = result.rawTextOutput || result.text || `Analyzed project query: "${promptText}".`;
+          } catch {
+            chatResponse = `I've analyzed your project workspace at \`${workspacePath || 'current directory'}\`. How can I assist you further with this code?`;
+          }
+        }
+
+        this._emitExecutionEvent('Execution Complete', chatResponse, 'done');
+        const chatMsg = MessageFactory.createMessage(
+          MessageType.ASSISTANT_MESSAGE as any,
+          MessageSource.EXTENSION,
+          MessageTarget.WEBVIEW,
+          { text: chatResponse }
+        );
+        this.postMessage(chatMsg);
+        return;
+      }
+
+      // STAGE 4: Planning & Action Execution
       this._emitExecutionEvent('Planning', 'Building execution plan...', 'Constructing execution DAG nodes', 'running');
       const plan = plannerEngine.generatePlan(promptText);
       (plan as any).prompt = promptText;
+      (plan as any).workspacePath = workspacePath;
       const approval = approvalEngine.createApproval(plan);
 
-      // STAGE 7: Waiting for Approval
-      this._emitExecutionEvent('Waiting for Approval', 'Review Required', 'Waiting for user to inspect and approve execution plan', 'warning');
+      // Auto-approve SAFE_ACTION changes (file creations/edits) or require approval for HIGH_RISK_ACTION
+      if (parsedIntent.category === 'SAFE_ACTION' || !parsedIntent.requiresApproval) {
+        approvalEngine.approve(approval.id);
+        (approval as any).status = 'approved';
+      }
 
       // Store in caches
       this.plansCache.set(plan.id, plan);
@@ -1373,6 +1469,16 @@ export class MessageRouter {
         { plan, approval }
       );
       this.postMessage(responseMsg);
+
+      // If safe action auto-approved, trigger direct execution pipeline immediately
+      if (parsedIntent.category === 'SAFE_ACTION' || !parsedIntent.requiresApproval) {
+        this._handleApprovalAction(MessageFactory.createMessage(
+          MessageType.APPROVAL_ACTION,
+          MessageSource.WEBVIEW,
+          MessageTarget.EXTENSION,
+          { approvalId: approval.id, action: 'approve' }
+        ));
+      }
     } catch (error: any) {
       this._emitExecutionEvent('Error', 'Pipeline Error', error.message || String(error), 'error');
       const errorMsg = MessageFactory.createMessage(

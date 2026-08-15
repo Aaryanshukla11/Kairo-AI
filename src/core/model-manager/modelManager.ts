@@ -9,13 +9,13 @@ export class ModelManager {
 
   constructor() {
     this.activeModel = {
-      id: 'qwen2.5-coder:7b',
-      displayName: 'Qwen2.5 Coder 7B',
-      provider: 'Ollama',
-      runtime: 'Ollama',
-      local: true,
+      id: 'gemini-2.5-flash',
+      displayName: 'Gemini 2.5 Flash',
+      provider: 'Gemini',
+      runtime: 'Gemini',
+      local: false,
       status: 'ready',
-      contextWindow: 32768,
+      contextWindow: 1048576,
       maxOutputTokens: 8192
     };
 
@@ -34,6 +34,9 @@ export class ModelManager {
       .replace(/_/g, ' ')
       .replace(/\b\w/g, c => c.toUpperCase());
     
+    if (modelId.includes('gemini')) {
+      return 'Gemini 2.5 Flash';
+    }
     if (modelId.includes('qwen')) {
       return clean.replace('Qwen', 'Qwen2.5 Coder');
     }
@@ -54,6 +57,24 @@ export class ModelManager {
    */
   public async detectRuntimeModel(): Promise<ActiveModel> {
     try {
+      const activeProvider = (process.env.KAIRO_MODEL_PROVIDER || 'gemini').trim().toLowerCase();
+      if (activeProvider === 'gemini') {
+        const geminiModelId = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+        this.activeModel = {
+          id: geminiModelId,
+          displayName: 'Gemini 2.5 Flash',
+          provider: 'Gemini',
+          runtime: 'Gemini',
+          local: false,
+          status: process.env.GEMINI_API_KEY ? 'ready' : 'offline',
+          contextWindow: 1048576,
+          maxOutputTokens: 8192
+        };
+        this.isInitialized = true;
+        this.notifySubscribers();
+        return this.activeModel;
+      }
+
       const isOllamaRunning = await ollamaProvider.isServerRunning();
       if (isOllamaRunning) {
         const available = await ollamaProvider.getAvailableModels();
@@ -138,6 +159,17 @@ export class ModelManager {
     // Default catalog entries if list is empty or for fallback switching
     const catalogDefaults: ModelInfo[] = [
       {
+        id: 'gemini-2.5-flash',
+        displayName: 'Gemini 2.5 Flash',
+        provider: 'Gemini',
+        runtime: 'Gemini',
+        local: false,
+        contextWindow: 1048576,
+        maxOutputTokens: 8192,
+        installed: true,
+        description: 'Google Gemini 2.5 Flash cloud inference model'
+      },
+      {
         id: 'qwen2.5-coder:7b',
         displayName: 'Qwen2.5 Coder 7B',
         provider: 'Ollama',
@@ -146,7 +178,7 @@ export class ModelManager {
         contextWindow: 32768,
         maxOutputTokens: 8192,
         installed: true,
-        description: 'Lightweight offline V1 primary coding model'
+        description: 'Lightweight offline V1 coding model'
       },
       {
         id: 'nomic-embed-text',
@@ -221,6 +253,15 @@ export class ModelManager {
    * Health check for runtime engine connection
    */
   public async health(): Promise<{ isOnline: boolean; status: string; diagnostics?: string; installationInstructions?: string[] }> {
+    if (this.activeModel.provider === 'Gemini') {
+      const hasApiKey = Boolean(process.env.GEMINI_API_KEY);
+      return {
+        isOnline: true,
+        status: hasApiKey ? 'Online & Ready' : 'Ready (Awaiting GEMINI_API_KEY)',
+        diagnostics: hasApiKey ? undefined : 'GEMINI_API_KEY environment variable is not set.'
+      };
+    }
+
     const status = await ollamaRuntime.health();
     const isOnline = status.isRunning;
     

@@ -1,5 +1,5 @@
 export class ModelProvider {
   public getModelName(): string {
-    return 'qwen2.5-coder:7b';
+    return 'gemini-2.5-flash';
   }
 }

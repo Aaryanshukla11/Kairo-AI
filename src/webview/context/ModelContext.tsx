@@ -34,13 +34,13 @@ export interface ModelContextType {
 }
 
 export const initialActiveModel: ActiveModel = {
-  id: 'qwen2.5-coder:7b',
-  displayName: 'Qwen2.5 Coder 7B',
-  provider: 'Ollama',
-  runtime: 'Ollama',
-  local: true,
+  id: 'gemini-2.5-flash',
+  displayName: 'Gemini 2.5 Flash',
+  provider: 'Gemini',
+  runtime: 'Gemini',
+  local: false,
   status: 'ready',
-  contextWindow: 32768,
+  contextWindow: 1048576,
   maxOutputTokens: 8192
 };
 

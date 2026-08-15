@@ -57,17 +57,51 @@ describe('Approval to Execution Pipeline Regression Test', () => {
     const updatedApproval = approvalEngine.approve(approval.id);
     expect(updatedApproval.status).toBe('approved');
 
-    // 3. Resume execution pipeline post-approval
+    // 3. Resume execution pipeline post-approval via direct AgentManager dispatch
     const eventsCaptured: string[] = [];
     const unsub = globalKairoEventBus.subscribe('*', async (evt: any) => {
       eventsCaptured.push(evt.eventType);
     });
 
-    await aiKernel.processPrompt({
-      rawPrompt: promptText,
-      workspacePath: testWorkspace,
-      requestId: plan.id
-    });
+    const { agentManager } = require('../../src/core/agents');
+
+    const sdkTask = {
+      id: `task-${plan.id}-sdk`,
+      title: 'Execute Central Generator SDK Framework Pipeline',
+      assignedAgentId: 'generator-sdk-agent',
+      status: 'pending',
+      payload: {
+        requestId: plan.id,
+        sessionId: `session-${Date.now()}`,
+        workspacePath: testWorkspace,
+        rawPrompt: promptText,
+        generationPlan: {
+          requestId: plan.id,
+          sessionId: `session-${Date.now()}`,
+          executionStages: ['scaffold_workspace', 'generate_configs', 'synthesize_core', 'synthesize_ui', 'verify_build'],
+          orderedTaskList: [
+            { id: 'task-gen-001', title: 'Generate Workspace Config Files', generatorId: 'ConfigGenerator', stage: 'generate_configs', targetFiles: ['package.json', 'tsconfig.json'], dependencies: [] },
+            { id: 'task-gen-002', title: 'Synthesize Shared Utilities', generatorId: 'SharedUtilGenerator', stage: 'synthesize_core', targetFiles: ['src/common/utils.ts'], dependencies: ['task-gen-001'] },
+            { id: 'task-gen-003', title: 'Synthesize Domain Services', generatorId: 'BackendGenerator', stage: 'synthesize_core', targetFiles: ['src/services/apiService.ts'], dependencies: ['task-gen-002'] },
+            { id: 'task-gen-004', title: 'Synthesize UI Presentation Components', generatorId: 'UIComponentGenerator', stage: 'synthesize_ui', targetFiles: ['src/index.ts', 'src/components/App.tsx'], dependencies: ['task-gen-003'] }
+          ]
+        }
+      }
+    };
+
+    const execTask = {
+      id: `task-${plan.id}-exec`,
+      title: 'Synthesize Application Code & Artifacts',
+      assignedAgentId: 'executor-agent',
+      status: 'pending',
+      payload: {
+        rawPrompt: promptText,
+        workspacePath: testWorkspace,
+        modelId: 'Gemini 2.5 Flash'
+      }
+    };
+
+    await agentManager.dispatchWorkflowTasks([sdkTask, execTask]);
 
     unsub();
 

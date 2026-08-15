@@ -41,11 +41,10 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    padding: '4px 6px',
+    padding: '3px 0',
     fontSize: '12px',
-    borderRadius: '4px',
-    backgroundColor: '#0d1117',
-    marginBottom: '3px'
+    backgroundColor: 'transparent',
+    marginBottom: '2px'
   },
   icon: {
     fontSize: '12px',

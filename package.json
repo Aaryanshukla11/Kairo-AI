@@ -79,7 +79,17 @@
         "command": "kairo.showLogs",
         "title": "Kaira AI: Show Execution Logs"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Kaira AI",
+      "properties": {
+        "kairo.geminiApiKey": {
+          "type": "string",
+          "default": "AQ.Ab8RN6LYa1fdZIKavcuc2COwTacy-cw6Kp9jCZtpnmIj2jTpLQ",
+          "description": "API Key for Google Gemini Inference Provider"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run build",

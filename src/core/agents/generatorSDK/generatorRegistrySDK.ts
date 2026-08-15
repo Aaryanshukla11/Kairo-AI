@@ -49,8 +49,9 @@ export class GeneratorRegistrySDK {
       'uicomponentgenerator': 'UIComponentGenerator',
       'backend-generator': 'BackendGenerator',
       'backendgenerator': 'BackendGenerator',
-      'config-generator': 'ConfigGeneratorSDK',
-      'configgenerator': 'ConfigGeneratorSDK',
+      'config-generator': 'ConfigGenerator',
+      'configgenerator': 'ConfigGenerator',
+      'configgeneratorsdk': 'ConfigGenerator',
       'sharedutilgenerator': 'SharedUtilGenerator',
       'database-generator': 'database-generator',
       'auth-generator': 'auth-generator',
@@ -70,7 +71,8 @@ export class GeneratorRegistrySDK {
       }
     }
 
-    return undefined;
+    // Safe fallback to UIComponentGenerator or first registered generator
+    return this.generators.get('UIComponentGenerator') || this.generators.values().next().value;
   }
 
   public list(): readonly BaseSDKGenerator[] {

@@ -152,12 +152,13 @@ export function ChatTimeline(): React.JSX.Element {
 
             case 'ExecutionCompleted':
             case 'ProjectCompleted':
-              setCurrentActivity('Project completed');
               setOverallStatus('completed');
-              return prevStages.map(st => ({ ...st, status: 'completed' as const }));
+              setCurrentActivity('Project completed');
+              return updateStage('st-9', 'completed');
 
             case 'ExecutionFailed':
-              setCurrentActivity('Execution failed');
+            case 'ExecutionError':
+              setCurrentActivity(`Execution failed: ${payload.error || payload.message || 'Check configuration'}`);
               setOverallStatus('failed');
               return prevStages.map(st => st.status === 'active' ? { ...st, status: 'failed' as const } : st);
 
@@ -171,7 +172,7 @@ export function ChatTimeline(): React.JSX.Element {
           const filePath = payload.filePath;
           setFilesMap((prevMap) => {
             const newMap = new Map(prevMap);
-            const current = newMap.get(filePath) || {
+            const current: IFileActivityItem = newMap.get(filePath) || {
               filePath,
               status: 'PENDING'
             };
@@ -274,11 +275,39 @@ export function ChatTimeline(): React.JSX.Element {
       }
     };
 
+    const handlePromptResponse = (msg: any) => {
+      if (msg.payload) {
+        const text = msg.payload.content || msg.payload.text;
+        const msgId = msg.payload.id || `ai-${Date.now()}`;
+        if (text) {
+          setChatState((prev) => {
+            const exists = prev.messages.find(m => m.id === msgId || (m.role === 'ASSISTANT' && m.content === text));
+            if (exists) return prev;
+            return {
+              ...prev,
+              messages: [
+                ...prev.messages,
+                {
+                  id: msgId,
+                  role: 'ASSISTANT',
+                  timestamp: Date.now(),
+                  content: text,
+                  status: 'SUCCESS'
+                }
+              ],
+              isTyping: false
+            };
+          });
+        }
+      }
+    };
+
     messageBus.subscribe(MessageType.EVENT_BUS_UPDATE, handleEventBusUpdate);
     messageBus.subscribe((MessageType.EVENT_BUS_UPDATE as any), handleEventBusUpdate);
     messageBus.subscribe(MessageType.EXECUTION_EVENT, handleExecutionEvent);
     messageBus.subscribe(MessageType.PIPELINE_STATUS, handleExecutionEvent);
     messageBus.subscribe(MessageType.MOCK_RESPONSE, handleMockResponse);
+    messageBus.subscribe(MessageType.PROMPT_RESPONSE, handlePromptResponse);
     messageBus.subscribe(MessageType.UPLOAD_ASSETS_RESPONSE, handleUploadAssetsResponse);
 
     return () => {
@@ -287,6 +316,7 @@ export function ChatTimeline(): React.JSX.Element {
       messageBus.unsubscribe(MessageType.EXECUTION_EVENT, handleExecutionEvent);
       messageBus.unsubscribe(MessageType.PIPELINE_STATUS, handleExecutionEvent);
       messageBus.unsubscribe(MessageType.MOCK_RESPONSE, handleMockResponse);
+      messageBus.unsubscribe(MessageType.PROMPT_RESPONSE, handlePromptResponse);
       messageBus.unsubscribe(MessageType.UPLOAD_ASSETS_RESPONSE, handleUploadAssetsResponse);
     };
   }, [setChatState]);
@@ -319,19 +349,14 @@ export function ChatTimeline(): React.JSX.Element {
             return null;
           })}
 
-          {/* Real-Time Live Activity UX */}
-          {overallStatus !== 'idle' && (
-            <ActivityContainer
-              taskComplexity={taskComplexity}
-              currentActivity={currentActivity}
-              overallStatus={overallStatus}
-              stages={stages}
-              files={Array.from(filesMap.values())}
-              logs={logs}
-            />
+          {(chatState.isTyping || overallStatus === 'running') && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px', width: 'fit-content', margin: '4px 0' }}>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#3b82f6', display: 'inline-block' }} className="kairo-pulse-dot" />
+              <span style={{ fontSize: '12.5px', color: '#a1a1aa', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+                {currentActivity || 'Processing request...'}
+              </span>
+            </div>
           )}
-
-          {chatState.isTyping && <TypingIndicator />}
           <div ref={messagesEndRef} />
         </div>
       )}

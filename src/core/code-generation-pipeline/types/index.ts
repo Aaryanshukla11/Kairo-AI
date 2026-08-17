@@ -1,4 +1,4 @@
-import { IGenerationContract } from '../generation-contract/types';
+import { IGenerationContract } from '../../generation-contract/types';
 
 export interface IModuleGenerationResult {
   readonly moduleName: string;

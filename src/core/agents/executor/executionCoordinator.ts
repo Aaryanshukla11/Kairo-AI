@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { toolService } from '../../toolCalling';
 import { checkpointService } from '../../checkpoint';
 import { ExecutionQueue } from './executionQueue';

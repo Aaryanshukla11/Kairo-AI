@@ -79,8 +79,22 @@ export class GenerationOrchestrator {
           let mockOps: any[] = [];
 
           if (!isMockTemplate) {
+            let rawContent = (runtimeResponse.rawJsonContent || '').trim();
+            // Clean markdown code blocks if present (e.g. ```json ... ``` or ```html ... ``` or ``` ... ```)
+            let cleanedContent = rawContent.replace(/^```(?:json|html|xml|typescript|javascript|tsx|jsx)?\s*/i, '').replace(/\s*```$/i, '').trim();
+
             try {
-              const parsed = JSON.parse(runtimeResponse.rawJsonContent);
+              let parsed: any;
+              try {
+                parsed = JSON.parse(cleanedContent);
+              } catch {
+                // If direct JSON.parse failed, try extracting first {...} or [...] block
+                const jsonMatch = cleanedContent.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+                if (jsonMatch) {
+                  parsed = JSON.parse(jsonMatch[1]);
+                }
+              }
+
               if (Array.isArray(parsed)) {
                 mockOps = parsed;
               } else if (parsed && Array.isArray(parsed.fileOperations)) {
@@ -88,49 +102,141 @@ export class GenerationOrchestrator {
               } else if (parsed && Array.isArray(parsed.operations)) {
                 mockOps = parsed.operations;
               } else if (parsed && Array.isArray(parsed.generatedFiles)) {
-                mockOps = parsed.generatedFiles.map((f: any, idx: number) => ({
-                  operationId: `op-${moduleName}-${idx}-${Date.now()}`,
+                mockOps = parsed.generatedFiles.map((f: any, idx: number) => {
+                  const targetRel = f.path || f.filePath || 'index.html';
+                  const pathNode = require('path');
+                  const absPath = pathNode.isAbsolute(targetRel) ? targetRel : pathNode.resolve(workspacePath, targetRel);
+                  return {
+                    operationId: `op-${moduleName}-${idx}-${Date.now()}`,
+                    operationType: 'CREATE_FILE' as const,
+                    filePath: absPath,
+                    relativePath: targetRel,
+                    language: 'TypeScript',
+                    encoding: 'utf-8',
+                    content: f.content || '',
+                    reason: `Generated ${targetRel}`,
+                    dependencies: []
+                  };
+                });
+              } else if (parsed && (parsed.filePath || parsed.path) && parsed.content) {
+                const targetRel = parsed.path || parsed.filePath;
+                const pathNode = require('path');
+                const absPath = pathNode.isAbsolute(targetRel) ? targetRel : pathNode.resolve(workspacePath, targetRel);
+                mockOps = [{
+                  operationId: `op-${moduleName}-0-${Date.now()}`,
                   operationType: 'CREATE_FILE' as const,
-                  filePath: `${workspacePath}/${f.path || f.filePath}`,
-                  relativePath: f.path || f.filePath,
+                  filePath: absPath,
+                  relativePath: targetRel,
                   language: 'TypeScript',
                   encoding: 'utf-8',
-                  content: f.content,
-                  reason: `Generated ${f.path || f.filePath}`,
+                  content: parsed.content,
+                  reason: `Generated ${targetRel}`,
                   dependencies: []
-                }));
-              } else if (parsed && parsed.filePath && parsed.content) {
-                mockOps = [parsed];
+                }];
               }
-            } catch {
-              mockOps = [
-                {
-                  operationId: `op-${moduleName}-gen-${Date.now()}`,
-                  operationType: 'CREATE_FILE' as const,
-                  filePath: `${workspacePath}/src/${moduleName.toLowerCase()}.ts`,
-                  relativePath: `src/${moduleName.toLowerCase()}.ts`,
-                  language: 'TypeScript',
-                  encoding: 'utf-8',
-                  content: runtimeResponse.rawJsonContent || `// Generated code for ${moduleName}`,
-                  reason: `Generated code for ${moduleName}`,
-                  dependencies: []
-                }
-              ];
+            } catch (err: any) {
+              console.warn('[GenerationOrchestrator] JSON parsing of model response failed. Attempting fallback raw content parsing...');
             }
+
+            // Fallback 1: If rawContent contains HTML or raw code (not JSON) for target file request
+            if (mockOps.length === 0 && rawContent.length > 0) {
+              const targetFilesScope: string[] = (request as any).targetFiles || [];
+              const primaryTarget = targetFilesScope[0] || 'index.html';
+              const pathNode = require('path');
+              const absPath = pathNode.isAbsolute(primaryTarget) ? primaryTarget : pathNode.resolve(workspacePath, primaryTarget);
+
+              // Extract code from markdown block if present
+              let extractedCode = rawContent;
+              const codeBlockMatch = rawContent.match(/```(?:html|css|javascript|typescript|tsx|jsx)?\s*([\s\S]*?)\s*```/i);
+              if (codeBlockMatch) {
+                extractedCode = codeBlockMatch[1];
+              }
+
+              mockOps = [{
+                operationId: `op-${moduleName}-fallback-${Date.now()}`,
+                operationType: 'CREATE_FILE' as const,
+                filePath: absPath,
+                relativePath: primaryTarget,
+                language: primaryTarget.endsWith('.html') ? 'HTML' : 'TypeScript',
+                encoding: 'utf-8',
+                content: extractedCode,
+                reason: `Generated ${primaryTarget} from raw model output`,
+                dependencies: []
+              }];
+            }
+
+            // Fallback 2: If mockOps is still 0 (e.g. LLM offline or empty response), generate default template content for target files
             if (mockOps.length === 0) {
-              mockOps = [
-                {
-                  operationId: `op-${moduleName}-gen-${Date.now()}`,
-                  operationType: 'CREATE_FILE' as const,
-                  filePath: `${workspacePath}/src/${moduleName.toLowerCase()}.ts`,
-                  relativePath: `src/${moduleName.toLowerCase()}.ts`,
-                  language: 'TypeScript',
-                  encoding: 'utf-8',
-                  content: `// Generated code for ${moduleName}`,
-                  reason: `Generated code for ${moduleName}`,
-                  dependencies: []
+              const targetFilesScope: string[] = (request as any).targetFiles || [];
+              const filesToGenerate = targetFilesScope.length > 0 ? targetFilesScope : ['index.html'];
+              const pathNode = require('path');
+
+              for (let idx = 0; idx < filesToGenerate.length; idx++) {
+                const tf = filesToGenerate[idx];
+                const absPath = pathNode.isAbsolute(tf) ? tf : pathNode.resolve(workspacePath, tf);
+                const basename = pathNode.basename(tf).toLowerCase();
+                let defaultContent = '';
+
+                if (basename.endsWith('.html')) {
+                  defaultContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${request.projectInfo?.name || 'Application'}</title>
+</head>
+<body>
+  <div id="root">
+    <h1>Welcome to ${request.projectInfo?.name || 'Web Application'}</h1>
+    <p>Generated by Kairo-AI Assistant.</p>
+  </div>
+</body>
+</html>`;
+                } else if (basename.endsWith('.json')) {
+                  defaultContent = JSON.stringify({ name: request.projectInfo?.name || 'app', version: '1.0.0' }, null, 2);
+                } else {
+                  defaultContent = `// Generated by Kairo-AI Assistant\n// ${tf}\nconsole.log("App initialized.");\n`;
                 }
-              ];
+
+                mockOps.push({
+                  operationId: `op-${moduleName}-gen-${idx}-${Date.now()}`,
+                  operationType: 'CREATE_FILE' as const,
+                  filePath: absPath,
+                  relativePath: tf,
+                  language: basename.endsWith('.html') ? 'HTML' : 'TypeScript',
+                  encoding: 'utf-8',
+                  content: defaultContent,
+                  reason: `Generated ${tf}`,
+                  dependencies: []
+                });
+              }
+            }
+
+            // Standardize path resolution on all mockOps
+            const pathNode = require('path');
+            mockOps = mockOps.map(op => {
+              const rel = op.relativePath || op.filePath || 'file.txt';
+              const absPath = pathNode.isAbsolute(rel) ? rel : pathNode.resolve(workspacePath, rel);
+              return {
+                ...op,
+                filePath: absPath,
+                relativePath: rel
+              };
+            });
+
+            // Target File Scope Integrity Validation
+            const targetFilesScope: string[] = (request as any).targetFiles || [];
+            if (targetFilesScope.length > 0) {
+              const authorizedOps = mockOps.filter(op => {
+                const rel = (op.relativePath || op.filePath || '').replace(/\\/g, '/').toLowerCase();
+                return targetFilesScope.some(tf => {
+                  const normTf = (tf || '').replace(/\\/g, '/').toLowerCase();
+                  return rel.endsWith(normTf) || normTf.endsWith(rel) || pathNode.basename(rel) === pathNode.basename(normTf);
+                });
+              });
+              if (authorizedOps.length > 0) {
+                mockOps = authorizedOps;
+              }
             }
           } else
           

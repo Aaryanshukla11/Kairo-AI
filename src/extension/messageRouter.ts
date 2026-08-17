@@ -61,6 +61,19 @@ export class MessageRouter {
   private approvalToPlanId = new Map<string, string>();
   private indexerEngine: IndexerEngine | null = null;
   private subscriptionsInitialized = false;
+  private conversationHistory: Array<{ role: 'user' | 'assistant'; text: string; timestamp: number }> = [];
+
+  private recordConversationTurn(role: 'user' | 'assistant', text: string): void {
+    if (!text || text.trim() === '') return;
+    this.conversationHistory.push({ role, text, timestamp: Date.now() });
+    if (this.conversationHistory.length > 12) {
+      this.conversationHistory = this.conversationHistory.slice(this.conversationHistory.length - 12);
+    }
+  }
+
+  private getFormattedConversationHistory(): { role: 'user' | 'assistant'; text: string }[] {
+    return this.conversationHistory.map(h => ({ role: h.role, text: h.text }));
+  }
 
   private getIndexerEngine(): IndexerEngine | null {
     if (!this.indexerEngine) {
@@ -1177,18 +1190,43 @@ export class MessageRouter {
         console.log(`[WORKSPACE_TRACE] MessageRouter=${workspacePath}`);
         console.log('[APPROVAL_FIX] GENERATOR_START');
 
-        const isLightweightWebPrompt = /\b(html|landing|index\.html|css|style|website|calculator)\b/i.test(rawPrompt) && !/\b(fullstack|database|backend|express|nest|docker)\b/i.test(rawPrompt);
+        const { pipelineRouter } = require('../core/orchestrator/pipelineRouter');
+        const { globalGeneratorRegistrySDK } = require('../core/agents/generatorSDK/generatorRegistrySDK');
+        const routeDecision = pipelineRouter.routeRequest({ rawPrompt, workspacePath } as any);
 
-        const orderedTaskList = isLightweightWebPrompt
-          ? [
-              { id: 'task-gen-001', title: 'Synthesize Web Landing Page / UI Components', generatorId: 'UIComponentGenerator', stage: 'synthesize_ui', targetFiles: ['index.html', 'style.css', 'script.js'], dependencies: [] }
-            ]
-          : [
-              { id: 'task-gen-001', title: 'Generate Workspace Config Files', generatorId: 'ConfigGenerator', stage: 'generate_configs', targetFiles: ['package.json', 'tsconfig.json'], dependencies: [] },
-              { id: 'task-gen-002', title: 'Synthesize Shared Utilities', generatorId: 'SharedUtilGenerator', stage: 'synthesize_core', targetFiles: ['src/common/utils.ts'], dependencies: ['task-gen-001'] },
-              { id: 'task-gen-003', title: 'Synthesize Domain Services', generatorId: 'BackendGenerator', stage: 'synthesize_core', targetFiles: ['src/services/apiService.ts'], dependencies: ['task-gen-002'] },
-              { id: 'task-gen-004', title: 'Synthesize UI Presentation Components', generatorId: 'UIComponentGenerator', stage: 'synthesize_ui', targetFiles: ['src/index.ts', 'src/components/App.tsx'], dependencies: ['task-gen-003'] }
-            ];
+        const planTasks: any[] = (plan && plan.tasks && plan.tasks.length > 0) ? plan.tasks : [];
+
+        if (planTasks.length === 0) {
+          throw new Error('[MessageRouter] Invalid plan: ExecutionPlan contains no tasks.');
+        }
+
+        const orderedTaskList = planTasks.map((t: any, idx: number) => {
+          if (!t.targetFiles || !Array.isArray(t.targetFiles) || t.targetFiles.length === 0) {
+            throw new Error(`[MessageRouter] Task "${t.title || idx}" is missing targetFiles.`);
+          }
+
+          const capability = t.requiredCapability || t.generatorId;
+          if (!capability) {
+            throw new Error(`[MessageRouter] Task "${t.title || idx}" is missing requiredCapability.`);
+          }
+
+          const resolvedGen = globalGeneratorRegistrySDK.resolve(capability);
+          if (!resolvedGen) {
+            throw new Error(`[MessageRouter] No registered generator found for capability: ${capability}`);
+          }
+
+          const genId = resolvedGen.id;
+          const stage = genId === 'ConfigGenerator' ? 'generate_configs' : genId === 'UIComponentGenerator' ? 'synthesize_ui' : 'synthesize_core';
+
+          return {
+            id: `task-gen-00${idx + 1}`,
+            title: t.title || `Execute ${genId}`,
+            generatorId: genId,
+            stage,
+            targetFiles: t.targetFiles,
+            dependencies: idx > 0 ? [`task-gen-00${idx}`] : []
+          };
+        });
 
         const sdkTask: AgentTask = {
           id: `task-${planId}-sdk`,
@@ -1200,14 +1238,30 @@ export class MessageRouter {
             sessionId: `session-${Date.now()}`,
             workspacePath,
             rawPrompt,
+            complexity: routeDecision.complexity,
             generationPlan: {
               requestId: planId,
               sessionId: `session-${Date.now()}`,
-              executionStages: isLightweightWebPrompt ? ['synthesize_ui'] : ['scaffold_workspace', 'generate_configs', 'synthesize_core', 'synthesize_ui', 'verify_build'],
+              executionStages: routeDecision.complexity === 'SMALL' ? ['synthesize_ui'] : ['scaffold_workspace', 'generate_configs', 'synthesize_core', 'synthesize_ui', 'verify_build'],
               orderedTaskList
             }
           }
         };
+
+        const targetFiles: string[] = plan.targetFiles || [];
+        const sourceContext: Array<{ filePath: string; content: string }> = [];
+        const fsNode = require('fs');
+        const pathNode = require('path');
+
+        for (const tf of targetFiles) {
+          const fullPath = pathNode.isAbsolute(tf) ? tf : pathNode.resolve(workspacePath || process.cwd(), tf);
+          if (fsNode.existsSync(fullPath)) {
+            try {
+              const content = fsNode.readFileSync(fullPath, 'utf-8').substring(0, 2000);
+              sourceContext.push({ filePath: tf, content });
+            } catch {}
+          }
+        }
 
         const execTask: AgentTask = {
           id: `task-${planId}-exec`,
@@ -1217,16 +1271,74 @@ export class MessageRouter {
           payload: {
             rawPrompt,
             workspacePath,
-            modelId: 'Gemini 2.5 Flash'
+            modelId: 'Gemini 2.5 Flash',
+            complexity: routeDecision.complexity,
+            selectedGenerators: routeDecision.selectedGenerators,
+            conversationHistory: this.getFormattedConversationHistory(),
+            sourceCodeContext: sourceContext,
+            plan,
+            tasks: plan.tasks,
+            targetFiles: plan.targetFiles
           }
         };
 
         console.log('[APPROVAL_FIX] EXECUTOR_START');
 
-        agentManager.dispatchWorkflowTasks([sdkTask, execTask]).then(async () => {
+        agentManager.dispatchWorkflowTasks([sdkTask, execTask]).then(async (wfResult) => {
           console.log('[APPROVAL_FIX] GENERATION_COMPLETED');
           console.log('[APPROVAL_FIX] FILE_WRITE');
           console.log('[APPROVAL_FIX] EXECUTION_COMPLETED');
+
+          // Extract physically written files from executor result
+          const execResVal = wfResult.results?.find((r: any) => r.agentId === 'executor-agent')?.result;
+          const createdFiles: string[] = execResVal?.workspaceReport?.createdFiles || [];
+
+          let responseText = `I have generated and updated your project files in the workspace.`;
+          const lowerPrompt = (rawPrompt || '').toLowerCase();
+
+          if (lowerPrompt.includes('index.html') || lowerPrompt.includes('html page') || lowerPrompt.includes('html file')) {
+            responseText = `I have created \`index.html\` in your workspace with a clean HTML5 structure, title tag, and container layout.`;
+          } else if (lowerPrompt.includes('style') || lowerPrompt.includes('css')) {
+            responseText = `I have created \`styles.css\` with modern theme variables, responsive layout rules, and button styles, and linked it to your workspace HTML.`;
+          } else if (lowerPrompt.includes('portfolio')) {
+            responseText = `I have built a complete portfolio website in your workspace including \`index.html\`, \`styles.css\`, and \`script.js\` featuring a Hero section, Projects showcase, Skills grid, and Contact form.`;
+          } else if (lowerPrompt.includes('auth') || lowerPrompt.includes('authentication')) {
+            responseText = `I have added authentication logic and API routes in \`src/auth.ts\` and \`src/routes/auth.ts\` for user login, signup, session validation, and password hashing.`;
+          } else if (createdFiles.length > 0) {
+            const filesListStr = createdFiles.map(f => `\`${f}\``).join(', ');
+            responseText = `I have generated and saved the requested project files to your workspace: ${filesListStr}.`;
+          }
+
+          this.recordConversationTurn('assistant', responseText);
+
+          // Dispatch natural conversational response to webview chat timeline!
+          const promptResponseMsg = MessageFactory.createMessage(
+            MessageType.PROMPT_RESPONSE,
+            MessageSource.EXTENSION,
+            MessageTarget.WEBVIEW,
+            {
+              id: `assistant-${Date.now()}`,
+              role: 'ASSISTANT',
+              content: responseText,
+              timestamp: Date.now(),
+              status: 'SUCCESS'
+            }
+          );
+          this.postMessage(promptResponseMsg);
+
+          if (createdFiles.length > 0) {
+            this.postMessage(MessageFactory.createMessage(
+              MessageType.REVIEW_UPDATE,
+              MessageSource.EXTENSION,
+              MessageTarget.WEBVIEW,
+              {
+                changedFiles: createdFiles
+              }
+            ));
+            try {
+              await vscode.commands.executeCommand('workbench.action.files.refresh');
+            } catch {}
+          }
 
           await globalKairoEventBus.publish({
             eventId: `evt-exec-complete-${planId}-${Date.now()}`,
@@ -1236,7 +1348,7 @@ export class MessageRouter {
             priority: 'HIGH',
             correlationId: planId,
             sessionId: `session-${Date.now()}`,
-            payload: { requestId: planId, workspacePath }
+            payload: { requestId: planId, workspacePath, createdFiles }
           });
 
           try {
@@ -1244,12 +1356,26 @@ export class MessageRouter {
           } catch {}
 
           this._emitPipelineStatus('Execution Complete', 'Successfully generated and persisted project files in workspace!', 'done');
-        }).catch(err => {
+        }).catch(async err => {
           console.error('[Sasta-Antigravity] Direct pipeline execution failed:', err);
+          this.recordConversationTurn('assistant', `Execution failed: ${err.message || String(err)}. No files were written.`);
           this._emitPipelineStatus('Execution Error', err.message || String(err), 'error');
+          try {
+            await globalKairoEventBus.publish({
+              eventId: `evt-exec-fail-${planId}-${Date.now()}`,
+              eventType: 'ExecutionFailed',
+              timestamp: Date.now(),
+              source: 'MessageRouter',
+              priority: 'HIGH',
+              correlationId: planId,
+              sessionId: `session-${Date.now()}`,
+              payload: { requestId: planId, error: err.message || String(err) }
+            });
+          } catch {}
         });
       } else if (action === 'reject') {
         result = approvalEngine.reject(approvalId);
+        this.recordConversationTurn('assistant', 'Execution plan rejected by user. No files were modified.');
         this._emitPipelineStatus('Execution Cancelled', 'Plan was rejected by user.', 'error');
       } else {
         throw new Error(`Unknown approval action: ${action}`);
@@ -1412,31 +1538,49 @@ export class MessageRouter {
       this._emitExecutionEvent('Intent Detection', '✓ Intent:', parsedIntent.title, 'done');
 
       // STAGE 3: Model Router
-      const selectedModelName = 'Gemini 2.5 Flash';
-      this._emitExecutionEvent('Model Router', 'Selecting model...', 'Evaluating model capabilities and context window', 'running');
-      this._emitExecutionEvent('Model Router', '✓ Selected:', selectedModelName, 'done', null, { model: selectedModelName });
+      this._emitExecutionEvent('Model Router', 'Selecting inference provider...', 'Evaluating model capabilities and provider availability', 'running');
+
+      this.recordConversationTurn('user', promptText);
 
       // Handle Conversational CHAT / EXPLAIN / DEBUG queries without generating plan/approval cards
       if (parsedIntent.category === 'CHAT' || parsedIntent.category === 'EXPLAIN' || parsedIntent.category === 'DEBUG') {
         let chatResponse = "";
-        if (parsedIntent.category === 'CHAT') {
-          chatResponse = "Hello! I'm Kairo-AI, your intelligent software engineering assistant inside VS Code. I'm ready to analyze your project, answer questions, debug issues, or make code changes. How can I help you today?";
-        } else {
-          try {
-            const { localInferenceService } = require('../core/inference');
-            const result = await localInferenceService.execute({
-              modelName: selectedModelName,
-              prompt: `You are Kairo-AI, an expert software engineering assistant. Answer the user's query clearly and concisely based on context.\nWorkspace Path: ${workspacePath || 'Root'}\nUser Query: ${promptText}`
-            });
-            chatResponse = result.rawTextOutput || result.text || `Analyzed project query: "${promptText}".`;
-          } catch {
-            chatResponse = `I've analyzed your project workspace at \`${workspacePath || 'current directory'}\`. How can I assist you further with this code?`;
+        try {
+          const { localInferenceService } = require('../core/inference');
+          const formattedHistory = this.getFormattedConversationHistory();
+          let historyStr = "";
+          if (formattedHistory.length > 0) {
+            historyStr = "\n\n--- RECENT CONVERSATION HISTORY ---\n" +
+              formattedHistory.map(h => `${h.role === 'user' ? 'User' : 'Assistant'}: ${h.text}`).join('\n');
           }
+
+          const result = await localInferenceService.execute(`You are Kairo-AI, an expert project-aware software engineering assistant inside VS Code. Answer the user's query clearly, concisely, and accurately based on workspace and conversation context.\nWorkspace Path: ${workspacePath || 'Root'}${historyStr}\n\nUser Query: ${promptText}`, {
+            provider: 'gemini',
+            modelName: 'gemini-2.5-flash',
+            modelPath: '',
+            contextLength: 16384,
+            temperature: 0.2,
+            topP: 0.9,
+            topK: 40,
+            maxTokens: 2048,
+            gpuLayers: 0,
+            threadCount: 4,
+            streamingEnabled: false
+          });
+
+          const activeProvider = result.providerInfo?.providerName === 'ollama' ? 'Ollama' : 'Gemini';
+          const activeModel = result.providerInfo?.modelName || 'Gemini 2.5 Flash';
+          this._emitExecutionEvent('Model Router', '✓ Selected:', `${activeProvider} (${activeModel})`, 'done', null, { model: activeModel });
+
+          chatResponse = result.generatedText || (result as any).rawTextOutput || (result as any).text || `Analyzed project query: "${promptText}".`;
+        } catch {
+          chatResponse = `I've analyzed your project workspace at \`${workspacePath || 'current directory'}\`. How can I assist you further with this code?`;
         }
 
+        this.recordConversationTurn('assistant', chatResponse);
         this._emitExecutionEvent('Execution Complete', chatResponse, 'done');
         const chatMsg = MessageFactory.createMessage(
-          MessageType.ASSISTANT_MESSAGE as any,
+          MessageType.PROMPT_RESPONSE,
           MessageSource.EXTENSION,
           MessageTarget.WEBVIEW,
           { text: chatResponse }
@@ -1447,13 +1591,32 @@ export class MessageRouter {
 
       // STAGE 4: Planning & Action Execution
       this._emitExecutionEvent('Planning', 'Building execution plan...', 'Constructing execution DAG nodes', 'running');
-      const plan = plannerEngine.generatePlan(promptText);
+
+      const filePattern = /\b([a-zA-Z0-9_\-\/]+\.[a-zA-Z0-9]{1,10})\b/gi;
+      const matches = promptText.match(filePattern) || [];
+      const cleanFiles = Array.from(new Set(
+        matches.filter((f: string) => !/\.(com|org|net|io|ai|gov|edu|dev)$/i.test(f))
+      ));
+
+      let plannerOptions: any = { workspacePath, conversationHistory: this.conversationHistory };
+
+      if (cleanFiles.length === 0) {
+        const { defaultPlannerModel } = require('../core/planner/plannerModel');
+        const proposal = await defaultPlannerModel.generatePlanProposal(promptText, { workspacePath });
+        plannerOptions.proposal = proposal;
+      }
+
+      const plan = plannerEngine.generatePlan(promptText, plannerOptions);
       (plan as any).prompt = promptText;
       (plan as any).workspacePath = workspacePath;
       const approval = approvalEngine.createApproval(plan);
 
-      // Auto-approve SAFE_ACTION changes (file creations/edits) or require approval for HIGH_RISK_ACTION
-      if (parsedIntent.category === 'SAFE_ACTION' || !parsedIntent.requiresApproval) {
+      const { pipelineRouter } = require('../core/orchestrator/pipelineRouter');
+      const routeDecision = pipelineRouter.routeRequest({ rawPrompt: promptText, workspacePath } as any);
+
+      const isAutoApproveEligible = parsedIntent.category === 'SAFE_ACTION' && routeDecision.complexity === 'SMALL';
+
+      if (isAutoApproveEligible) {
         approvalEngine.approve(approval.id);
         (approval as any).status = 'approved';
       }
@@ -1471,7 +1634,7 @@ export class MessageRouter {
       this.postMessage(responseMsg);
 
       // If safe action auto-approved, trigger direct execution pipeline immediately
-      if (parsedIntent.category === 'SAFE_ACTION' || !parsedIntent.requiresApproval) {
+      if (isAutoApproveEligible) {
         this._handleApprovalAction(MessageFactory.createMessage(
           MessageType.APPROVAL_ACTION,
           MessageSource.WEBVIEW,

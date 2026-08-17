@@ -1,4 +1,4 @@
-import { IGeneratorSession } from '../generator-session-builder/types';
+import { IGeneratorSession } from '../../generator-session-builder/types';
 
 export interface ICodingModelProvider {
   readonly providerId: string;

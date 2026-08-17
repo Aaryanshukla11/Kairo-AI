@@ -4,13 +4,15 @@ import { documentationValidator } from './documentationValidator';
 import { documentationMetrics } from './documentationMetrics';
 import { DocumentationEvents } from './documentationEvents';
 import { DocReport, DocEventType } from './documentationTypes';
-import * as vscode from 'vscode';
-
 export class DocumentationBrain {
   constructor(private events: DocumentationEvents) {}
 
   public async runDocumentationWorkflow(gitChanges: string[]): Promise<DocReport> {
-    const folders = vscode.workspace.workspaceFolders;
+    let folders: any = undefined;
+    try {
+      const vscode = require('vscode');
+      folders = vscode?.workspace?.workspaceFolders;
+    } catch {}
     documentationValidator.validateWorkspace(folders as any);
 
     this.events.emit(DocEventType.DocumentationStarted, { gitChanges });

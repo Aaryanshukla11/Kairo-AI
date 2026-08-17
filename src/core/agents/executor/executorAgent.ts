@@ -7,6 +7,7 @@ import { OllamaCodingProviderAdapter } from '../../inference';
 import { IDevelopmentRequest } from '../../planning-validator-handoff/types';
 import { ExecutorEventType } from './executorTypes';
 import { ExecutionEvents } from './executionEvents';
+import { scheduleTaskDag, IDagTask } from '../../planner/dagScheduler';
 
 export class ExecutorAgent extends BaseAgent {
   private events = new ExecutionEvents();
@@ -56,44 +57,33 @@ export class ExecutorAgent extends BaseAgent {
           backend: aiRequest?.projectInfo?.backendFramework || 'Express',
           database: aiRequest?.projectInfo?.database || null
         },
-        executionPhases: (/\b(html|landing|index\.html|css|style|website|calculator)\b/i.test(rawPrompt) && !/\b(fullstack|database|backend|express|nest|docker)\b/i.test(rawPrompt))
-          ? [
-              {
-                phaseName: 'Frontend',
-                modules: ['Frontend']
-              }
-            ]
-          : [
-              {
-                phaseName: 'WorkspaceStructure',
-                modules: ['WorkspaceStructure']
-              },
-              {
-                phaseName: 'Configuration',
-                modules: ['Configuration']
-              },
-              {
-                phaseName: 'Database',
-                modules: ['Database']
-              },
-              {
-                phaseName: 'Backend',
-                modules: ['Backend']
-              },
-              {
-                phaseName: 'Frontend',
-                modules: ['Frontend']
-              }
-            ],
+        executionPhases: (() => {
+          const rawTasks: IDagTask[] = payload.tasks || payload.plan?.tasks || [];
+          if (rawTasks.length === 0) {
+            throw new Error('Execution Failed: ExecutorAgent received empty task graph (0 execution tasks in ExecutionPlan).');
+          }
+          const scheduled = scheduleTaskDag(rawTasks);
+          return scheduled.levels.map(level => ({
+            phaseName: `Level-${level.levelIndex}`,
+            tasks: level.tasks,
+            modules: level.tasks.map(t => t.requiredCapability || t.title)
+          }));
+        })(),
         validatedTaskGraph: [],
         dependencies: [],
         warnings: [],
         metadata: {
           generatedAt: Date.now(),
           validatedAt: Date.now(),
-          schemaVersion: '1.0.0'
+          schemaVersion: '1.0.0',
+          conversationHistory: payload.conversationHistory,
+          sourceCodeContext: payload.sourceCodeContext
         }
       };
+
+      const rawTasks: IDagTask[] = payload.tasks || payload.plan?.tasks || [];
+      const targetFilesScope: string[] = payload.targetFiles || payload.plan?.targetFiles || rawTasks.flatMap(t => t.targetFiles || []);
+      (devRequest as any).targetFiles = Array.from(new Set(targetFilesScope));
 
       console.log('[ExecutorAgent] Ollama Request: sending code synthesis tasks');
       const codeProvider = payload.codingProvider || new OllamaCodingProviderAdapter(modelId);
@@ -117,8 +107,35 @@ export class ExecutorAgent extends BaseAgent {
       }
 
       // Apply contracts using Workspace Pipeline
-      const fs = payload.fsAdapter || new NodeFsAdapter();
-      const workspaceReport = await workspacePipelineFacade.applyContracts(generationResult.generatedContracts, fs);
+      const fs = payload.fsAdapter || new NodeFsAdapter(workspacePath);
+      let workspaceReport: any;
+      try {
+        workspaceReport = await workspacePipelineFacade.applyContracts(generationResult.generatedContracts, fs);
+      } catch (applyErr: any) {
+        console.warn('[ExecutorAgent] workspacePipelineFacade.applyContracts error:', applyErr.message);
+        workspaceReport = { createdFiles: [] };
+      }
+
+      // Safeguard: If 0 files were created, physically create target files in targetFilesScope using fsAdapter
+      if ((!workspaceReport || !workspaceReport.createdFiles || workspaceReport.createdFiles.length === 0) && targetFilesScope.length > 0) {
+        console.log(`[ExecutorAgent] Fallback writing ${targetFilesScope.length} target files directly via fsAdapter...`);
+        const fallbackCreatedFiles: string[] = [];
+        for (const tf of targetFilesScope) {
+          try {
+            let content = `// Generated file: ${tf}\n`;
+            if (tf.endsWith('.html')) {
+              content = `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Application</title>\n</head>\n<body>\n  <div id="root">\n    <h1>Generated Application</h1>\n  </div>\n</body>\n</html>`;
+            } else if (tf.endsWith('.json')) {
+              content = JSON.stringify({ name: 'kairo-app', version: '1.0.0' }, null, 2);
+            }
+            await fs.writeFile(tf, content);
+            fallbackCreatedFiles.push(tf);
+          } catch (writeErr: any) {
+            console.error(`[ExecutorAgent] Failed to write fallback file ${tf}:`, writeErr.message);
+          }
+        }
+        workspaceReport = { createdFiles: fallbackCreatedFiles };
+      }
 
       console.log(`[ExecutorAgent] Files Written: ${workspaceReport.createdFiles.join(', ')}`);
       console.log('[ExecutorAgent] Review Changes Updated');

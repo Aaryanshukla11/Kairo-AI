@@ -87,17 +87,27 @@ export class TestingGeneratorSDK extends BaseSDKGenerator {
     const isPython = engDecision?.selectedTechStack?.backend === 'FastAPI';
 
     // STAGE 4: GENERATION
-    const generatedFiles = [
-      'frontend/tests/unit/components.test.tsx',
-      'frontend/tests/integration/app.test.tsx',
-      'tests/e2e/smoke.spec.ts'
-    ];
-
-    if (isPython) {
-      generatedFiles.push('backend/tests/test_auth.py', 'backend/tests/test_patients.py');
-    } else {
-      generatedFiles.push('backend/tests/unit/auth.test.ts', 'backend/tests/integration/patients.test.ts');
+    const targetFiles: string[] = [];
+    const tasks = context.generationPlan?.orderedTaskList || [];
+    for (const t of tasks) {
+      const reqCap = (t as any).requiredCapability || (t as any).capability;
+      if (
+        t.generatorId === this.id ||
+        (reqCap && this.capabilities.includes(reqCap))
+      ) {
+        if (Array.isArray(t.targetFiles)) {
+          targetFiles.push(...t.targetFiles);
+        }
+      }
     }
+    if (Array.isArray(context.customPayload?.targetFiles)) {
+      targetFiles.push(...context.customPayload.targetFiles);
+    }
+    if (Array.isArray(context.customPayload?.task?.targetFiles)) {
+      targetFiles.push(...context.customPayload.task.targetFiles);
+    }
+
+    const generatedFiles = Array.from(new Set(targetFiles));
 
     const protectedFiles = context.projectManifest?.protectedFiles || ['.env'];
     const safeArtifacts = generatedFiles.filter(f => !protectedFiles.includes(f));

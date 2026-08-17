@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 
-process.noDeprecation = true;
+(process as any).noDeprecation = true;
 
 export interface IOllamaHealthStatus {
   isInstalled: boolean;
@@ -43,7 +43,7 @@ export class OllamaRuntime {
    */
   public async isServerRunning(): Promise<boolean> {
     try {
-      const res = await fetch(`${this.serverUrl}/api/tags`);
+      const res = await fetch(`${this.serverUrl}/api/tags`, { signal: AbortSignal.timeout(300) });
       return res.status === 200;
     } catch {
       return false;

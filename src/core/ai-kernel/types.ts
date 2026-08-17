@@ -23,6 +23,9 @@ export interface IAIKernelRequest {
   readonly workspacePath?: string;
   readonly requestId?: string;
   readonly metadata?: Record<string, any>;
+  readonly provider?: any;
+  readonly codingProvider?: any;
+  readonly fsAdapter?: any;
 }
 
 export interface IAIKernelKnowledgeContext {

@@ -84,15 +84,27 @@ export class DocumentationGeneratorSDK extends BaseSDKGenerator {
     const sessionId = context.sessionId;
 
     // STAGE 4: GENERATION
-    const generatedFiles = [
-      'README.md',
-      'INSTALLATION.md',
-      'ARCHITECTURE.md',
-      'API_DOCUMENTATION.md',
-      'DEPLOYMENT.md',
-      'CHANGELOG.md',
-      'CONTRIBUTING.md'
-    ];
+    const targetFiles: string[] = [];
+    const tasks = context.generationPlan?.orderedTaskList || [];
+    for (const t of tasks) {
+      const reqCap = (t as any).requiredCapability || (t as any).capability;
+      if (
+        t.generatorId === this.id ||
+        (reqCap && this.capabilities.includes(reqCap))
+      ) {
+        if (Array.isArray(t.targetFiles)) {
+          targetFiles.push(...t.targetFiles);
+        }
+      }
+    }
+    if (Array.isArray(context.customPayload?.targetFiles)) {
+      targetFiles.push(...context.customPayload.targetFiles);
+    }
+    if (Array.isArray(context.customPayload?.task?.targetFiles)) {
+      targetFiles.push(...context.customPayload.task.targetFiles);
+    }
+
+    const generatedFiles = Array.from(new Set(targetFiles));
 
     const protectedFiles = context.projectManifest?.protectedFiles || ['.env'];
     const safeArtifacts = generatedFiles.filter(f => !protectedFiles.includes(f));

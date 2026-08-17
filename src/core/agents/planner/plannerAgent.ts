@@ -58,7 +58,7 @@ export class PlannerAgent extends BaseAgent {
     const manifest: IProjectManifestObject | undefined = payload.projectManifest || payload.manifestResult?.manifest;
 
     // Legacy prompt-driven plan execution compatibility
-    if (payload.text && !manifest && task.taskType !== 'GENERATION_PLAN') {
+    if (payload.text && !manifest && (task as any).taskType !== 'GENERATION_PLAN') {
       const start = Date.now();
       this.status = AgentStatus.Running;
       this.events.emit(PlannerEventType.PlanningStarted, { taskId: task.id });
@@ -158,45 +158,37 @@ export class PlannerAgent extends BaseAgent {
     });
 
     // STAGE 4: EXECUTION QUEUE CREATION
-    const routeDecision = task.payload?.routeDecision;
-    const selectedGens: string[] = routeDecision?.selectedGenerators || ['ConfigGenerator', 'SharedUtilGenerator', 'BackendGenerator', 'UIComponentGenerator'];
+    const planTasks: any[] = task.payload?.tasks || task.payload?.plan?.tasks || task.payload?.proposal?.tasks || [];
+    let orderedTaskList: IGeneratorTask[] = [];
 
-    const fullTaskList: IGeneratorTask[] = [
-      {
-        id: 'task-gen-001',
-        title: 'Generate Workspace Config Files',
-        generatorId: 'ConfigGenerator',
-        stage: 'generate_configs',
-        targetFiles: ['package.json', 'tsconfig.json'],
-        dependencies: []
-      },
-      {
-        id: 'task-gen-002',
-        title: 'Synthesize Shared Utilities',
-        generatorId: 'SharedUtilGenerator',
-        stage: 'synthesize_core',
-        targetFiles: ['src/common/utils.ts'],
-        dependencies: ['task-gen-001']
-      },
-      {
-        id: 'task-gen-003',
-        title: 'Synthesize Domain Services',
-        generatorId: 'BackendGenerator',
-        stage: 'synthesize_core',
-        targetFiles: ['src/services/apiService.ts'],
-        dependencies: ['task-gen-002']
-      },
-      {
-        id: 'task-gen-004',
-        title: 'Synthesize UI Presentation Components',
-        generatorId: 'UIComponentGenerator',
-        stage: 'synthesize_ui',
-        targetFiles: ['src/index.ts', 'src/components/App.tsx'],
-        dependencies: ['task-gen-003']
-      }
-    ];
-
-    const orderedTaskList = fullTaskList.filter(t => selectedGens.includes(t.generatorId));
+    if (planTasks.length > 0) {
+      const { globalGeneratorRegistrySDK } = require('../generatorSDK/generatorRegistrySDK');
+      orderedTaskList = planTasks.map((t: any, idx: number) => {
+        const capability = t.requiredCapability || t.generatorId || 'html';
+        const resolvedGen = globalGeneratorRegistrySDK.resolve(capability);
+        const genId = resolvedGen ? resolvedGen.id : 'UIComponentGenerator';
+        const stage = genId === 'ConfigGenerator' ? 'generate_configs' : genId === 'UIComponentGenerator' ? 'synthesize_ui' : 'synthesize_core';
+        return {
+          id: `task-gen-${String(idx + 1).padStart(3, '0')}`,
+          title: t.title || `Execute ${genId}`,
+          generatorId: genId,
+          stage,
+          targetFiles: t.targetFiles || [],
+          dependencies: idx > 0 ? [`task-gen-${String(idx).padStart(3, '0')}`] : []
+        };
+      });
+    } else if (task.payload?.targetFiles && task.payload.targetFiles.length > 0) {
+      orderedTaskList = [
+        {
+          id: 'task-gen-001',
+          title: 'Synthesize Target Files',
+          generatorId: 'UIComponentGenerator',
+          stage: 'synthesize_ui',
+          targetFiles: task.payload.targetFiles,
+          dependencies: []
+        }
+      ];
+    }
 
     const parallelGroups = [
       ['ConfigGenerator', 'SharedUtilGenerator']

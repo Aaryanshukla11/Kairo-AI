@@ -21,6 +21,8 @@ export interface IGeneratorSession {
     };
   };
   readonly promptDescription?: string;
+  readonly conversationHistory?: readonly { role: 'user' | 'assistant'; text: string }[];
+  readonly sourceCodeContext?: readonly { filePath: string; content: string }[];
   readonly metadata: {
     readonly estimatedTokenCount: number;
     readonly formatType: 'JSON_OUTPUT';

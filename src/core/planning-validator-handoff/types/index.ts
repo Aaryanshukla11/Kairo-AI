@@ -43,6 +43,8 @@ export interface IDevelopmentRequest {
     readonly generatedAt: number;
     readonly validatedAt: number;
     readonly schemaVersion: string;
+    readonly conversationHistory?: readonly { role: 'user' | 'assistant'; text: string }[];
+    readonly sourceCodeContext?: readonly { filePath: string; content: string }[];
   };
 }
 

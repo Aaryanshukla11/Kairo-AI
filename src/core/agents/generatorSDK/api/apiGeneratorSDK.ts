@@ -87,12 +87,27 @@ export class ApiGeneratorSDK extends BaseSDKGenerator {
     const apiStyle = engDecision?.apiDecision?.style || 'REST';
 
     // STAGE 4: GENERATION
-    const generatedFiles = [
-      'frontend/src/services/apiService.ts',
-      'frontend/src/services/authService.ts',
-      'backend/src/api/contracts.ts',
-      'backend/src/api/dtos.ts'
-    ];
+    const targetFiles: string[] = [];
+    const tasks = context.generationPlan?.orderedTaskList || [];
+    for (const t of tasks) {
+      const reqCap = (t as any).requiredCapability || (t as any).capability;
+      if (
+        t.generatorId === this.id ||
+        (reqCap && this.capabilities.includes(reqCap))
+      ) {
+        if (Array.isArray(t.targetFiles)) {
+          targetFiles.push(...t.targetFiles);
+        }
+      }
+    }
+    if (Array.isArray(context.customPayload?.targetFiles)) {
+      targetFiles.push(...context.customPayload.targetFiles);
+    }
+    if (Array.isArray(context.customPayload?.task?.targetFiles)) {
+      targetFiles.push(...context.customPayload.task.targetFiles);
+    }
+
+    const generatedFiles = Array.from(new Set(targetFiles));
 
     const protectedFiles = context.projectManifest?.protectedFiles || ['.env'];
     const safeArtifacts = generatedFiles.filter(f => !protectedFiles.includes(f));

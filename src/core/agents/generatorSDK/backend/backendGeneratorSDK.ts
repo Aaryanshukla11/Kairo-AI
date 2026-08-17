@@ -103,16 +103,30 @@ export class BackendGeneratorSDK extends BaseSDKGenerator {
     const isFastAPI = framework.toLowerCase().includes('fastapi');
 
     // STAGE 4: CODE GENERATION
-    const generatedFiles: string[] = [];
+    const targetFiles: string[] = [];
+    const tasks = context.generationPlan?.orderedTaskList || [];
+    for (const t of tasks) {
+      const reqCap = (t as any).requiredCapability || (t as any).capability;
+      if (
+        t.generatorId === this.id ||
+        (reqCap && this.capabilities.includes(reqCap))
+      ) {
+        if (Array.isArray(t.targetFiles)) {
+          targetFiles.push(...t.targetFiles);
+        }
+      }
+    }
+    if (Array.isArray(context.customPayload?.targetFiles)) {
+      targetFiles.push(...context.customPayload.targetFiles);
+    }
+    if (Array.isArray(context.customPayload?.task?.targetFiles)) {
+      targetFiles.push(...context.customPayload.task.targetFiles);
+    }
+
+    const generatedFiles: string[] = Array.from(new Set(targetFiles));
     const updatedFiles: string[] = [];
     const skippedFiles: string[] = [];
     const protectedFiles = context.projectManifest?.protectedFiles || ['.env', 'user_config/custom_settings.json'];
-
-    if (isFastAPI) {
-      generatedFiles.push('backend/app/main.py', 'backend/app/core/config.py', 'backend/app/core/security.py', 'backend/app/api/patients.py');
-    } else {
-      generatedFiles.push('src/services/apiService.ts', 'src/data/repository.ts', 'src/controllers/mainController.ts', 'src/models/userModel.ts');
-    }
 
     // Check protected file boundaries
     for (const protectedFile of protectedFiles) {

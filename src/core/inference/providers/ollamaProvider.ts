@@ -13,7 +13,10 @@ export class OllamaProvider implements ILocalInferenceProvider {
 
   public async isServerRunning(): Promise<boolean> {
     try {
-      const res = await fetch(`${this.serverUrl}/api/tags`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const res = await fetch(`${this.serverUrl}/api/tags`, { signal: controller.signal });
+      clearTimeout(timeoutId);
       return res.status === 200;
     } catch {
       return false;
@@ -22,7 +25,10 @@ export class OllamaProvider implements ILocalInferenceProvider {
 
   public async getAvailableModels(): Promise<string[]> {
     try {
-      const res = await fetch(`${this.serverUrl}/api/tags`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const res = await fetch(`${this.serverUrl}/api/tags`, { signal: controller.signal });
+      clearTimeout(timeoutId);
       if (!res.ok) return [];
       const data = await res.json() as { models?: Array<{ name: string }> };
       return (data.models || []).map(m => m.name);

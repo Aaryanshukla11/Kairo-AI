@@ -71,8 +71,8 @@ export class GeneratorRegistrySDK {
       }
     }
 
-    // Safe fallback to UIComponentGenerator or first registered generator
-    return this.generators.get('UIComponentGenerator') || this.generators.values().next().value;
+    // Return undefined if no generator registered for capability
+    return undefined;
   }
 
   public list(): readonly BaseSDKGenerator[] {

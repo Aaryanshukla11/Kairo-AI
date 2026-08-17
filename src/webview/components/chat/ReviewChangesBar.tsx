@@ -29,9 +29,17 @@ export function ReviewChangesBar(): React.JSX.Element {
         logKairoStage('ReviewChanges', 'ERROR', executionId, { filesCount: msg.payload?.changedFiles?.length || 0 }, null, duration, error);
       }
     };
+    const handleExecutionStatus = (msg: any) => {
+      if (msg.payload?.status === 'running' || msg.payload?.action === 'clear_stale') {
+        setChangedFiles([]);
+        setFileContents({});
+      }
+    };
     vscodeBridge.subscribe(MessageType.REVIEW_UPDATE, handleReviewUpdate);
+    vscodeBridge.subscribe(MessageType.EXECUTION_STATUS, handleExecutionStatus);
     return () => {
       vscodeBridge.unsubscribe(MessageType.REVIEW_UPDATE, handleReviewUpdate);
+      vscodeBridge.unsubscribe(MessageType.EXECUTION_STATUS, handleExecutionStatus);
     };
   }, []);
 

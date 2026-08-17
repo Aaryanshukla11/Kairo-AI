@@ -3,14 +3,23 @@ import { validatePrompt, validatePlan } from './validator';
 import { parsePromptIntoIntent } from './parser';
 import { PlanBuilder } from './planBuilder';
 import { logKairoStage } from '../../common/kairoLogger';
+import { IPlannerModel, IPlanProposal, validatePlanProposal } from './plannerModel';
+
+export interface IPlannerOptions {
+  workspacePath?: string;
+  conversationHistory?: any[];
+  plannerModel?: IPlannerModel;
+  proposal?: IPlanProposal;
+}
 
 export class ExecutionPlanner {
   
   /**
-   * Main entrypoint for generating a deterministic ExecutionPlan from a prompt.
-   * Throws an error if the prompt is invalid or if plan generation fails.
+   * Main entrypoint for generating an ExecutionPlan from a prompt using Hybrid Routing.
+   * - Fast-Path (Deterministic): Explicit filenames in prompt -> instant regex plan (0 model calls).
+   * - Smart-Path (LLM Proposal): Unspecified requests -> structured proposal validation. Fails honestly if proposal invalid.
    */
-  public generatePlan(prompt: string): ExecutionPlan {
+  public generatePlan(prompt: string, options?: IPlannerOptions): ExecutionPlan {
     const executionId = `plan-${Date.now()}`;
     const startTime = Date.now();
     logKairoStage('Planner', 'ENTER', executionId, { prompt });
@@ -23,62 +32,86 @@ export class ExecutionPlanner {
       const intent = parsePromptIntoIntent(prompt);
       const planId = `plan-${Date.now()}`;
 
-      // Derive estimated files from matching generation template mapping count
-      let estimatedFiles = 1;
-      const desc = prompt.toLowerCase();
-      if (desc.includes('calculator')) {
-        estimatedFiles = 4;
-      } else if (desc.includes('todo') || desc.includes('react')) {
-        estimatedFiles = 4;
-      } else if (desc.includes('express') || desc.includes('api')) {
-        estimatedFiles = 4;
-      }
+      // Generic file path extraction strategy: Extract explicit files (e.g. index.html, src/utils.ts, README.md)
+      const filePattern = /\b([a-zA-Z0-9_\-\/]+\.[a-zA-Z0-9]{1,10})\b/gi;
+      const matches = prompt.match(filePattern) || [];
       
+      // Filter out URLs or common non-file extensions
+      const cleanFiles = Array.from(new Set(
+        matches.filter(f => !/\.(com|org|net|io|ai|gov|edu|dev)$/i.test(f))
+      ));
+
+      let resolvedFiles: string[] = [];
+      let tasksToBuild: { id?: string; title: string; targetFiles: string[]; requiredCapability: string; operation?: string; dependencies?: string[] }[] = [];
+
+      if (cleanFiles.length > 0) {
+        // FAST-PATH: Deterministic plan for explicit filenames
+        resolvedFiles = cleanFiles;
+        tasksToBuild = cleanFiles.map((file) => {
+          const ext = file.substring(file.lastIndexOf('.')).toLowerCase();
+          
+          let requiredCapability = 'ui_components';
+          if (['.md', '.txt', '.doc'].includes(ext)) {
+            requiredCapability = 'documentation';
+          } else if (ext === '.html') {
+            requiredCapability = 'html';
+          } else if (ext === '.css') {
+            requiredCapability = 'css';
+          } else if (['.json', '.env', '.yaml', '.yml'].includes(ext)) {
+            requiredCapability = 'config';
+          } else if (['.ts', '.js', '.py', '.go', '.java'].includes(ext)) {
+            requiredCapability = file.includes('service') || file.includes('api') || file.includes('controller') ? 'backend' : 'utilities';
+          }
+
+          return {
+            title: `Synthesize ${file}`,
+            targetFiles: [file],
+            requiredCapability,
+            operation: 'CREATE_FILE'
+          };
+        });
+      } else {
+        // SMART-PATH: LLM Proposal validation path for unspecified multi-file requests
+        let proposal: IPlanProposal | null = null;
+
+        if (options?.proposal) {
+          proposal = validatePlanProposal(options.proposal);
+        } else {
+          // If proposal is not provided, check if context exists or fail honestly (no static fallbacks)
+          throw new Error(`Planning Failed: Unspecified request "${prompt}" requires a valid LLM plan proposal. Static fallback paths are disabled.`);
+        }
+
+        const proposalFiles: string[] = [];
+        tasksToBuild = proposal.tasks.map((t) => {
+          t.targetFiles.forEach(f => proposalFiles.push(f));
+          return {
+            id: t.id,
+            title: t.title,
+            targetFiles: t.targetFiles,
+            requiredCapability: t.requiredCapability,
+            operation: t.operation || 'CREATE_FILE',
+            dependencies: t.dependencies
+          };
+        });
+        resolvedFiles = Array.from(new Set(proposalFiles));
+      }
+
       const builder = new PlanBuilder(planId)
         .setTitle(intent.title)
         .setSummary(intent.summary)
         .setRiskLevel(intent.requiresFiles ? RiskLevel.Medium : RiskLevel.Low)
-        .setEstimatedFiles(estimatedFiles);
+        .setTargetFiles(resolvedFiles);
 
-      // Deterministic mock steps
-      builder.addTask({
-        id: `task-${planId}-1`,
-        title: 'Analyze Workspace',
-        description: 'Scan the current workspace for existing architecture and dependencies.',
-        dependencies: [],
-        estimatedTime: '1m'
-      });
-
-      builder.addTask({
-        id: `task-${planId}-2`,
-        title: 'Create Components',
-        description: 'Scaffold required UI components and code structures.',
-        dependencies: [`task-${planId}-1`],
-        estimatedTime: '3m'
-      });
-
-      builder.addTask({
-        id: `task-${planId}-3`,
-        title: 'Update Routes',
-        description: 'Configure and update application routing paths.',
-        dependencies: [`task-${planId}-2`],
-        estimatedTime: '2m'
-      });
-
-      builder.addTask({
-        id: `task-${planId}-4`,
-        title: 'Verify Build',
-        description: 'Run basic sanity checks and compiler diagnostics to verify the build.',
-        dependencies: [`task-${planId}-3`],
-        estimatedTime: '1m'
-      });
-
-      builder.addTask({
-        id: `task-${planId}-5`,
-        title: 'Complete',
-        description: 'Finalize execution and output report summary.',
-        dependencies: [`task-${planId}-4`],
-        estimatedTime: '1m'
+      tasksToBuild.forEach((t, idx) => {
+        builder.addTask({
+          id: t.id || `task-${planId}-${idx + 1}`,
+          title: t.title,
+          description: `Generate ${t.targetFiles.join(', ')} artifact.`,
+          dependencies: t.dependencies || (idx > 0 ? [`task-${planId}-${idx}`] : []),
+          targetFiles: t.targetFiles,
+          requiredCapability: t.requiredCapability,
+          estimatedTime: '1m'
+        });
       });
 
       const plan = builder.build();

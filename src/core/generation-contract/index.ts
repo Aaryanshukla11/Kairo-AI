@@ -4,9 +4,9 @@ import { logKairoStage } from '../../common/kairoLogger';
 
 export class GenerationContractBuilder {
   public createContract(contract: IGenerationContract): IGenerationContract {
-    const executionId = contract.metadata?.requestId || `contract-${Date.now()}`;
+    const executionId = contract.requestId || contract.executionId || `contract-${Date.now()}`;
     const startTime = Date.now();
-    logKairoStage('GenerationContractBuilder', 'ENTER', executionId, { operationsCount: contract.operations?.length || 0 });
+    logKairoStage('GenerationContractBuilder', 'ENTER', executionId, { operationsCount: contract.fileOperations?.length || 0 });
 
     try {
       const { valid, errors, warnings } = generationContractValidator.validate(contract);
@@ -18,11 +18,11 @@ export class GenerationContractBuilder {
       };
 
       const duration = Date.now() - startTime;
-      logKairoStage('GenerationContractBuilder', 'EXIT', executionId, { operationsCount: contract.operations?.length || 0 }, { valid, errorsCount: errors.length }, duration);
+      logKairoStage('GenerationContractBuilder', 'EXIT', executionId, { operationsCount: contract.fileOperations?.length || 0 }, { valid, errorsCount: errors.length }, duration);
       return this.deepFreeze(finalContract);
     } catch (error: any) {
       const duration = Date.now() - startTime;
-      logKairoStage('GenerationContractBuilder', 'ERROR', executionId, { operationsCount: contract.operations?.length || 0 }, null, duration, error);
+      logKairoStage('GenerationContractBuilder', 'ERROR', executionId, { operationsCount: contract.fileOperations?.length || 0 }, null, duration, error);
       throw error;
     }
   }

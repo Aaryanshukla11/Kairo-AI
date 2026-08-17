@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Patch, ChangeType, PatchStatus } from './patchTypes';
+import { nodeFsAdapter } from '../workspace-engine/fs-adapter';
 
 export class PatchApplier {
   /**
@@ -83,7 +84,8 @@ export class PatchApplier {
   }
 
   private resolvePath(filePath: string, workspaceRoot: string): string {
-    return path.isAbsolute(filePath) ? filePath : path.resolve(workspaceRoot, filePath);
+    const raw = path.isAbsolute(filePath) ? filePath : path.resolve(workspaceRoot, filePath);
+    return nodeFsAdapter.resolveSafeWorkspacePath(raw);
   }
 }
 

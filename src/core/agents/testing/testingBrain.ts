@@ -6,13 +6,16 @@ import { testingMetrics } from './testingMetrics';
 import { testingValidator } from './testingValidator';
 import { TestingEvents } from './testingEvents';
 import { TestingReport, TestingEventType } from './testingTypes';
-import * as vscode from 'vscode';
 
 export class TestingBrain {
   constructor(private events: TestingEvents) {}
 
   public async runTestingWorkflow(executionReport: any, framework: string = 'simulated'): Promise<TestingReport> {
-    const folders = vscode.workspace.workspaceFolders;
+    let folders: any = undefined;
+    try {
+      const vscode = require('vscode');
+      folders = vscode?.workspace?.workspaceFolders;
+    } catch {}
     testingValidator.validateRequest(executionReport, folders as any);
     testingValidator.validateFramework(framework);
 

@@ -1,4 +1,4 @@
-import { IWorkspaceExecutionReport } from '../workspace-engine/types';
+import { IWorkspaceExecutionReport } from '../../workspace-engine/types';
 
 export interface IIntegratedWorkspaceReport {
   readonly executionId: string;

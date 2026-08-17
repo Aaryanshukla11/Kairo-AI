@@ -2,7 +2,7 @@
   "name": "sasta-antigravity",
   "displayName": "Kaira AI",
   "description": "Offline Kaira AI Software Engineer VS Code Extension",
-  "version": "0.1.0-draft",
+  "version": "0.1.2",
   "publisher": "aaryanshukla11",
   "license": "MIT",
   "repository": {
@@ -85,7 +85,7 @@
       "properties": {
         "kairo.geminiApiKey": {
           "type": "string",
-          "default": "AQ.Ab8RN6LYa1fdZIKavcuc2COwTacy-cw6Kp9jCZtpnmIj2jTpLQ",
+          "default": "",
           "description": "API Key for Google Gemini Inference Provider"
         }
       }

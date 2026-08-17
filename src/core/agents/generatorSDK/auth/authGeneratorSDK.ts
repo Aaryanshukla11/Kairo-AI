@@ -87,12 +87,27 @@ export class AuthGeneratorSDK extends BaseSDKGenerator {
     const authStrategy = engDecision?.authenticationDecision?.strategy || 'JWT Token Auth';
 
     // STAGE 4: GENERATION
-    const generatedFiles = [
-      'backend/src/routes/auth.ts',
-      'backend/src/middleware/authGuard.ts',
-      'backend/src/core/security.ts',
-      'backend/src/models/userRole.ts'
-    ];
+    const targetFiles: string[] = [];
+    const tasks = context.generationPlan?.orderedTaskList || [];
+    for (const t of tasks) {
+      const reqCap = (t as any).requiredCapability || (t as any).capability;
+      if (
+        t.generatorId === this.id ||
+        (reqCap && this.capabilities.includes(reqCap))
+      ) {
+        if (Array.isArray(t.targetFiles)) {
+          targetFiles.push(...t.targetFiles);
+        }
+      }
+    }
+    if (Array.isArray(context.customPayload?.targetFiles)) {
+      targetFiles.push(...context.customPayload.targetFiles);
+    }
+    if (Array.isArray(context.customPayload?.task?.targetFiles)) {
+      targetFiles.push(...context.customPayload.task.targetFiles);
+    }
+
+    const generatedFiles = Array.from(new Set(targetFiles));
 
     const protectedFiles = context.projectManifest?.protectedFiles || ['.env'];
     const safeArtifacts = generatedFiles.filter(f => !protectedFiles.includes(f));

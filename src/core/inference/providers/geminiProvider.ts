@@ -32,7 +32,7 @@ export class GeminiProvider implements ILocalInferenceProvider {
         return configKey.trim();
       }
     } catch {}
-    return 'AQ.Ab8RN6LYa1fdZIKavcuc2COwTacy-cw6Kp9jCZtpnmIj2jTpLQ';
+    return undefined;
   }
 
   public async execute(

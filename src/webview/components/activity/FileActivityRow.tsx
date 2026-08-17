@@ -1,4 +1,5 @@
 import React from 'react';
+import { FileIconResolver } from './FileIconResolver';
 
 export interface IFileActivityItem {
   filePath: string;
@@ -8,30 +9,32 @@ export interface IFileActivityItem {
 
 export function FileActivityRow({ file }: { file: IFileActivityItem }): React.JSX.Element {
   const isGenerating = file.status === 'GENERATING';
+  const isGenerated = file.status === 'GENERATED';
   const isWriting = file.status === 'WRITING';
-  const isCreated = file.status === 'CREATED' || file.status === 'GENERATED';
+  const isCreated = file.status === 'CREATED';
   const isFailed = file.status === 'FAILED';
 
-  const icon = isGenerating || isWriting ? '⟳' : isCreated ? '✓' : isFailed ? '❌' : '○';
-  const iconColor = isGenerating || isWriting ? '#58a6ff' : isCreated ? '#3fb950' : isFailed ? '#f85149' : '#8b949e';
-  const statusLabel = isGenerating ? 'Generating...' : isWriting ? 'Writing...' : isCreated ? 'Created' : isFailed ? 'Failed' : 'Pending';
+  const icon = isGenerating || isWriting ? '⟳' : isCreated ? '✓' : isGenerated ? '◈' : isFailed ? '❌' : '○';
+  const iconColor = isGenerating || isWriting ? '#58a6ff' : isCreated ? '#3fb950' : isGenerated ? '#a371f7' : isFailed ? '#f85149' : '#8b949e';
+  const statusLabel = isGenerating ? 'Generating...' : isGenerated ? 'Generated' : isWriting ? 'Writing...' : isCreated ? 'Created' : isFailed ? 'Failed' : 'Pending';
 
   return (
     <div style={styles.row}>
       <span style={{ ...styles.icon, color: iconColor, animation: isGenerating || isWriting ? 'kairoSpin 1.2s linear infinite' : 'none' }}>
         {icon}
       </span>
+      <FileIconResolver filePath={file.filePath} size={14} />
       <span style={styles.path} title={file.filePath}>
         {file.filePath}
       </span>
       <span style={{
         ...styles.tag,
         color: iconColor,
-        backgroundColor: isGenerating || isWriting ? 'rgba(88, 166, 255, 0.12)' : isCreated ? 'rgba(63, 185, 80, 0.12)' : isFailed ? 'rgba(248, 81, 73, 0.12)' : 'transparent'
+        backgroundColor: isGenerating || isWriting ? 'rgba(88, 166, 255, 0.12)' : isCreated ? 'rgba(63, 185, 80, 0.12)' : isGenerated ? 'rgba(163, 113, 247, 0.12)' : isFailed ? 'rgba(248, 81, 73, 0.12)' : 'transparent'
       }}>
         {statusLabel}
       </span>
-      {file.error && <span style={styles.errorText}>{file.error}</span>}
+      {file.error && <span style={styles.errorText} title={file.error}>{file.error}</span>}
     </div>
   );
 }

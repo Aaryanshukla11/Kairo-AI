@@ -1,11 +1,13 @@
 import * as fs from 'fs';
 import { isProtectedPath } from './ignoreRules';
+import { nodeFsAdapter } from '../workspace-engine/fs-adapter';
 
 export class FilesystemValidator {
   /**
    * Guards path target from modifying files in protected directories (like .git, node_modules).
    */
   public validateWritePath(resolvedPath: string): void {
+    nodeFsAdapter.resolveSafeWorkspacePath(resolvedPath);
     if (isProtectedPath(resolvedPath)) {
       throw new Error(`Operation rejected: Path "${resolvedPath}" is within a protected directory`);
     }

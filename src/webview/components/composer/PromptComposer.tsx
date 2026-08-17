@@ -72,22 +72,27 @@ export function PromptComposer({ isLandingPage }: { isLandingPage?: boolean } = 
     promptService.requestPlan(inputValue)
       .then((payload) => {
         logKairoStage('Webview', 'EXIT', executionId, { prompt: inputValue }, { hasPayload: !!payload }, Date.now() - startTime);
-        setChatState((prev) => ({
-          ...prev,
-          messages: [
-            ...prev.messages,
-            {
-              id: `plan-${Date.now()}`,
-              role: 'PLAN_PROPOSAL',
-              timestamp: Date.now(),
-              content: '',
-              status: 'SUCCESS',
-              plan: payload?.plan,
-              approval: payload?.approval
-            }
-          ],
-          isTyping: false
-        }));
+        const statusStr = String(payload?.approval?.status || '').toLowerCase();
+        const isApproved = statusStr === 'approved';
+        if (!isApproved && payload?.plan) {
+          setChatState((prev) => ({
+            ...prev,
+            messages: [
+              ...prev.messages,
+              {
+                id: `plan-${Date.now()}`,
+                role: 'PLAN_PROPOSAL',
+                timestamp: Date.now(),
+                content: '',
+                status: 'SUCCESS',
+                plan: payload?.plan,
+                approval: payload?.approval
+              }
+            ],
+            isTyping: false
+          }));
+        }
+        setInputValue('');
       })
       .catch((error) => {
         logKairoStage('Webview', 'ERROR', executionId, { prompt: inputValue }, null, Date.now() - startTime, error);
@@ -286,7 +291,7 @@ export function PromptComposer({ isLandingPage }: { isLandingPage?: boolean } = 
             </div>
           </div>
 
-          {/* Right Side: Microphone voice input */}
+          {/* Right Side: Microphone voice input and Send Button */}
           <div style={styles.rightGroup}>
             <button
               style={{
@@ -304,6 +309,32 @@ export function PromptComposer({ isLandingPage }: { isLandingPage?: boolean } = 
                 <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
                 <line x1="12" y1="19" x2="12" y2="23" />
                 <line x1="8" y1="23" x2="16" y2="23" />
+              </svg>
+            </button>
+
+            {/* Circular Send Button (Bright Blue Circle when non-empty) */}
+            <button
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '26px',
+                height: '26px',
+                borderRadius: '50%',
+                backgroundColor: inputValue.trim() ? '#0084ff' : '#2d2d2d',
+                color: inputValue.trim() ? '#ffffff' : '#666666',
+                border: 'none',
+                cursor: inputValue.trim() ? 'pointer' : 'default',
+                marginLeft: '8px',
+                transition: 'all 0.2s ease'
+              }}
+              onClick={handleSend}
+              disabled={!inputValue.trim() || chatState.isTyping}
+              title="Send message"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
               </svg>
             </button>
           </div>

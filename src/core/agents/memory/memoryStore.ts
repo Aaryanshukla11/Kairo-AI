@@ -1,6 +1,5 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import * as vscode from 'vscode';
 import { Memory } from './memoryTypes';
 import { memoryValidator } from './memoryValidator';
 
@@ -13,20 +12,23 @@ export class MemoryStore {
   }
 
   private initStoragePath(): void {
-    const folders = vscode.workspace.workspaceFolders;
-    if (folders && folders.length > 0) {
-      const root = folders[0].uri.fsPath;
-      const hasWorkspaceAiidle = fs.existsSync(path.join(root, '.aiidle'));
-      const storageDir = hasWorkspaceAiidle
-        ? path.join(root, '.aiidle', 'memory')
-        : path.join(require('os').tmpdir(), 'kairo-memory', path.basename(root));
+    try {
+      const vscode = require('vscode');
+      const folders = vscode?.workspace?.workspaceFolders;
+      if (folders && folders.length > 0) {
+        const root = folders[0].uri.fsPath;
+        const hasWorkspaceAiidle = fs.existsSync(path.join(root, '.aiidle'));
+        const storageDir = hasWorkspaceAiidle
+          ? path.join(root, '.aiidle', 'memory')
+          : path.join(require('os').tmpdir(), 'kairo-memory', path.basename(root));
 
-      if (!fs.existsSync(storageDir)) {
-        fs.mkdirSync(storageDir, { recursive: true });
+        if (!fs.existsSync(storageDir)) {
+          fs.mkdirSync(storageDir, { recursive: true });
+        }
+        this.storagePath = path.join(storageDir, 'project-memories.json');
+        this.loadFromDisk();
       }
-      this.storagePath = path.join(storageDir, 'project-memories.json');
-      this.loadFromDisk();
-    }
+    } catch {}
   }
 
   private loadFromDisk(): void {

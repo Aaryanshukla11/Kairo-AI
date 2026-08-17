@@ -14,20 +14,72 @@ export class SessionBuilder {
     const codingStandards = codingInstructionsManager.getCodingStandards();
     const outputContractSpecification = codingInstructionsManager.getOutputContractSpecification();
 
-    // Optimize tokens count: estimate size (length of role + rules + schema + stack divided by 4)
-    const rawContentLength = 
-      systemRole.length + 
+    const MAX_TOTAL_CONTEXT_BUDGET_TOKENS = 12000; // ~48,000 characters
+
+    let historyEntries: Array<{ role: string; text: string }> = [];
+    if (request.metadata && (request.metadata as any).conversationHistory) {
+      const rawHist = (request.metadata as any).conversationHistory;
+      if (Array.isArray(rawHist)) {
+        historyEntries = [...rawHist];
+      }
+    }
+
+    let sourceEntries: Array<{ filePath: string; content: string }> = [];
+    if (request.metadata && (request.metadata as any).sourceCodeContext) {
+      const rawSources = (request.metadata as any).sourceCodeContext;
+      if (Array.isArray(rawSources)) {
+        sourceEntries = rawSources.map((s: any) => ({ filePath: s.filePath, content: s.content }));
+      }
+    }
+
+    // Context Reduction Helper
+    const buildSystemRoleWithBudget = (hist: Array<{ role: string; text: string }>, srcs: Array<{ filePath: string; content: string }>): string => {
+      let roleText = systemRole;
+      if (hist.length > 0) {
+        roleText += `\n\n--- RECENT CONVERSATION HISTORY ---\n` +
+          hist.map(h => `${h.role === 'user' ? 'User' : 'Assistant'}: ${h.text}`).join('\n');
+      }
+      if (srcs.length > 0) {
+        roleText += `\n\n--- RELEVANT EXISTING SOURCE FILES ---\n` +
+          srcs.map(s => `File: ${s.filePath}\n\`\`\`\n${s.content}\n\`\`\``).join('\n\n');
+      }
+      return roleText;
+    };
+
+    let enhancedSystemRole = buildSystemRoleWithBudget(historyEntries, sourceEntries);
+    let rawContentLength = 
+      enhancedSystemRole.length + 
       generationRules.join(' ').length + 
       architectureRules.join(' ').length + 
       outputContractSpecification.length + 
       JSON.stringify(request.technologyStack).length;
 
-    const estimatedTokenCount = Math.ceil(rawContentLength / 4);
+    let estimatedTokenCount = Math.ceil(rawContentLength / 4);
+
+    // Reduction Strategy: If token count exceeds budget, reduce history first, then source code
+    if (estimatedTokenCount > MAX_TOTAL_CONTEXT_BUDGET_TOKENS && historyEntries.length > 2) {
+      while (historyEntries.length > 2 && estimatedTokenCount > MAX_TOTAL_CONTEXT_BUDGET_TOKENS) {
+        historyEntries.shift(); // Evict oldest historical entry
+        enhancedSystemRole = buildSystemRoleWithBudget(historyEntries, sourceEntries);
+        rawContentLength = enhancedSystemRole.length + generationRules.join(' ').length + architectureRules.join(' ').length + outputContractSpecification.length + JSON.stringify(request.technologyStack).length;
+        estimatedTokenCount = Math.ceil(rawContentLength / 4);
+      }
+    }
+
+    if (estimatedTokenCount > MAX_TOTAL_CONTEXT_BUDGET_TOKENS && sourceEntries.length > 0) {
+      sourceEntries = sourceEntries.map(s => ({
+        filePath: s.filePath,
+        content: s.content.substring(0, 800) + (s.content.length > 800 ? '\n...[TRUNCATED FOR CONTEXT BUDGET]' : '')
+      }));
+      enhancedSystemRole = buildSystemRoleWithBudget(historyEntries, sourceEntries);
+      rawContentLength = enhancedSystemRole.length + generationRules.join(' ').length + architectureRules.join(' ').length + outputContractSpecification.length + JSON.stringify(request.technologyStack).length;
+      estimatedTokenCount = Math.ceil(rawContentLength / 4);
+    }
 
     return {
       sessionId,
       timestamp,
-      systemRole,
+      systemRole: enhancedSystemRole,
       generationRules: Object.freeze(generationRules),
       architectureRules: Object.freeze(architectureRules),
       codingStandards: {
@@ -47,6 +99,8 @@ export class SessionBuilder {
         }
       },
       promptDescription: request.projectInfo.description,
+      conversationHistory: (request.metadata as any)?.conversationHistory,
+      sourceCodeContext: (request.metadata as any)?.sourceCodeContext,
       metadata: {
         estimatedTokenCount,
         formatType: 'JSON_OUTPUT'

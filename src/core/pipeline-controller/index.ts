@@ -2,9 +2,13 @@ import { pipelineController } from './controller';
 import { pipelineEventBus } from './event-bus';
 
 export class PipelineControllerFacade {
-  public async runPipeline(rawPrompt: string, workspacePath: string, provider?: any): Promise<any> {
-    const result = await pipelineController.run(rawPrompt, workspacePath, provider);
+  public async run(rawPrompt: string, workspacePath?: string, provider?: any, codingProvider?: any, fsAdapter?: any): Promise<any> {
+    const result = await pipelineController.run(rawPrompt, workspacePath, provider, codingProvider, fsAdapter);
     return this.deepFreeze(result);
+  }
+
+  public async runPipeline(rawPrompt: string, workspacePath?: string, provider?: any, codingProvider?: any, fsAdapter?: any): Promise<any> {
+    return this.run(rawPrompt, workspacePath, provider, codingProvider, fsAdapter);
   }
 
   public stopPipeline(): void {

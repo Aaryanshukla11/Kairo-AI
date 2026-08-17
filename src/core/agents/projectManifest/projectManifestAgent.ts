@@ -303,8 +303,8 @@ export class ProjectManifestAgent extends BaseAgent {
     ];
 
     return {
-      nodes: Object.freeze(nodes),
-      edges: Object.freeze(edges),
+      nodes,
+      edges,
       valid: true
     };
   }

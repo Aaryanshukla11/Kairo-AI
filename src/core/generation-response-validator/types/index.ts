@@ -1,4 +1,4 @@
-import { IGenerationContract } from '../generation-contract/types';
+import { IGenerationContract } from '../../generation-contract/types';
 
 export interface IValidationIssue {
   readonly code: string;

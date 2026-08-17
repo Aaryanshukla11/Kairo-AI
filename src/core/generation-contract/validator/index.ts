@@ -5,17 +5,22 @@ export class GenerationContractValidator {
     const errors: string[] = [];
     const warnings: string[] = [];
 
-    // Protected file rules check
-    const protectedFiles = new Set([
-      '.git',
-      '.gitignore',
-      '.env',
-      'node_modules',
-      'package-lock.json'
-    ]);
-
     const seenFiles = new Map<string, string>();
     const seenDirs = new Set<string>();
+
+    const isProtectedSegment = (part: string): boolean => {
+      const lower = part.toLowerCase();
+      if (['.git', '.gitignore', 'node_modules', '.vscode'].includes(lower)) {
+        return true;
+      }
+      if (lower === '.env' || lower.startsWith('.env.')) {
+        return true;
+      }
+      if (['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'].includes(lower)) {
+        return true;
+      }
+      return false;
+    };
 
     for (const op of contract.fileOperations) {
       // 1. Verify content is present for create/modify
@@ -24,10 +29,11 @@ export class GenerationContractValidator {
       }
 
       // 2. Verify protected files touch
-      const pathParts = op.relativePath.split('/');
-      const isProtected = pathParts.some(p => protectedFiles.has(p));
+      const normalizedRelative = (op.relativePath || op.filePath).replace(/\\/g, '/');
+      const pathParts = normalizedRelative.split('/');
+      const isProtected = pathParts.some(p => isProtectedSegment(p));
       if (isProtected) {
-        errors.push(`Operation '${op.operationId}' attempts to modify protected file/directory '${op.relativePath}'. This action requires explicit approval.`);
+        errors.push(`Operation '${op.operationId}' attempts to modify protected file/directory '${op.relativePath || op.filePath}'. This action requires explicit approval.`);
       }
 
       // 3. Verify path escaping

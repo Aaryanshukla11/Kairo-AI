@@ -63,12 +63,103 @@ import * as path from 'path';
 import { logKairoStage } from '../../common/kairoLogger';
 
 export class NodeFsAdapter implements IFilesystemAdapter {
+  private workspaceRoot?: string;
+
+  constructor(workspaceRoot?: string) {
+    this.workspaceRoot = workspaceRoot;
+  }
+
+  public resolveSafeWorkspacePath(candidatePath: string): string {
+    let targetRoot: string = this.workspaceRoot || '';
+    if (!targetRoot) {
+      try {
+        const vscode = require('vscode');
+        const folders = vscode?.workspace?.workspaceFolders;
+        if (folders && folders.length > 0) {
+          targetRoot = folders[0].uri.fsPath;
+        }
+      } catch {}
+    }
+    if (!targetRoot) {
+      targetRoot = process.cwd();
+    }
+
+    const canonicalRoot = path.resolve(targetRoot);
+
+    let cleanCandidate = candidatePath || '';
+    // Strip leading slashes if candidate is not a drive-letter absolute path (e.g. C:\...)
+    if (!path.isAbsolute(cleanCandidate)) {
+      cleanCandidate = cleanCandidate.replace(/^[/\\]+/, '');
+    }
+
+    const normalizedCandidate = path.isAbsolute(cleanCandidate)
+      ? path.resolve(cleanCandidate)
+      : path.resolve(canonicalRoot, cleanCandidate);
+
+    const relative = path.relative(canonicalRoot, normalizedCandidate);
+
+    const isOutside =
+      relative === '..' ||
+      relative.startsWith(`..${path.sep}`) ||
+      relative.startsWith('../') ||
+      relative.startsWith('..\\') ||
+      (path.isAbsolute(relative) && !normalizedCandidate.startsWith(canonicalRoot));
+
+    if (isOutside) {
+      throw new Error(`Security Violation: Operation targets path "${candidatePath}" outside workspace root boundary "${canonicalRoot}".`);
+    }
+
+    // Physical Realpath Validation (Symlink / Reparse Point / Junction Defense-in-Depth)
+    try {
+      let realRoot = canonicalRoot;
+      if (fs.existsSync(canonicalRoot)) {
+        realRoot = fs.realpathSync(canonicalRoot);
+      }
+
+      let checkPath = normalizedCandidate;
+      while (checkPath && !fs.existsSync(checkPath)) {
+        const parent = path.dirname(checkPath);
+        if (parent === checkPath) {
+          break;
+        }
+        checkPath = parent;
+      }
+
+      if (fs.existsSync(checkPath)) {
+        const realCheckPath = fs.realpathSync(checkPath);
+        const relReal = path.relative(realRoot, realCheckPath);
+        const isRealOutside =
+          relReal === '..' ||
+          relReal.startsWith(`..${path.sep}`) ||
+          relReal.startsWith('../') ||
+          relReal.startsWith('..\\') ||
+          (path.isAbsolute(relReal) && !realCheckPath.startsWith(realRoot));
+
+        if (isRealOutside) {
+          throw new Error(`Security Violation: Target path "${candidatePath}" resolves via symlink/junction outside workspace boundary "${canonicalRoot}".`);
+        }
+      }
+    } catch (err: any) {
+      if (err.message && err.message.startsWith('Security Violation:')) {
+        throw err;
+      }
+    }
+
+    return normalizedCandidate;
+  }
+
   public async exists(filePath: string): Promise<boolean> {
-    return fs.existsSync(filePath);
+    try {
+      const safePath = this.resolveSafeWorkspacePath(filePath);
+      return fs.existsSync(safePath);
+    } catch {
+      return false;
+    }
   }
 
   public async readFile(filePath: string): Promise<string> {
-    return fs.promises.readFile(filePath, 'utf-8');
+    const safePath = this.resolveSafeWorkspacePath(filePath);
+    return fs.promises.readFile(safePath, 'utf-8');
   }
 
   public async writeFile(filePath: string, content: string): Promise<void> {
@@ -77,59 +168,91 @@ export class NodeFsAdapter implements IFilesystemAdapter {
     logKairoStage('Filesystem', 'ENTER', executionId, { filePath, contentSize: content?.length || 0 });
 
     try {
-      let targetRoot: string = process.cwd();
-      try {
-        const vscode = require('vscode');
-        const folders = vscode?.workspace?.workspaceFolders;
-        if (folders && folders.length > 0) {
-          targetRoot = folders[0].uri.fsPath;
-        }
-      } catch {}
+      const { globalKairoEventBus } = require('../eventBus');
+      await globalKairoEventBus.publish({
+        eventId: `evt-fws-${executionId}`,
+        eventType: 'FileWriteStarted',
+        timestamp: Date.now(),
+        source: 'NodeFsAdapter',
+        priority: 'HIGH',
+        payload: { filePath, stage: 'Writing file to workspace' }
+      });
 
-      const normalizedPath = path.isAbsolute(filePath) ? filePath : path.resolve(targetRoot, filePath);
-      const dir = path.dirname(normalizedPath);
+      const safePath = this.resolveSafeWorkspacePath(filePath);
+      const dir = path.dirname(safePath);
       if (!fs.existsSync(dir)) {
         await fs.promises.mkdir(dir, { recursive: true });
       }
-      await fs.promises.writeFile(normalizedPath, content, 'utf-8');
+      await fs.promises.writeFile(safePath, content, 'utf-8');
 
       // Notify VS Code File System Provider if running in extension host
       try {
         const vscode = require('vscode');
         if (vscode && vscode.workspace && vscode.workspace.fs && vscode.Uri) {
-          const uri = vscode.Uri.file(normalizedPath);
-          await vscode.workspace.fs.writeFile(uri, Buffer.from(content, 'utf-8'));
-          await vscode.commands.executeCommand('workbench.files.action.refreshFilesExplorer');
+          const uri = vscode.Uri.file(safePath);
+          try {
+            await vscode.workspace.fs.writeFile(uri, Buffer.from(content, 'utf-8'));
+          } catch {}
+          try {
+            await vscode.commands.executeCommand('workbench.action.files.refresh');
+          } catch {}
         }
       } catch {}
 
+      await globalKairoEventBus.publish({
+        eventId: `evt-fwc-${executionId}`,
+        eventType: 'FileWriteCompleted',
+        timestamp: Date.now(),
+        source: 'NodeFsAdapter',
+        priority: 'HIGH',
+        payload: { filePath, safePath, bytesWritten: Buffer.byteLength(content, 'utf-8'), stage: 'File written' }
+      });
+
       const duration = Date.now() - startTime;
-      logKairoStage('Filesystem', 'EXIT', executionId, { filePath: normalizedPath }, { success: true }, duration);
+      logKairoStage('Filesystem', 'EXIT', executionId, { filePath: safePath }, { success: true }, duration);
     } catch (error: any) {
       const duration = Date.now() - startTime;
       logKairoStage('Filesystem', 'ERROR', executionId, { filePath }, null, duration, error);
+      try {
+        const { globalKairoEventBus } = require('../eventBus');
+        await globalKairoEventBus.publish({
+          eventId: `evt-fwf-${executionId}`,
+          eventType: 'FileWriteFailed',
+          timestamp: Date.now(),
+          source: 'NodeFsAdapter',
+          priority: 'HIGH',
+          payload: { filePath, error: error.message || String(error), stage: 'File write failed' }
+        });
+      } catch {}
       throw error;
     }
   }
 
   public async deleteFile(filePath: string): Promise<void> {
-    if (fs.existsSync(filePath)) {
-      await fs.promises.unlink(filePath);
+    const safePath = this.resolveSafeWorkspacePath(filePath);
+    if (fs.existsSync(safePath)) {
+      await fs.promises.unlink(safePath);
     }
   }
 
   public async createDir(dirPath: string): Promise<void> {
-    await fs.promises.mkdir(dirPath, { recursive: true });
+    const safePath = this.resolveSafeWorkspacePath(dirPath);
+    await fs.promises.mkdir(safePath, { recursive: true });
   }
 
   public async deleteDir(dirPath: string): Promise<void> {
-    if (fs.existsSync(dirPath)) {
-      await fs.promises.rm(dirPath, { recursive: true, force: true });
+    const safePath = this.resolveSafeWorkspacePath(dirPath);
+    if (fs.existsSync(safePath)) {
+      await fs.promises.rm(safePath, { recursive: true, force: true });
     }
   }
 
   public async rename(oldPath: string, newPath: string): Promise<void> {
-    await fs.promises.rename(oldPath, newPath);
+    const safeOld = this.resolveSafeWorkspacePath(oldPath);
+    const safeNew = this.resolveSafeWorkspacePath(newPath);
+    await fs.promises.rename(safeOld, safeNew);
   }
 }
+
+export const nodeFsAdapter = new NodeFsAdapter();
 

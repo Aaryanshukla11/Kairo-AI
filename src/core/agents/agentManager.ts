@@ -316,36 +316,7 @@ export class AgentManager {
           payload: { requestId, sessionId, stage: 'Generation Completed' }
         });
       } else if (selectedAgent.id === 'executor-agent') {
-        await globalKairoEventBus.publish({
-          eventId: `evt-fw-done-${Date.now()}`,
-          eventType: 'FileWriteCompleted',
-          timestamp: Date.now(),
-          source: 'ExecutorAgent',
-          priority: 'HIGH',
-          correlationId: requestId,
-          sessionId,
-          payload: { requestId, sessionId, stage: 'Files Written to Workspace' }
-        });
-        await globalKairoEventBus.publish({
-          eventId: `evt-fv-start-${Date.now()}`,
-          eventType: 'FileValidationStarted',
-          timestamp: Date.now(),
-          source: 'ExecutorAgent',
-          priority: 'HIGH',
-          correlationId: requestId,
-          sessionId,
-          payload: { requestId, sessionId, stage: 'Running Validation' }
-        });
-        await globalKairoEventBus.publish({
-          eventId: `evt-fv-done-${Date.now()}`,
-          eventType: 'FileValidationCompleted',
-          timestamp: Date.now(),
-          source: 'ExecutorAgent',
-          priority: 'HIGH',
-          correlationId: requestId,
-          sessionId,
-          payload: { requestId, sessionId, stage: 'Validation Completed' }
-        });
+        // FileWriteCompleted events are published directly by NodeFsAdapter per file written
       } else if (selectedAgent.id === 'reviewer-agent') {
         await globalKairoEventBus.publish({
           eventId: `evt-exec-done-${Date.now()}`,

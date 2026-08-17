@@ -28,18 +28,27 @@ export class PlanBuilder {
     return this;
   }
 
-  addTask(task: Omit<Task, 'id' | 'status'> & { id?: string, status?: TaskStatus }): PlanBuilder {
+  addTask(task: Omit<Task, 'id' | 'status'> & { id?: string, status?: TaskStatus, targetFiles?: string[], requiredCapability?: string, generatorId?: string }): PlanBuilder {
     const newTask: Task = {
       id: task.id || `task-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
       status: task.status || TaskStatus.Pending,
       title: task.title,
       description: task.description,
       dependencies: task.dependencies || [],
-      estimatedTime: task.estimatedTime || '1m'
+      estimatedTime: task.estimatedTime || '1m',
+      targetFiles: task.targetFiles,
+      requiredCapability: task.requiredCapability,
+      generatorId: task.generatorId
     };
     
     this.plan.tasks!.push(newTask);
     this.plan.estimatedSteps = this.plan.tasks!.length;
+    return this;
+  }
+
+  setTargetFiles(files: string[]): PlanBuilder {
+    this.plan.targetFiles = files;
+    this.plan.estimatedFiles = files.length;
     return this;
   }
   

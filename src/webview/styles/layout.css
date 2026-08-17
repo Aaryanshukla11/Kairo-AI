@@ -355,3 +355,12 @@
   transform: translateY(-1px);
   box-shadow: var(--shadow-floating);
 }
+
+.kairo-pulse-dot {
+  animation: kairoPulse 1.5s infinite ease-in-out;
+}
+
+@keyframes kairoPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.1); }
+}

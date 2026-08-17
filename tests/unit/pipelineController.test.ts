@@ -7,7 +7,7 @@ describe('Sprint 4 - Pipeline Controller Integration Tests', () => {
 
   const dummyProvider: IPlanningModelProvider = {
     providerId: 'test-qwen',
-    executeStream: async (session) => {
+    execute: async (session: any) => {
       return JSON.stringify({
         contractVersion: '1.0.0',
         requestId: session.requestId,
@@ -40,18 +40,18 @@ describe('Sprint 4 - Pipeline Controller Integration Tests', () => {
     const fs = new InMemoryFsAdapter();
 
     // Run the pipeline controller facade
-    const result = await pipelineControllerFacade.runPipeline(
+    const result = await pipelineControllerFacade.run(
       'Create Calculator using HTML CSS',
       'c:/mock/workspace',
       dummyProvider,
       {
         providerId: 'mock-coder',
-        executeStream: async () => JSON.stringify({
+        execute: async () => JSON.stringify({
           generatedFiles: [{ path: 'index.html', content: 'Calc' }],
           modifiedFiles: [],
           createdDirectories: []
         })
-      },
+      } as any,
       fs
     );
 

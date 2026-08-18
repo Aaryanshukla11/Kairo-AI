@@ -5,7 +5,7 @@ import * as os from 'os';
 import { NodeFsAdapter } from '../../src/core/workspace-engine/fs-adapter';
 import { GenerationContractValidator } from '../../src/core/generation-contract/validator';
 import { IGenerationContract } from '../../src/core/generation-contract/types';
-import { GeminiProvider } from '../../src/core/inference/providers/geminiProvider';
+import { OpenAIProvider } from '../../src/core/inference/providers/openAIProvider';
 import { PatchApplier } from '../../src/core/patch/patchApplier';
 import { ChangeType, PatchStatus } from '../../src/core/patch/patchTypes';
 
@@ -225,28 +225,26 @@ describe('Chunk 8 - Security Hardening Unit Tests', () => {
       }
     });
 
-    it('should throw clean configuration error when Gemini API key is missing', async () => {
-      const savedKey = process.env.GEMINI_API_KEY;
-      delete process.env.GEMINI_API_KEY;
+    it('should throw clean configuration error when OpenAI API key is missing', async () => {
+      const savedKey = process.env.OPENAI_API_KEY;
+      delete process.env.OPENAI_API_KEY;
 
       try {
-        const provider = new GeminiProvider('');
+        const provider = new OpenAIProvider('');
         await provider.execute({
           requestId: 'test-req',
-          providerName: 'gemini',
+          providerName: 'openai',
           prompt: 'test prompt',
-          modelName: 'gemini-2.5-flash',
+          modelName: 'gpt-4o',
           parameters: {},
           metadata: {}
         });
         assert.fail('Should have thrown configuration error');
       } catch (err: any) {
-        assert.ok(err.message.includes('Missing GEMINI_API_KEY environment variable'));
-        assert.ok(!err.message.includes('AQ.Ab8RN6')); // Must not leak any key
+        assert.ok(err.message.includes('Missing OPENAI_API_KEY environment variable'));
+        assert.ok(!err.message.includes('sk-proj')); // Must not leak any key
       } finally {
-        if (savedKey !== undefined) {
-          process.env.GEMINI_API_KEY = savedKey;
-        }
+        if (savedKey) process.env.OPENAI_API_KEY = savedKey;
       }
     });
 

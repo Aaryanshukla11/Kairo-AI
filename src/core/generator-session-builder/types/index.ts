@@ -19,6 +19,7 @@ export interface IGeneratorSession {
       readonly backend: string | null;
       readonly database: string | null;
     };
+    readonly targetFiles?: readonly string[];
   };
   readonly promptDescription?: string;
   readonly conversationHistory?: readonly { role: 'user' | 'assistant'; text: string }[];

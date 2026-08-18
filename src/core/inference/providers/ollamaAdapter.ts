@@ -7,12 +7,12 @@ import { IGeneratorSession } from '../../generator-session-builder/types';
 export class OllamaPlanningProviderAdapter implements IPlanningModelProvider {
   public readonly providerId = 'planning-adapter';
 
-  constructor(private readonly modelName: string = 'gemini-2.5-flash') {}
+  constructor(private readonly modelName: string = 'gpt-4o') {}
 
   public async execute(session: IPlanningSession): Promise<string> {
-    const effectiveProvider = (process.env.KAIRO_MODEL_PROVIDER || 'gemini').trim().toLowerCase();
-    const effectiveModel = effectiveProvider === 'gemini'
-      ? (process.env.GEMINI_MODEL || 'gemini-2.5-flash')
+    const effectiveProvider = (process.env.KAIRO_MODEL_PROVIDER || 'openai').trim().toLowerCase();
+    const effectiveModel = effectiveProvider === 'openai'
+      ? (process.env.OPENAI_MODEL || 'gpt-4o')
       : this.modelName;
 
     const result = await localInferenceService.execute(
@@ -44,18 +44,23 @@ export class OllamaPlanningProviderAdapter implements IPlanningModelProvider {
 export class OllamaCodingProviderAdapter implements ICodingModelProvider {
   public readonly providerId = 'coding-adapter';
 
-  constructor(private readonly modelName: string = 'gemini-2.5-flash') {}
+  constructor(private readonly modelName: string = 'gpt-4o') {}
 
   public async executeStream(
     session: IGeneratorSession,
     onChunk?: (chunk: string) => void,
     signal?: AbortSignal
   ): Promise<string> {
+    const targetFilesList: string[] = (session as any).targetFiles || session.requestPayload?.targetFiles || [];
+    const targetFilesStr = targetFilesList.length > 0
+      ? `\nTarget Files to Generate:\n${targetFilesList.map((f: string) => `- ${f}`).join('\n')}\n`
+      : '';
+
     const prompt = `System Role:
 ${session.systemRole}
 
-User Instruction:
-${session.promptDescription || 'Generate code for the project.'}
+User Request & Goal:
+${session.promptDescription || 'Generate production-ready source code for the requested application.'}${targetFilesStr}
 Target Platform: ${session.requestPayload.targetPlatform}
 
 Technology Stack:
@@ -65,6 +70,10 @@ Technology Stack:
 - Database: ${session.requestPayload.technologyStack.database || 'None'}
 
 Execution Guidelines:
+- You MUST generate complete, high-quality, production-ready source code specifically fulfilling the User Request & Goal.
+- If existing source code is provided in the prompt under 'RELEVANT EXISTING SOURCE FILES', perform incremental edits, extensions, or modifications directly on that code.
+- PRESERVE all pre-existing code, HTML elements, styles, and logic while integrating the new requested features or changes.
+- Return the COMPLETE updated file contents with the new changes integrated. Do NOT return empty or placeholder files.
 ${session.generationRules.map(rule => `- ${rule}`).join('\n')}
 ${session.architectureRules.map(rule => `- ${rule}`).join('\n')}
 
@@ -73,12 +82,12 @@ Coding Standards:
 - Naming Conventions: ${session.codingStandards.namingConventions}
 - Formatting Rules: ${session.codingStandards.formattingRules}
 
-Output format: You MUST return a JSON object conforming to the schema specification below:
+Output format: You MUST return ONLY a valid JSON object matching the schema specification below:
 ${session.outputContractSpecification}`;
 
-    const effectiveProvider = (process.env.KAIRO_MODEL_PROVIDER || 'gemini').trim().toLowerCase();
-    const effectiveModel = effectiveProvider === 'gemini'
-      ? (process.env.GEMINI_MODEL || 'gemini-2.5-flash')
+    const effectiveProvider = (process.env.KAIRO_MODEL_PROVIDER || 'openai').trim().toLowerCase();
+    const effectiveModel = effectiveProvider === 'openai'
+      ? (process.env.OPENAI_MODEL || 'gpt-4o')
       : this.modelName;
 
     const result = await localInferenceService.execute(

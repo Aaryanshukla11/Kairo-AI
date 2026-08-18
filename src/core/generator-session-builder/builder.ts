@@ -96,11 +96,13 @@ export class SessionBuilder {
           frontend: request.technologyStack.frontend,
           backend: request.technologyStack.backend,
           database: request.technologyStack.database
-        }
+        },
+        targetFiles: (request as any).targetFiles || []
       },
       promptDescription: request.projectInfo.description,
       conversationHistory: (request.metadata as any)?.conversationHistory,
       sourceCodeContext: (request.metadata as any)?.sourceCodeContext,
+      targetFiles: (request as any).targetFiles || [],
       metadata: {
         estimatedTokenCount,
         formatType: 'JSON_OUTPUT'

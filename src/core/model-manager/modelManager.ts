@@ -9,14 +9,14 @@ export class ModelManager {
 
   constructor() {
     this.activeModel = {
-      id: 'gemini-2.5-flash',
-      displayName: 'Gemini 2.5 Flash',
-      provider: 'Gemini',
-      runtime: 'Gemini',
+      id: 'gpt-4o',
+      displayName: 'OpenAI GPT-4o',
+      provider: 'OpenAI',
+      runtime: 'OpenAI',
       local: false,
       status: 'ready',
-      contextWindow: 1048576,
-      maxOutputTokens: 8192
+      contextWindow: 128000,
+      maxOutputTokens: 16384
     };
 
     // Auto-detect runtime status on startup
@@ -34,8 +34,14 @@ export class ModelManager {
       .replace(/_/g, ' ')
       .replace(/\b\w/g, c => c.toUpperCase());
     
-    if (modelId.includes('gemini')) {
-      return 'Gemini 2.5 Flash';
+    if (modelId.includes('gpt-4o-mini')) {
+      return 'OpenAI GPT-4o Mini';
+    }
+    if (modelId.includes('gpt-4o')) {
+      return 'OpenAI GPT-4o';
+    }
+    if (modelId.includes('gpt-4')) {
+      return 'OpenAI GPT-4 Turbo';
     }
     if (modelId.includes('qwen')) {
       return clean.replace('Qwen', 'Qwen2.5 Coder');
@@ -57,18 +63,18 @@ export class ModelManager {
    */
   public async detectRuntimeModel(): Promise<ActiveModel> {
     try {
-      const activeProvider = (process.env.KAIRO_MODEL_PROVIDER || 'gemini').trim().toLowerCase();
-      if (activeProvider === 'gemini') {
-        const geminiModelId = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+      const activeProvider = (process.env.KAIRO_MODEL_PROVIDER || 'openai').trim().toLowerCase();
+      if (activeProvider === 'openai') {
+        const openaiModelId = process.env.OPENAI_MODEL || 'gpt-4o';
         this.activeModel = {
-          id: geminiModelId,
-          displayName: 'Gemini 2.5 Flash',
-          provider: 'Gemini',
-          runtime: 'Gemini',
+          id: openaiModelId,
+          displayName: this.formatDisplayName(openaiModelId),
+          provider: 'OpenAI',
+          runtime: 'OpenAI',
           local: false,
-          status: process.env.GEMINI_API_KEY ? 'ready' : 'offline',
-          contextWindow: 1048576,
-          maxOutputTokens: 8192
+          status: process.env.OPENAI_API_KEY ? 'ready' : 'offline',
+          contextWindow: 128000,
+          maxOutputTokens: 16384
         };
         this.isInitialized = true;
         this.notifySubscribers();
@@ -159,15 +165,26 @@ export class ModelManager {
     // Default catalog entries if list is empty or for fallback switching
     const catalogDefaults: ModelInfo[] = [
       {
-        id: 'gemini-2.5-flash',
-        displayName: 'Gemini 2.5 Flash',
-        provider: 'Gemini',
-        runtime: 'Gemini',
+        id: 'gpt-4o',
+        displayName: 'OpenAI GPT-4o',
+        provider: 'OpenAI',
+        runtime: 'OpenAI',
         local: false,
-        contextWindow: 1048576,
-        maxOutputTokens: 8192,
+        contextWindow: 128000,
+        maxOutputTokens: 16384,
         installed: true,
-        description: 'Google Gemini 2.5 Flash cloud inference model'
+        description: 'OpenAI flagship GPT-4o cloud inference model'
+      },
+      {
+        id: 'gpt-4o-mini',
+        displayName: 'OpenAI GPT-4o Mini',
+        provider: 'OpenAI',
+        runtime: 'OpenAI',
+        local: false,
+        contextWindow: 128000,
+        maxOutputTokens: 16384,
+        installed: true,
+        description: 'Fast, lightweight OpenAI GPT-4o Mini model'
       },
       {
         id: 'qwen2.5-coder:7b',
@@ -253,12 +270,12 @@ export class ModelManager {
    * Health check for runtime engine connection
    */
   public async health(): Promise<{ isOnline: boolean; status: string; diagnostics?: string; installationInstructions?: string[] }> {
-    if (this.activeModel.provider === 'Gemini') {
-      const hasApiKey = Boolean(process.env.GEMINI_API_KEY);
+    if (this.activeModel.provider === 'OpenAI') {
+      const hasApiKey = Boolean(process.env.OPENAI_API_KEY);
       return {
         isOnline: true,
-        status: hasApiKey ? 'Online & Ready' : 'Ready (Awaiting GEMINI_API_KEY)',
-        diagnostics: hasApiKey ? undefined : 'GEMINI_API_KEY environment variable is not set.'
+        status: hasApiKey ? 'Online & Ready' : 'Ready (Awaiting OPENAI_API_KEY)',
+        diagnostics: hasApiKey ? undefined : 'OPENAI_API_KEY environment variable is not set.'
       };
     }
 

@@ -2,10 +2,10 @@ import { ModelConfig, ModelState } from './runtimeTypes';
 
 export const DEFAULT_MODELS: ModelConfig[] = [
   {
-    modelId: 'gemini-2.5-flash',
-    name: 'Gemini 2.5 Flash',
-    provider: 'Gemini',
-    contextWindow: 1048576,
+    modelId: 'gpt-4o',
+    name: 'OpenAI GPT-4o',
+    provider: 'OpenAI',
+    contextWindow: 128000,
     parametersCount: 'Cloud',
     fileSizeGb: 0
   },

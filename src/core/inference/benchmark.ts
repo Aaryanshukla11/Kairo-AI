@@ -3,7 +3,7 @@ import { IModelConfig } from './types';
 import { generationContractBuilder } from '../generation-contract';
 
 export interface IBenchmarkMetrics {
-  provider: 'ollama' | 'gemini';
+  provider: 'ollama' | 'openai';
   modelName: string;
   requestStartTimestamp: number;
   timeToFirstTokenMs: number | null;
@@ -19,11 +19,11 @@ export interface IBenchmarkMetrics {
 
 export class ProviderBenchmark {
   public async benchmarkProvider(
-    providerName: 'ollama' | 'gemini',
+    providerName: 'ollama' | 'openai',
     prompt: string = 'Create a simple responsive portfolio website using HTML and CSS.'
   ): Promise<IBenchmarkMetrics> {
     const totalStart = Date.now();
-    const modelName = providerName === 'gemini' ? 'gemini-2.5-flash' : 'qwen2.5-coder:7b';
+    const modelName = providerName === 'openai' ? 'gpt-4o' : 'qwen2.5-coder:7b';
     
     // Save original env
     const prevProviderEnv = process.env.KAIRO_MODEL_PROVIDER;
@@ -151,12 +151,12 @@ export class ProviderBenchmark {
     }
   }
 
-  public async compareProviders(prompt?: string): Promise<{ ollama: IBenchmarkMetrics; gemini: IBenchmarkMetrics }> {
+  public async compareProviders(prompt?: string): Promise<{ ollama: IBenchmarkMetrics; openai: IBenchmarkMetrics }> {
     const ollamaMetrics = await this.benchmarkProvider('ollama', prompt);
-    const geminiMetrics = await this.benchmarkProvider('gemini', prompt);
+    const openaiMetrics = await this.benchmarkProvider('openai', prompt);
     return {
       ollama: ollamaMetrics,
-      gemini: geminiMetrics
+      openai: openaiMetrics
     };
   }
 }

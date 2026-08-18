@@ -3,56 +3,30 @@ import { randomUUID } from 'crypto';
 
 export class PlannerEngine {
   /**
-   * Mock generation of a Plan based on the prompt.
-   * In the future, this will be the boundary to the offline LLM node.
+   * Generates execution plan metadata for a prompt session.
    */
   public generatePlan(sessionId: string, promptId: string, promptText: string, _contextSnapshot: any): Plan {
-    
-    // Mock planner parsing logic matching the example
     const steps: PlanStep[] = [];
-    
-    if (promptText.toLowerCase().includes('login')) {
-      steps.push({
-        stepId: randomUUID(),
-        title: 'Analyze workspace',
-        description: 'Check current routing and auth structures.',
-        actionType: ActionType.READ_FILE,
-        target: 'src/App.tsx',
-        status: 'PENDING',
-        futureDependencies: [],
-        estimatedDuration: 1000
-      });
-      steps.push({
-        stepId: randomUUID(),
-        title: 'Create Login component',
-        description: 'Scaffold the login page UI.',
-        actionType: ActionType.CREATE_FILE,
-        target: 'src/components/Login.tsx',
-        status: 'PENDING',
-        futureDependencies: [],
-        estimatedDuration: 5000
-      });
-    } else {
-      // Generic mock fallback
-      steps.push({
-        stepId: randomUUID(),
-        title: 'Analyze request',
-        description: 'Understand generic user prompt',
-        actionType: ActionType.UNKNOWN,
-        target: 'unknown',
-        status: 'PENDING',
-        futureDependencies: [],
-        estimatedDuration: 500
-      });
-    }
+    const cleanPrompt = (promptText || '').trim();
+
+    steps.push({
+      stepId: randomUUID(),
+      title: 'Analyze request & workspace context',
+      description: `Evaluate requirements for: "${cleanPrompt.substring(0, 50)}"`,
+      actionType: ActionType.READ_FILE,
+      target: 'workspace',
+      status: 'PENDING',
+      futureDependencies: [],
+      estimatedDuration: 1000
+    });
 
     const plan = PlanFactory.create(
       sessionId,
       promptId,
-      `Generated plan for: ${promptText.substring(0, 30)}...`,
+      `Plan for: ${cleanPrompt.substring(0, 30)}...`,
       steps,
       RiskLevel.LOW,
-      true // Default approval required for safety
+      true
     );
 
     const validation = PlanValidator.validate(plan);

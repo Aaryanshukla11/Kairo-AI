@@ -34,14 +34,14 @@ export interface ModelContextType {
 }
 
 export const initialActiveModel: ActiveModel = {
-  id: 'gemini-2.5-flash',
-  displayName: 'Gemini 2.5 Flash',
-  provider: 'Gemini',
-  runtime: 'Gemini',
+  id: 'gpt-4o',
+  displayName: 'OpenAI GPT-4o',
+  provider: 'OpenAI',
+  runtime: 'OpenAI',
   local: false,
   status: 'ready',
-  contextWindow: 1048576,
-  maxOutputTokens: 8192
+  contextWindow: 128000,
+  maxOutputTokens: 16384
 };
 
 export const ModelContext = createContext<ModelContextType>({

@@ -126,12 +126,15 @@ Return ONLY JSON with this schema:
 CRITICAL DEPENDENCY RULE:
 The "dependencies" array MUST contain ONLY previous task IDs (e.g. ["task-1"]). DO NOT use filenames like ["index.html"] in dependencies.
 
+CRITICAL FORMAT & TECH RULE:
+Respect the exact file format requested by the user. If user asks for HTML or HTML table, use .html target files (e.g. "student-marks.html" or "index.html") with "html" capability. Do NOT create React TSX components when the user specifically asks for HTML.
+
 Valid capabilities: "html", "css", "config", "documentation", "backend", "utilities".
 User Request: ${prompt}`;
 
     const defaultConfig: IModelConfig = {
-      provider: 'gemini',
-      modelName: 'gemini-2.5-flash',
+      provider: 'openai',
+      modelName: 'gpt-4o',
       modelPath: '',
       contextLength: 16384,
       temperature: 0.1,

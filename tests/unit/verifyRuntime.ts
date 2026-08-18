@@ -1,56 +1,67 @@
-import { plannerEngine } from '../../src/core/planner/planner';
-import { defaultPlannerModel } from '../../src/core/planner/plannerModel';
 import { localInferenceService } from '../../src/core/inference/localInferenceService';
 import { providerRegistry } from '../../src/core/inference/registry';
-import { ILocalInferenceProvider, ILocalInferenceSession, ILocalInferenceResult, IModelConfig } from '../../src/core/inference/types';
+import {
+  ILocalInferenceProvider,
+  ILocalInferenceSession,
+  ILocalInferenceResult,
+  IModelConfig
+} from '../../src/core/inference/types';
+import { defaultPlannerModel, plannerEngine } from '../../src/core/planner';
 
 class MockFetchProvider implements ILocalInferenceProvider {
   public name: string;
-  public callCount = 0;
-  private behavior: (session: ILocalInferenceSession) => Promise<ILocalInferenceResult> | ILocalInferenceResult;
+  public providerId: string;
+  private handler: (session: ILocalInferenceSession) => Promise<ILocalInferenceResult>;
 
-  constructor(
-    name: string,
-    behavior: (session: ILocalInferenceSession) => Promise<ILocalInferenceResult> | ILocalInferenceResult
-  ) {
-    this.name = name;
-    this.behavior = behavior;
+  constructor(providerId: string, handler: (session: ILocalInferenceSession) => Promise<ILocalInferenceResult>) {
+    this.name = providerId;
+    this.providerId = providerId;
+    this.handler = handler;
   }
 
-  public async execute(session: ILocalInferenceSession): Promise<ILocalInferenceResult> {
-    this.callCount++;
-    return await this.behavior(session);
+  async execute(session: ILocalInferenceSession): Promise<ILocalInferenceResult> {
+    return this.handler(session);
+  }
+
+  async isHealthy(): Promise<boolean> {
+    return true;
+  }
+
+  async listAvailableModels(): Promise<string[]> {
+    return ['mock-model'];
   }
 }
 
-async function runLiveVerification() {
+export async function runLiveVerification() {
   console.log('==================================================');
   console.log('KAIRO-AI — LIVE RUNTIME VERIFICATION SUITE');
   console.log('==================================================\n');
 
-  const testResults: Array<{ name: string; status: 'PASS' | 'FAIL'; log: string }> = [];
   const savedProvider = process.env.KAIRO_MODEL_PROVIDER;
+  process.env.KAIRO_MODEL_PROVIDER = 'openai';
+
+  const testResults: { name: string; status: 'PASS' | 'FAIL'; log: string }[] = [];
 
   // --------------------------------------------------
-  // TEST A: Gemini Success ("Create index.html")
+  // TEST A: OpenAI Success
   // --------------------------------------------------
   try {
-    console.log('--- RUNNING TEST A: Gemini Success ---');
-    providerRegistry.removeProvider('gemini');
+    console.log('--- RUNNING TEST A: OpenAI Success ---');
+    providerRegistry.removeProvider('openai');
     providerRegistry.removeProvider('ollama');
 
-    let geminiInvoked = false;
+    let openaiInvoked = false;
     let ollamaInvoked = false;
 
-    const geminiMock = new MockFetchProvider('gemini', async (session) => {
-      geminiInvoked = true;
+    const openaiMock = new MockFetchProvider('openai', async (session) => {
+      openaiInvoked = true;
       return {
         generatedText: '<html><body><h1>Portfolio</h1></body></html>',
         tokenUsage: { promptTokens: 20, completionTokens: 10, totalTokens: 30 },
         executionTimeMs: 120,
         warnings: [],
         errors: [],
-        providerInfo: { providerName: 'gemini', modelName: 'gemini-2.5-flash' }
+        providerInfo: { providerName: 'openai', modelName: 'gpt-4o' }
       };
     });
 
@@ -66,12 +77,12 @@ async function runLiveVerification() {
       };
     });
 
-    providerRegistry.registerProvider(geminiMock);
+    providerRegistry.registerProvider(openaiMock);
     providerRegistry.registerProvider(ollamaMock);
 
     const config: IModelConfig = {
-      provider: 'gemini',
-      modelName: 'gemini-2.5-flash',
+      provider: 'openai',
+      modelName: 'gpt-4o',
       modelPath: '',
       contextLength: 4096,
       temperature: 0.2,
@@ -84,33 +95,31 @@ async function runLiveVerification() {
     };
 
     const result = await localInferenceService.execute('Create index.html', config);
+    const pass = openaiInvoked && !ollamaInvoked && result.providerInfo.providerName === 'openai' && result.generatedText.includes('Portfolio');
 
-    const pass = geminiInvoked && !ollamaInvoked && result.providerInfo.providerName === 'gemini' && result.generatedText.includes('Portfolio');
+    console.log(`  OpenAI Called: ${openaiInvoked}, Ollama Called: ${ollamaInvoked}`);
+    console.log(`  Output text match: ${result.generatedText.includes('Portfolio')}`);
     console.log(`TEST A RESULT: ${pass ? 'PASS' : 'FAIL'}`);
-    console.log(`  Actual Provider Invoked: ${result.providerInfo.providerName}`);
-    console.log(`  Actual Model Invoked: ${result.providerInfo.modelName}`);
-    console.log(`  Gemini Called: ${geminiInvoked}, Ollama Called: ${ollamaInvoked}`);
-
     testResults.push({
-      name: 'TEST A — Gemini success',
+      name: 'TEST A — OpenAI success',
       status: pass ? 'PASS' : 'FAIL',
       log: `Provider: ${result.providerInfo.providerName}, Model: ${result.providerInfo.modelName}, Output length: ${result.generatedText.length}`
     });
   } catch (err: any) {
     console.error('TEST A ERROR:', err.message);
-    testResults.push({ name: 'TEST A — Gemini success', status: 'FAIL', log: err.message });
+    testResults.push({ name: 'TEST A — OpenAI success', status: 'FAIL', log: err.message });
   }
 
   // --------------------------------------------------
-  // TEST B: Gemini Planner Path ("Build a portfolio website")
+  // TEST B: OpenAI Planner Path ("Build a portfolio website")
   // --------------------------------------------------
   try {
-    console.log('\n--- RUNNING TEST B: Gemini Planner Path ---');
-    providerRegistry.removeProvider('gemini');
+    console.log('\n--- RUNNING TEST B: OpenAI Planner Path ---');
+    providerRegistry.removeProvider('openai');
     providerRegistry.removeProvider('ollama');
 
     let plannerInferenceModel: string = '';
-    const geminiMock = new MockFetchProvider('gemini', async (session) => {
+    const openaiMock = new MockFetchProvider('openai', async (session) => {
       plannerInferenceModel = session.modelName;
       return {
         generatedText: JSON.stringify({
@@ -141,16 +150,16 @@ async function runLiveVerification() {
         executionTimeMs: 300,
         warnings: [],
         errors: [],
-        providerInfo: { providerName: 'gemini', modelName: 'gemini-2.5-flash' }
+        providerInfo: { providerName: 'openai', modelName: 'gpt-4o' }
       };
     });
 
-    providerRegistry.registerProvider(geminiMock);
+    providerRegistry.registerProvider(openaiMock);
 
     const proposal = await defaultPlannerModel.generatePlanProposal('Build a portfolio website');
     const plan = plannerEngine.generatePlan('Build a portfolio website', { proposal });
 
-    const pass = proposal.tasks.length === 2 && plan.tasks.length === 2 && plannerInferenceModel === 'gemini-2.5-flash';
+    const pass = proposal.tasks.length === 2 && plan.tasks.length === 2 && plannerInferenceModel === 'gpt-4o';
     console.log(`TEST B RESULT: ${pass ? 'PASS' : 'FAIL'}`);
     console.log(`  PlannerModel Invoked: YES`);
     console.log(`  Inference Model Received: ${plannerInferenceModel}`);
@@ -159,36 +168,36 @@ async function runLiveVerification() {
     console.log(`  Task 2: ${plan.tasks[1]?.title ?? ''} -> [${(plan.tasks[1]?.targetFiles ?? []).join(', ')}]`);
 
     testResults.push({
-      name: 'TEST B — Gemini planner path',
+      name: 'TEST B — OpenAI planner path',
       status: pass ? 'PASS' : 'FAIL',
       log: `Proposal tasks: ${proposal.tasks.length}, Plan tasks: ${plan.tasks.length}, Model: ${plannerInferenceModel}`
     });
   } catch (err: any) {
     console.error('TEST B ERROR:', err.message);
-    testResults.push({ name: 'TEST B — Gemini planner path', status: 'FAIL', log: err.message });
+    testResults.push({ name: 'TEST B — OpenAI planner path', status: 'FAIL', log: err.message });
   }
 
   // --------------------------------------------------
-  // TEST C: Gemini -> Ollama Failover ("Build a portfolio website")
+  // TEST C: OpenAI -> Ollama Failover ("Build a portfolio website")
   // --------------------------------------------------
   try {
-    console.log('\n--- RUNNING TEST C: Gemini -> Ollama Failover ---');
-    providerRegistry.removeProvider('gemini');
+    console.log('\n--- RUNNING TEST C: OpenAI -> Ollama Failover ---');
+    providerRegistry.removeProvider('openai');
     providerRegistry.removeProvider('ollama');
 
-    let geminiAttempted = false;
+    let openaiAttempted = false;
     let ollamaAttempted = false;
 
-    // Simulate Gemini 503 Outage
-    const geminiMock = new MockFetchProvider('gemini', async () => {
-      geminiAttempted = true;
+    // Simulate OpenAI 503 Outage
+    const openaiMock = new MockFetchProvider('openai', async () => {
+      openaiAttempted = true;
       return {
         generatedText: '',
         tokenUsage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
         executionTimeMs: 200,
         warnings: [],
-        errors: ['Gemini API request failed with status 503: High demand spike. Try again later.'],
-        providerInfo: { providerName: 'gemini', modelName: 'gemini-2.5-flash' }
+        errors: ['OpenAI API request failed with status 503: High demand spike. Try again later.'],
+        providerInfo: { providerName: 'openai', modelName: 'gpt-4o' }
       };
     });
 
@@ -217,27 +226,27 @@ async function runLiveVerification() {
       };
     });
 
-    providerRegistry.registerProvider(geminiMock);
+    providerRegistry.registerProvider(openaiMock);
     providerRegistry.registerProvider(ollamaMock);
 
     const proposal = await defaultPlannerModel.generatePlanProposal('Build a portfolio website');
     const plan = plannerEngine.generatePlan('Build a portfolio website', { proposal });
 
     const firstTitle = plan.tasks[0]?.title ?? '';
-    const pass = geminiAttempted && ollamaAttempted && proposal.tasks.length === 1 && firstTitle.includes('Ollama');
+    const pass = openaiAttempted && ollamaAttempted && proposal.tasks.length === 1 && firstTitle.includes('Ollama');
     console.log(`TEST C RESULT: ${pass ? 'PASS' : 'FAIL'}`);
-    console.log(`  Gemini Attempted & Failed: ${geminiAttempted}`);
+    console.log(`  OpenAI Attempted & Failed: ${openaiAttempted}`);
     console.log(`  Ollama Failover Invoked: ${ollamaAttempted}`);
     console.log(`  Plan Generated via Ollama Task: ${firstTitle}`);
 
     testResults.push({
-      name: 'TEST C — Gemini -> Ollama failover',
+      name: 'TEST C — OpenAI -> Ollama failover',
       status: pass ? 'PASS' : 'FAIL',
-      log: `Gemini 503 caught -> Ollama failover plan generated successfully (Task: ${firstTitle})`
+      log: `OpenAI 503 caught -> Ollama failover plan generated successfully (Task: ${firstTitle})`
     });
   } catch (err: any) {
     console.error('TEST C ERROR:', err.message);
-    testResults.push({ name: 'TEST C — Gemini -> Ollama failover', status: 'FAIL', log: err.message });
+    testResults.push({ name: 'TEST C — OpenAI -> Ollama failover', status: 'FAIL', log: err.message });
   }
 
   // --------------------------------------------------
@@ -245,23 +254,23 @@ async function runLiveVerification() {
   // --------------------------------------------------
   try {
     console.log('\n--- RUNNING TEST D: Both Providers Unavailable ---');
-    providerRegistry.removeProvider('gemini');
+    providerRegistry.removeProvider('openai');
     providerRegistry.removeProvider('ollama');
 
-    const geminiMock = new MockFetchProvider('gemini', async () => {
-      throw new Error('Gemini API request failed with status 503');
+    const openaiMock = new MockFetchProvider('openai', async () => {
+      throw new Error('OpenAI API request failed with status 503');
     });
 
     const ollamaMock = new MockFetchProvider('ollama', async () => {
       throw new Error('Ollama Server is not running at http://localhost:11434');
     });
 
-    providerRegistry.registerProvider(geminiMock);
+    providerRegistry.registerProvider(openaiMock);
     providerRegistry.registerProvider(ollamaMock);
 
     const config: IModelConfig = {
-      provider: 'gemini',
-      modelName: 'gemini-2.5-flash',
+      provider: 'openai',
+      modelName: 'gpt-4o',
       modelPath: '',
       contextLength: 4096,
       temperature: 0.2,
@@ -275,7 +284,7 @@ async function runLiveVerification() {
 
     const result = await localInferenceService.execute('Build a portfolio website', config);
 
-    const pass = result.generatedText === '' && result.errors.length >= 2 && result.errors.some((e: string) => e.includes('Gemini')) && result.errors.some((e: string) => e.includes('Ollama'));
+    const pass = result.generatedText === '' && result.errors.length >= 2 && result.errors.some((e: string) => e.includes('OpenAI')) && result.errors.some((e: string) => e.includes('Ollama'));
     console.log(`TEST D RESULT: ${pass ? 'PASS' : 'FAIL'}`);
     console.log(`  Generated Text Empty (No Fake Output): ${result.generatedText === ''}`);
     console.log(`  Honest Errors Recorded: ${result.errors.length}`);
@@ -297,15 +306,15 @@ async function runLiveVerification() {
   // --------------------------------------------------
   try {
     console.log('\n--- RUNNING TEST E: Explicit Filename Fast Path ---');
-    providerRegistry.removeProvider('gemini');
+    providerRegistry.removeProvider('openai');
     providerRegistry.removeProvider('ollama');
 
     let inferenceCalled = false;
-    const geminiMock = new MockFetchProvider('gemini', async () => {
+    const openaiMock = new MockFetchProvider('openai', async () => {
       inferenceCalled = true;
       throw new Error('Inference should NOT be called for explicit fast path');
     });
-    providerRegistry.registerProvider(geminiMock);
+    providerRegistry.registerProvider(openaiMock);
 
     // Fast path execution in plannerEngine
     const plan = plannerEngine.generatePlan('Create index.html');

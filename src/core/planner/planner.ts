@@ -41,6 +41,12 @@ export class ExecutionPlanner {
         matches.filter(f => !/\.(com|org|net|io|ai|gov|edu|dev)$/i.test(f))
       ));
 
+      if (cleanFiles.length === 0 && /\b(html|html5|webpage|table)\b/i.test(prompt) && !/\b(react|next|vue|angular|svelte|tsx|jsx)\b/i.test(prompt)) {
+        const lowerP = prompt.toLowerCase();
+        const inferredFile = (lowerP.includes('table') || lowerP.includes('mark') || lowerP.includes('student')) ? 'student-marks.html' : 'index.html';
+        cleanFiles.push(inferredFile);
+      }
+
       let resolvedFiles: string[] = [];
       let tasksToBuild: { id?: string; title: string; targetFiles: string[]; requiredCapability: string; operation?: string; dependencies?: string[] }[] = [];
 

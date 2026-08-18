@@ -10,26 +10,26 @@ export class ModelRegistry {
   private initializeDefaultRegistry(): void {
     const defaults: IModelMetadata[] = [
       {
-        modelId: 'gemini-2.5-flash',
-        name: 'Gemini 2.5 Flash',
+        modelId: 'gpt-4o',
+        name: 'OpenAI GPT-4o',
         type: 'Planning Model',
         supportedTasks: ['NEW_PROJECT', 'MODIFY_PROJECT'],
         capabilities: ['reasoning', 'planning', 'structured-output'],
-        contextWindow: 1048576,
+        contextWindow: 128000,
         status: 'Ready',
         priority: 100,
-        version: '2.5.0'
+        version: '4.0.0'
       },
       {
-        modelId: 'gemini-2.5-flash-coding',
-        name: 'Gemini 2.5 Flash Coding',
+        modelId: 'gpt-4o-coding',
+        name: 'OpenAI GPT-4o Coding',
         type: 'Coding Model',
         supportedTasks: ['DEBUG_PROJECT', 'EXPLAIN_CODE', 'CHAT', 'UNKNOWN'],
         capabilities: ['code-generation', 'debugging', 'testing'],
-        contextWindow: 1048576,
+        contextWindow: 128000,
         status: 'Ready',
         priority: 100,
-        version: '2.5.0'
+        version: '4.0.0'
       },
       {
         modelId: 'qwen2.5-coder:7b',

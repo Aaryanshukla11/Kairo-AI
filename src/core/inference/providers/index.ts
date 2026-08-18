@@ -4,5 +4,5 @@ export * from './onnxExecutor';
 export * from './mlxExecutor';
 export * from './ollamaProvider';
 export * from './ollamaRuntime';
-export * from './geminiProvider';
+export * from './openAIProvider';
 

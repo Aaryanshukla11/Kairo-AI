@@ -1,13 +1,13 @@
 import { ILocalInferenceProvider } from './types';
 import { OllamaProvider } from './providers/ollamaProvider';
-import { GeminiProvider } from './providers/geminiProvider';
+import { OpenAIProvider } from './providers/openAIProvider';
 
 export class ProviderRegistry {
   private providers: Map<string, ILocalInferenceProvider> = new Map();
 
   constructor() {
     this.registerProvider(new OllamaProvider());
-    this.registerProvider(new GeminiProvider());
+    this.registerProvider(new OpenAIProvider());
   }
 
   public registerProvider(provider: ILocalInferenceProvider): void {

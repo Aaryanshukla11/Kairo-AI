@@ -1252,15 +1252,51 @@ export class MessageRouter {
         const sourceContext: Array<{ filePath: string; content: string }> = [];
         const fsNode = require('fs');
         const pathNode = require('path');
+        const visitedPaths = new Set<string>();
 
+        // 1. Read files explicitly targeted by current plan
         for (const tf of targetFiles) {
           const fullPath = pathNode.isAbsolute(tf) ? tf : pathNode.resolve(workspacePath || process.cwd(), tf);
           if (fsNode.existsSync(fullPath)) {
             try {
-              const content = fsNode.readFileSync(fullPath, 'utf-8').substring(0, 2000);
+              const content = fsNode.readFileSync(fullPath, 'utf-8').substring(0, 4000);
               sourceContext.push({ filePath: tf, content });
+              visitedPaths.add(fullPath);
             } catch {}
           }
+        }
+
+        // 2. Scan workspace directory for pre-existing source files from previous prompt turns
+        const collectWorkspaceFiles = (dir: string, baseDir: string, maxFiles = 10) => {
+          if (!fsNode.existsSync(dir)) return;
+          try {
+            const entries = fsNode.readdirSync(dir, { withFileTypes: true });
+            for (const entry of entries) {
+              if (sourceContext.length >= maxFiles) break;
+              const fullPath = pathNode.join(dir, entry.name);
+              const relPath = pathNode.relative(baseDir, fullPath).replace(/\\/g, '/');
+
+              if (entry.isDirectory()) {
+                if (!['node_modules', '.git', 'dist', 'out', 'build'].includes(entry.name)) {
+                  collectWorkspaceFiles(fullPath, baseDir, maxFiles);
+                }
+              } else if (entry.isFile()) {
+                if (!visitedPaths.has(fullPath) && /\.(html|css|js|jsx|ts|tsx|json|py|md)$/i.test(entry.name)) {
+                  try {
+                    const content = fsNode.readFileSync(fullPath, 'utf-8').substring(0, 4000);
+                    if (content.trim().length > 0) {
+                      sourceContext.push({ filePath: relPath, content });
+                      visitedPaths.add(fullPath);
+                    }
+                  } catch {}
+                }
+              }
+            }
+          } catch {}
+        };
+
+        if (workspacePath && workspacePath !== '.') {
+          collectWorkspaceFiles(workspacePath, workspacePath, 10);
         }
 
         const execTask: AgentTask = {
@@ -1271,7 +1307,7 @@ export class MessageRouter {
           payload: {
             rawPrompt,
             workspacePath,
-            modelId: 'Gemini 2.5 Flash',
+            modelId: 'OpenAI GPT-4o',
             complexity: routeDecision.complexity,
             selectedGenerators: routeDecision.selectedGenerators,
             conversationHistory: this.getFormattedConversationHistory(),
@@ -1294,17 +1330,7 @@ export class MessageRouter {
           const createdFiles: string[] = execResVal?.workspaceReport?.createdFiles || [];
 
           let responseText = `I have generated and updated your project files in the workspace.`;
-          const lowerPrompt = (rawPrompt || '').toLowerCase();
-
-          if (lowerPrompt.includes('index.html') || lowerPrompt.includes('html page') || lowerPrompt.includes('html file')) {
-            responseText = `I have created \`index.html\` in your workspace with a clean HTML5 structure, title tag, and container layout.`;
-          } else if (lowerPrompt.includes('style') || lowerPrompt.includes('css')) {
-            responseText = `I have created \`styles.css\` with modern theme variables, responsive layout rules, and button styles, and linked it to your workspace HTML.`;
-          } else if (lowerPrompt.includes('portfolio')) {
-            responseText = `I have built a complete portfolio website in your workspace including \`index.html\`, \`styles.css\`, and \`script.js\` featuring a Hero section, Projects showcase, Skills grid, and Contact form.`;
-          } else if (lowerPrompt.includes('auth') || lowerPrompt.includes('authentication')) {
-            responseText = `I have added authentication logic and API routes in \`src/auth.ts\` and \`src/routes/auth.ts\` for user login, signup, session validation, and password hashing.`;
-          } else if (createdFiles.length > 0) {
+          if (createdFiles.length > 0) {
             const filesListStr = createdFiles.map(f => `\`${f}\``).join(', ');
             responseText = `I have generated and saved the requested project files to your workspace: ${filesListStr}.`;
           }
@@ -1555,8 +1581,8 @@ export class MessageRouter {
           }
 
           const result = await localInferenceService.execute(`You are Kairo-AI, an expert project-aware software engineering assistant inside VS Code. Answer the user's query clearly, concisely, and accurately based on workspace and conversation context.\nWorkspace Path: ${workspacePath || 'Root'}${historyStr}\n\nUser Query: ${promptText}`, {
-            provider: 'gemini',
-            modelName: 'gemini-2.5-flash',
+            provider: 'openai',
+            modelName: 'gpt-4o',
             modelPath: '',
             contextLength: 16384,
             temperature: 0.2,
@@ -1568,8 +1594,8 @@ export class MessageRouter {
             streamingEnabled: false
           });
 
-          const activeProvider = result.providerInfo?.providerName === 'ollama' ? 'Ollama' : 'Gemini';
-          const activeModel = result.providerInfo?.modelName || 'Gemini 2.5 Flash';
+          const activeProvider = result.providerInfo?.providerName === 'ollama' ? 'Ollama' : 'OpenAI';
+          const activeModel = result.providerInfo?.modelName || 'OpenAI GPT-4o';
           this._emitExecutionEvent('Model Router', '✓ Selected:', `${activeProvider} (${activeModel})`, 'done', null, { model: activeModel });
 
           chatResponse = result.generatedText || (result as any).rawTextOutput || (result as any).text || `Analyzed project query: "${promptText}".`;

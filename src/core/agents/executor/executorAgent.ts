@@ -37,6 +37,26 @@ export class ExecutorAgent extends BaseAgent {
 
     try {
       // Build a real development request from the incoming payload
+      const lowerPrompt = rawPrompt.toLowerCase();
+      let targetLanguage = aiRequest?.projectInfo?.language;
+      let targetFrontend = aiRequest?.projectInfo?.frontendFramework;
+
+      if (!targetLanguage || !targetFrontend) {
+        if (/\b(html|html5|webpage|table)\b/i.test(lowerPrompt) && !/\b(react|next|vue|angular|svelte|tsx|jsx)\b/i.test(lowerPrompt)) {
+          targetLanguage = targetLanguage || 'HTML';
+          targetFrontend = targetFrontend || 'HTML5';
+        } else if (/\b(python|py|fastapi|flask|django)\b/i.test(lowerPrompt)) {
+          targetLanguage = targetLanguage || 'Python';
+          targetFrontend = targetFrontend || 'None';
+        } else if (/\b(java|spring)\b/i.test(lowerPrompt)) {
+          targetLanguage = targetLanguage || 'Java';
+          targetFrontend = targetFrontend || 'None';
+        } else {
+          targetLanguage = targetLanguage || 'TypeScript';
+          targetFrontend = targetFrontend || 'React';
+        }
+      }
+
       const devRequest: IDevelopmentRequest = {
         requestId: task.id,
         projectInfo: {
@@ -44,16 +64,16 @@ export class ExecutorAgent extends BaseAgent {
           type: aiRequest?.projectInfo?.type || 'Web Application',
           description: rawPrompt,
           targetPlatform: aiRequest?.projectInfo?.targetPlatform || 'Web',
-          language: aiRequest?.projectInfo?.language || 'TypeScript',
-          frontendFramework: aiRequest?.projectInfo?.frontendFramework || 'React',
+          language: targetLanguage,
+          frontendFramework: targetFrontend,
           backendFramework: aiRequest?.projectInfo?.backendFramework || 'Express',
           database: aiRequest?.projectInfo?.database || null,
           authentication: aiRequest?.projectInfo?.authentication || null,
           deploymentTarget: aiRequest?.projectInfo?.deploymentTarget || null
         },
         technologyStack: {
-          language: aiRequest?.projectInfo?.language || 'TypeScript',
-          frontend: aiRequest?.projectInfo?.frontendFramework || 'React',
+          language: targetLanguage,
+          frontend: targetFrontend,
           backend: aiRequest?.projectInfo?.backendFramework || 'Express',
           database: aiRequest?.projectInfo?.database || null
         },
@@ -116,25 +136,9 @@ export class ExecutorAgent extends BaseAgent {
         workspaceReport = { createdFiles: [] };
       }
 
-      // Safeguard: If 0 files were created, physically create target files in targetFilesScope using fsAdapter
       if ((!workspaceReport || !workspaceReport.createdFiles || workspaceReport.createdFiles.length === 0) && targetFilesScope.length > 0) {
-        console.log(`[ExecutorAgent] Fallback writing ${targetFilesScope.length} target files directly via fsAdapter...`);
-        const fallbackCreatedFiles: string[] = [];
-        for (const tf of targetFilesScope) {
-          try {
-            let content = `// Generated file: ${tf}\n`;
-            if (tf.endsWith('.html')) {
-              content = `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Application</title>\n</head>\n<body>\n  <div id="root">\n    <h1>Generated Application</h1>\n  </div>\n</body>\n</html>`;
-            } else if (tf.endsWith('.json')) {
-              content = JSON.stringify({ name: 'kairo-app', version: '1.0.0' }, null, 2);
-            }
-            await fs.writeFile(tf, content);
-            fallbackCreatedFiles.push(tf);
-          } catch (writeErr: any) {
-            console.error(`[ExecutorAgent] Failed to write fallback file ${tf}:`, writeErr.message);
-          }
-        }
-        workspaceReport = { createdFiles: fallbackCreatedFiles };
+        console.warn(`[ExecutorAgent] Pipeline executed but 0 files were written for target scope: ${targetFilesScope.join(', ')}.`);
+        workspaceReport = { createdFiles: [] };
       }
 
       console.log(`[ExecutorAgent] Files Written: ${workspaceReport.createdFiles.join(', ')}`);

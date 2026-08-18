@@ -15,11 +15,11 @@ export class LocalInferenceService {
     const requestId = crypto.randomUUID ? crypto.randomUUID() : `req-${Date.now()}`;
 
     const envProvider = (process.env.KAIRO_MODEL_PROVIDER || '').trim().toLowerCase();
-    const primaryProviderName = envProvider || config.provider || 'gemini';
+    const primaryProviderName = envProvider || config.provider || 'openai';
 
-    // Construct provider failover chain (Primary provider first; Ollama fallback if Gemini primary)
+    // Construct provider failover chain (Primary provider first; Ollama fallback if OpenAI primary)
     const providerChain: string[] = [primaryProviderName];
-    if (primaryProviderName === 'gemini') {
+    if (primaryProviderName === 'openai') {
       providerChain.push('ollama');
     }
 
@@ -70,8 +70,8 @@ export class LocalInferenceService {
 
       // Resolve model name for the target provider
       let effectiveModelName = config.modelName;
-      if (providerName === 'gemini') {
-        effectiveModelName = process.env.GEMINI_MODEL || (config.provider === 'gemini' ? config.modelName : 'gemini-2.5-flash');
+      if (providerName === 'openai') {
+        effectiveModelName = process.env.OPENAI_MODEL || (config.provider === 'openai' ? config.modelName : 'gpt-4o');
       } else if (providerName === 'ollama') {
         effectiveModelName = process.env.OLLAMA_MODEL || (config.provider === 'ollama' ? config.modelName : 'qwen2.5-coder:7b');
       }
